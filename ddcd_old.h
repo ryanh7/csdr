@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 #include <semaphore.h>
+#include <sys/select.h>
 
 typedef struct client_s
 {
