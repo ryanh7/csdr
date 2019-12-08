@@ -1,0 +1,12 @@
+Source: csdr
+Maintainer: Jakob Ketterl <jakob.ketterl@gmx.de>
+Section: hamradio
+Priority: optional
+Standards-Version: 4.3.0
+Build-Depends: debhelper (>= 10), libfftw3-dev (>= 3.3)
+
+Package: csdr
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: command-line sdr
+ A simple DSP library and command-line tool for Software Defined Radio.
