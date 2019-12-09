@@ -1,0 +1,3 @@
+csdr-dbgsym_0.15_amd64.deb debug optional automatic=yes
+csdr_0.15_amd64.buildinfo hamradio optional
+csdr_0.15_amd64.deb hamradio optional
