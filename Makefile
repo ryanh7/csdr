@@ -44,7 +44,7 @@ PARAMS_MISC = -Wno-unused-result
 #PARAMS_DEBUG = $(if $(DEBUG_ON),-g,)
 FFTW_PACKAGE = fftw-3.3.3
 PREFIX ?= /usr
-DESTDIR ?= ""
+DESTDIR ?=
 SOVERSION = 0.15
 PARSEVECT ?= yes
 
@@ -73,15 +73,19 @@ clean-vect:
 	rm -f dumpvect*.vect
 clean: clean-vect
 	rm -f libcsdr.so.$(SOVERSION) csdr ddcd nmux *.o *.so
-install: all 
+install: all
+	install -d $(DESTDIR)$(PREFIX)/lib
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 0755 libcsdr.so.$(SOVERSION) $(DESTDIR)$(PREFIX)/lib
 	install -m 0755 csdr $(DESTDIR)$(PREFIX)/bin
-	install -m 0755 csdr-fm $(DESTDIR)$(PREFIX)/bin
+	#install -m 0755 csdr-fm $(DESTDIR)$(PREFIX)/bin
 	install -m 0755 nmux $(DESTDIR)$(PREFIX)/bin
 	#-install -m 0755 ddcd $(PREFIX)/bin
+	install -m 0644 libcsdr.h $(DESTDIR)$(PREFIX)/include
 	@ldconfig || echo please run ldconfig
 uninstall:
-	rm $(DESTDIR)$(PREFIX)/lib/libcsdr.so.$(SOVERSION) $(DESTDIR)$(PREFIX)/bin/csdr $(DESTDIR)$(PREFIX)/bin/csdr-fm
+	rm $(DESTDIR)$(PREFIX)/lib/libcsdr.so.$(SOVERSION) $(DESTDIR)$(PREFIX)/bin/csdr
 	ldconfig
 disasm:
 	objdump -S libcsdr.so.$(SOVERSION) > libcsdr.disasm
