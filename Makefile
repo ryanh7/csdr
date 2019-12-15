@@ -35,7 +35,7 @@ ifeq ($(ARCH),x86_64)
 	PARAMS_SIMD += $(call cpufeature,sse,-msse) $(call cpufeature,sse2,-msse2) $(call cpufeature,sse3,-msse3) $(call cpufeature,sse4a,-msse4a) $(call cpufeature,sse4_1,-msse4.1) $(call cpufeature,sse4_2,-msse4.2 -msse4) $(call cpufeature,avx,-mavx) -mfpmath=sse
 else ifeq ($(ARCH),armv7l)
 	# since raspbian buster, fftw3 comes with the slow timer enabled, which causes troubles, so we have to disable FFTW_MEASURE
-	PARAMS_SIMD += -mfloat-abi=hard $(call cpufeature,vfp,-mfpu=vfp) -funsafe-math-optimizations -Wformat=0 -DCSDR_DISABLE_FFTW_MEASURE
+	PARAMS_SIMD += -mfloat-abi=hard -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mvectorize-with-neon-quad -funsafe-math-optimizations -Wformat=0 -DNEON_OPTS -DCSDR_DISABLE_FFTW_MEASURE
 else ifeq ($(ARCH),aarch64)
 	PARAMS_SIMD += -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0
 endif
