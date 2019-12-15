@@ -27,15 +27,19 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 LIBSOURCES =  fft_fftw.c libcsdr_wrapper.c 
-#SOURCES = csdr.c $(LIBSOURCES)
 cpufeature = $(if $(findstring $(1),$(shell cat /proc/cpuinfo)),$(2))
-PARAMS_SSE = $(call cpufeature,sse,-msse) $(call cpufeature,sse2,-msse2) $(call cpufeature,sse3,-msse3) $(call cpufeature,sse4a,-msse4a) $(call cpufeature,sse4_1,-msse4.1) $(call cpufeature,sse4_2,-msse4.2 -msse4) -mfpmath=sse 
-PARAMS_NEON = -mfloat-abi=hard -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mvectorize-with-neon-quad -funsafe-math-optimizations -Wformat=0 -DNEON_OPTS
-#tnx Jan Szumiec for the Raspberry Pi support
-PARAMS_RASPI = -mfloat-abi=hard -mcpu=arm1176jzf-s -mfpu=vfp -funsafe-math-optimizations -Wformat=0
-# since raspbian buster, fftw3 comes with the slow timer enabled, which causes troubles, so we have to disable FFTW_MEASURE
-PARAMS_ARM = $(if $(call cpufeature,BCM2708,dummy-text),$(PARAMS_RASPI),$(PARAMS_NEON)) -DCSDR_DISABLE_FFTW_MEASURE
-PARAMS_SIMD = $(if $(call cpufeature,sse,dummy-text),$(PARAMS_SSE),$(PARAMS_ARM))
+
+PARAMS_SIMD =
+ARCH = $(shell uname -m)
+ifeq ($(ARCH),x86_64)
+	PARAMS_SIMD += $(call cpufeature,sse,-msse) $(call cpufeature,sse2,-msse2) $(call cpufeature,sse3,-msse3) $(call cpufeature,sse4a,-msse4a) $(call cpufeature,sse4_1,-msse4.1) $(call cpufeature,sse4_2,-msse4.2 -msse4) $(call cpufeature,avx,-mavx) -mfpmath=sse
+else ifeq ($(ARCH),armv7l)
+	# since raspbian buster, fftw3 comes with the slow timer enabled, which causes troubles, so we have to disable FFTW_MEASURE
+	PARAMS_SIMD += -mfloat-abi=hard $(call cpufeature,vfp,-mfpu=vfp) -funsafe-math-optimizations -Wformat=0 -DCSDR_DISABLE_FFTW_MEASURE
+else ifeq ($(ARCH),aarch64)
+	PARAMS_SIMD += -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0
+endif
+
 PARAMS_LOOPVECT = -O3 -ffast-math -fdump-tree-vect-details -dumpbase dumpvect
 PARAMS_LIBS = -g -lm -lrt -lfftw3f -DUSE_FFTW -DLIBCSDR_GPL -DUSE_IMA_ADPCM
 PARAMS_SO = -fpic  
@@ -50,9 +54,6 @@ PARSEVECT ?= yes
 .PHONY: clean-vect clean codequality checkdocs v
 all: codequality csdr nmux
 libcsdr.so: fft_fftw.c fft_rpi.c libcsdr_wrapper.c libcsdr.c libcsdr_gpl.c fastddc.c fastddc.h  fft_fftw.h  fft_rpi.h  ima_adpcm.h  libcsdr_gpl.h  libcsdr.h  predefined.h
-	@echo NOTE: you may have to manually edit Makefile to optimize for your CPU \(especially if you compile on ARM, please edit PARAMS_NEON\).
-	@echo Auto-detected optimization parameters: $(PARAMS_SIMD)
-	@echo
 	rm -f dumpvect*.vect
 	gcc -std=gnu99 $(PARAMS_LOOPVECT) $(PARAMS_SIMD) $(LIBSOURCES) $(PARAMS_LIBS) $(PARAMS_MISC) -fpic -shared -Wl,-soname,libcsdr.so.$(SOVERSION) -o libcsdr.so.$(SOVERSION)
 	@ln -fs libcsdr.so.$(SOVERSION) libcsdr.so
