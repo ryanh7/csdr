@@ -52,7 +52,7 @@ PARAMS_MISC = -Wno-unused-result
 FFTW_PACKAGE = fftw-3.3.3
 PREFIX ?= /usr
 DESTDIR ?=
-SOVERSION = 0.15
+SOVERSION = 0.15.1
 PARSEVECT ?= yes
 
 .PHONY: clean-vect clean codequality checkdocs v
