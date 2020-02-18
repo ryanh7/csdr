@@ -1,5 +1,8 @@
-csdr (0.15) UNRELEASED; urgency=low
+csdr (0.15.1) UNRELEASED; urgency=low
 
   * Initial release.
+  * Introduce 12kHz FM deemphasis filter
+  * Improve build optimizations, support aarch64 CPUs
+  * Fix issues with fftw3 ARM builds by falling back to FFTW_ESTIMATE
 
  -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sat, 07 Dec 2019 23:21:00 +0000
