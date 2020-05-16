@@ -35,7 +35,7 @@ ARCH = $(shell uname -m)
 ifeq ($(ARCH),x86_64)
     # for package builds, do not try to optimize for local architecture, but apply more generic optimization
     ifdef CSDR_PACKAGE_BUILD
-        PARAMS_LOOPVECT = -g -O3
+        PARAMS_LOOPVECT = -g -O3 -DCSDR_FMV_X86
     else
         PARAMS_SIMD += $(call cpufeature,sse,-msse) $(call cpufeature,sse2,-msse2) $(call cpufeature,sse3,-msse3) $(call cpufeature,sse4a,-msse4a) $(call cpufeature,sse4_1,-msse4.1) $(call cpufeature,sse4_2,-msse4.2 -msse4) $(call cpufeature,avx,-mavx) -mfpmath=sse
     endif
