@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //DDC implementation based on:
 //http://www.3db-labs.com/01598092_MultibandFilterbank.pdf
 
-inline int is_integer(float a) { return floorf(a) == a; }
+static inline int is_integer(float a) { return floorf(a) == a; }
 
 int fastddc_init(fastddc_t* ddc, float transition_bw, int decimation, float shift_rate)
 {
