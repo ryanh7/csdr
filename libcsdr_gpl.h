@@ -23,6 +23,9 @@ This file is part of libcsdr.
 
 #ifdef LIBCSDR_GPL
 
+#include "libcsdr.h"
+#include <math.h>
+
 typedef struct shift_addition_data_s
 {
 	float sindelta;

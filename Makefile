@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-LIBSOURCES =  fft_fftw.c libcsdr_wrapper.c 
+LIBSOURCES =  fft_fftw.c libcsdr.c libcsdr_gpl.c ima_adpcm.c fastddc.c
 cpufeature = $(if $(findstring $(1),$(shell cat /proc/cpuinfo)),$(2))
 
 PARAMS_SIMD =
@@ -43,7 +43,7 @@ else ifeq ($(ARCH),aarch64)
 	PARAMS_SIMD += -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0 -DCSDR_DISABLE_FFTW_MEASURE
 endif
 
-PARAMS_LOOPVECT = -O3 -ffast-math -fdump-tree-vect-details -dumpbase dumpvect
+PARAMS_LOOPVECT = -O3 -ffast-math
 PARAMS_LIBS = -g -lm -lrt -lfftw3f -DUSE_FFTW -DLIBCSDR_GPL -DUSE_IMA_ADPCM
 PARAMS_SO = -fpic  
 PARAMS_MISC = -Wno-unused-result
@@ -53,17 +53,12 @@ FFTW_PACKAGE = fftw-3.3.3
 PREFIX ?= /usr
 DESTDIR ?=
 SOVERSION = 0.15.2
-PARSEVECT ?= yes
 
 .PHONY: clean-vect clean codequality checkdocs v
 all: codequality csdr nmux
 libcsdr.so: fft_fftw.c fft_rpi.c libcsdr_wrapper.c libcsdr.c libcsdr_gpl.c fastddc.c fastddc.h  fft_fftw.h  fft_rpi.h  ima_adpcm.h  libcsdr_gpl.h  libcsdr.h  predefined.h
-	rm -f dumpvect*.vect
 	gcc -std=gnu99 $(PARAMS_LOOPVECT) $(PARAMS_SIMD) $(LIBSOURCES) $(PARAMS_LIBS) $(PARAMS_MISC) -fpic -shared -Wl,-soname,libcsdr.so.$(SOVERSION) -o libcsdr.so.$(SOVERSION)
 	@ln -fs libcsdr.so.$(SOVERSION) libcsdr.so
-ifeq ($(PARSEVECT),yes)
-	-./parsevect dumpvect*.vect
-endif
 csdr: csdr.c libcsdr.so
 	gcc -std=gnu99 $(PARAMS_LOOPVECT) $(PARAMS_SIMD) csdr.c $(PARAMS_LIBS) -L. -lcsdr $(PARAMS_MISC) -o csdr
 ddcd: ddcd.cpp libcsdr.so ddcd.h
