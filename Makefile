@@ -67,10 +67,8 @@ nmux: nmux.cpp libcsdr.so nmux.h tsmpool.cpp tsmpool.h
 	g++ $(PARAMS_LOOPVECT) $(PARAMS_SIMD) nmux.cpp tsmpool.cpp $(PARAMS_LIBS) -L. -lcsdr -lpthread $(PARAMS_MISC) -o nmux
 arm-cross: clean-vect
 	#note: this doesn't work since having added FFTW
-	arm-linux-gnueabihf-gcc -std=gnu99 -O3 -fshort-double -ffast-math -dumpbase dumpvect-arm -fdump-tree-vect-details -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mvectorize-with-neon-quad -Wno-unused-result -Wformat=0 $(SOURCES) -lm -o ./csdr
-clean-vect:
-	rm -f dumpvect*.vect
-clean: clean-vect
+	arm-linux-gnueabihf-gcc -std=gnu99 -O3 -fshort-double -ffast-math -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mvectorize-with-neon-quad -Wno-unused-result -Wformat=0 $(SOURCES) -lm -o ./csdr
+clean:
 	rm -f libcsdr.so.$(SOVERSION) csdr ddcd nmux *.o *.so
 install: all
 	install -d $(DESTDIR)$(PREFIX)/lib
