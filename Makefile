@@ -56,7 +56,7 @@ SOVERSION = 0.15.2
 
 .PHONY: clean-vect clean codequality checkdocs v
 all: codequality csdr nmux
-libcsdr.so: fft_fftw.c fft_rpi.c libcsdr_wrapper.c libcsdr.c libcsdr_gpl.c fastddc.c fastddc.h  fft_fftw.h  fft_rpi.h  ima_adpcm.h  libcsdr_gpl.h  libcsdr.h  predefined.h
+libcsdr.so: fft_fftw.c fft_rpi.c libcsdr.c libcsdr_gpl.c fastddc.c fastddc.h  fft_fftw.h  fft_rpi.h  ima_adpcm.h  libcsdr_gpl.h  libcsdr.h  predefined.h
 	gcc -std=gnu99 $(PARAMS_LOOPVECT) $(PARAMS_SIMD) $(LIBSOURCES) $(PARAMS_LIBS) $(PARAMS_MISC) -fpic -shared -Wl,-soname,libcsdr.so.$(SOVERSION) -o libcsdr.so.$(SOVERSION)
 	@ln -fs libcsdr.so.$(SOVERSION) libcsdr.so
 csdr: csdr.c libcsdr.so
@@ -88,25 +88,6 @@ uninstall:
 	ldconfig
 disasm:
 	objdump -S libcsdr.so.$(SOVERSION) > libcsdr.disasm
-emcc-clean:
-	-rm sdr.js/sdr.js
-	-rm sdr.js/sdrjs-compiled.js
-	-rm -rf sdr.js/$(FFTW_PACKAGE)
-emcc-get-deps:
-	echo "getting and compiling fftw3 with emscripten..."
-	cd sdr.js; \
-	wget http://fftw.org/$(FFTW_PACKAGE).tar.gz; \
-	tar -xvf $(FFTW_PACKAGE).tar.gz; \
-	rm $(FFTW_PACKAGE).tar.gz; \
-	cd $(FFTW_PACKAGE); \
-	emconfigure ./configure --enable-float --disable-fortran --prefix=`pwd`/emscripten-install --libdir=`pwd`/emscripten-lib; \
-	emmake make; \
-	emmake make install
-emcc:
-	emcc -O3 -Isdr.js/$(FFTW_PACKAGE)/api -Lsdr.js/$(FFTW_PACKAGE)/emscripten-lib -o sdr.js/sdrjs-compiled.js fft_fftw.c libcsdr_wrapper.c -s TOTAL_MEMORY=67108864 -DLIBCSDR_GPL -DUSE_IMA_ADPCM -DUSE_FFTW -lfftw3f -s EXPORTED_FUNCTIONS="`python sdr.js/exported_functions.py`"
-	cat sdr.js/sdrjs-header.js sdr.js/sdrjs-compiled.js sdr.js/sdrjs-footer.js > sdr.js/sdr.js
-emcc-beautify:
-	bash -c 'type js-beautify >/dev/null 2>&1; if [ $$? -eq 0 ]; then js-beautify sdr.js/sdr.js >sdr.js/sdr.js.beautiful; mv sdr.js/sdr.js.beautiful sdr.js/sdr.js; fi'
 codequality:
 	@bash -c 'if [ `cat csdr.c | grep badsyntax | grep -v return | wc -l` -ne 1 ]; then echo "error at code quality check: badsyntax() used in csdr.c without return."; exit 1; else exit 0; fi'
 checkdocs:

@@ -1458,28 +1458,6 @@ Example of initialization if the process always works with a fixed output size, 
 
 `csdr` was tested with GNU Radio Companion flowgraphs. These flowgraphs are available under the directory `grc_tests`, and they require the <a href="https://github.com/simonyiszk/gr-ha5kfu">gr-ha5kfu</a> set of blocks for GNU Radio.  
 
-## [sdr.js](#sdrjs)
-
-*sdr.js* is *libcsdr* compiled to JavaScript code with *Emscripten*. Nowadays JavaScript runs quite fast in browsers, as all major browser vendors included JavaScript JIT machines into their product. You can find a <a href="https://kripken.github.io/mloc_emscripten_talk/cppcon.html">great introductory slideshow here</a> on the concept behind *Emscripten* and *asm.js*.
-
-The purpose of *sdr.js* is to make SDR DSP processing available in the web browser. However, it is not easy to use in production yet. By now, only those functions have wrappers that the front-end of OpenWebRX uses.
-
-To compile *sdr.js*, first get <a href="http://emscripten.org/">Emscripten</a>. (It turns out that there is an *emscripten* package in Ubuntu repositories.)
-
-To install and build dependencies (for now, only FFTW3):
-
-    make emcc-get-deps
-
-To compile *sdr.js* (which will be created in the `sdr.js` subdirectory):
-
-    make emcc
-
-You can test *sdr.js* by opening *sdr.html*. It contains a test for *firdes_lowpass_f* for this time.
-
-To remove *sdr.js* and the compiled dependencies:
-
-    make emcc-clean
-
 ## [nmux](#nmux)
 
 The repo also contains a command line tool called `nmux`, which is a TCP stream multiplexer. It reads data from the standard input, and sends it to each client connected through TCP sockets. Available command line options are:
