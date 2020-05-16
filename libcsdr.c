@@ -403,6 +403,7 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 #define SADF_L2(j) iof(output,4*i+j)=(cos_vals_ ## j)*iof(input,4*i+j)-(sin_vals_ ## j)*qof(input,4*i+j); \
     qof(output,4*i+j)=(sin_vals_ ## j)*iof(input,4*i+j)+(cos_vals_ ## j)*qof(input,4*i+j);
 
+__attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
 float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_addfast_data_t* d, float starting_phase)
 {
     //input_size should be multiple of 4
@@ -525,6 +526,7 @@ q4, q5: accumulator for I branch and Q branch (will be the output)
 
 #else
 
+__attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
 int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
 {
     //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
