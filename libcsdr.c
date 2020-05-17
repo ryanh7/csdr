@@ -54,6 +54,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MFIRDES_GWS(NAME) \
     if(!strcmp( #NAME , input )) return WINDOW_ ## NAME;
 
+#ifdef CSDR_FMV_X86
+#define CSDR_TARGET_CLONES __attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
+#else
+#define CSDR_TARGET_CLONES
+#endif
+
 window_t firdes_get_window_from_string(char* input)
 {
     MFIRDES_GWS(BOXCAR);
@@ -403,9 +409,7 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 #define SADF_L2(j) iof(output,4*i+j)=(cos_vals_ ## j)*iof(input,4*i+j)-(sin_vals_ ## j)*qof(input,4*i+j); \
     qof(output,4*i+j)=(sin_vals_ ## j)*iof(input,4*i+j)+(cos_vals_ ## j)*qof(input,4*i+j);
 
-#ifdef CSDR_FMV_X86
-__attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
-#endif
+CSDR_TARGET_CLONES
 float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_addfast_data_t* d, float starting_phase)
 {
     //input_size should be multiple of 4
@@ -528,9 +532,7 @@ q4, q5: accumulator for I branch and Q branch (will be the output)
 
 #else
 
-#ifdef CSDR_FMV_X86
-__attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
-#endif
+CSDR_TARGET_CLONES
 int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
 {
     //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
