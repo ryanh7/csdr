@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+export CSDR_FMV = 1
 export CSDR_PACKAGE_BUILD = 1
 %:
 	dh $@
