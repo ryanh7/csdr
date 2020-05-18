@@ -14,6 +14,7 @@ grc_tests/top_block.py
 # autotools
 .deps
 .libs
+m4
 Makefile
 Makefile.in
 aclocal.m4
