@@ -2,6 +2,8 @@ csdr
 nmux
 ddcd
 *.o
+*.lo
+*.la
 *.so
 *.so.*
 tags
@@ -9,3 +11,18 @@ dumpvect.*.vect
 *.swp
 grc_tests/top_block.py
 .idea
+# autotools
+.deps
+.libs
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+compile
+config.*
+configure
+depcomp
+install-sh
+ltmain.sh
+missing
+libtool
