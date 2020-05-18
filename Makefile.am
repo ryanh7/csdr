@@ -8,4 +8,4 @@ libcsdr_la_LIBADD = $(FFTW3_LIBS)
 
 bin_PROGRAMS = csdr
 csdr_SOURCES = csdr.c
-csdr_LDADD = libcsdr.la
+csdr_LDADD = libcsdr.la $(FFTW3_LIBS)
