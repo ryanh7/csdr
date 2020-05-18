@@ -25,6 +25,8 @@ This animation shows the Gardner timing recovery algorithm in `csdr` locking on 
 How to compile
 --------------
 
+    autoreconf -i
+    ./configure
     make
     sudo make install
 
