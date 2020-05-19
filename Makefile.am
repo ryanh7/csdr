@@ -8,6 +8,10 @@ libcsdr_la_LDFLAGS = -version-info 1:0:0
 libcsdr_la_CFLAGS = $(FFTW3_CFLAGS)
 libcsdr_la_LIBADD = $(FFTW3_LIBS)
 
-bin_PROGRAMS = csdr
+bin_PROGRAMS = csdr nmux
 csdr_SOURCES = csdr.c
 csdr_LDADD = libcsdr.la $(FFTW3_LIBS)
+
+nmux_SOURCES = nmux.cpp tsmpool.h tsmpool.cpp
+nmux_CXXFLAGS = $(PTHREAD_CFLAGS)
+nmux_LDADD = $(PTHREAD_LIBS)
