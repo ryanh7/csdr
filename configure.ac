@@ -12,9 +12,6 @@ AC_CHECK_LIB([m],[floorf])
 PKG_CHECK_MODULES([FFTW3], [fftw3f])
 AX_PTHREAD
 AX_GCC_FUNC_ATTRIBUTE([ifunc])
-AS_IF([test yes = AS_VAR_GET([ax_cv_have_func_attribute_ifunc])],
-    [CFLAGS="-g -O3"
-    CXXFLAGS="-g -O3"])
 AC_DEFINE(USE_FFTW)
 AC_DEFINE(USE_IMA_ADPCM)
 AC_DEFINE(LIBCSDR_GPL)
@@ -25,32 +22,29 @@ AC_ARG_ENABLE([neon],
             enable_neon=no
             ;;
         *)
-            case `uname -m` in
-                arm*|aarch64*)
-                    enable_neon=yes
-                    AC_DEFINE([NEON_OPTS])
-                    CFLAGS="${CFLAGS} -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
-                    ;;
-                *)
-                    enable_neon=no
-            esac
-        ;;
-    esac], [case `uname -m` in
-        arm*|aarch64*)
-            if [ grep "neon" /proc/cpuinfo ] ; then
-                enable_neon=yes
-                AC_DEFINE([NEON_OPTS])
-                CFLAGS="${CFLAGS} -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
-            else
-                enable_neon=no
-            fi
+            enable_neon=yes
             ;;
-        *)
-            enable_neon=no
-    esac])
+    esac], [if grep "neon" /proc/cpuinfo > /dev/null ; then
+        enable_neon=yes
+    else
+        enable_neon=no
+    fi])
+if test yes = enable_neon; then
+    AC_DEFINE([NEON_OPTS])
+    PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
+fi
 case `uname -m` in
     arm*|aarch64*)
-        CFLAGS="${CFLAGS} -march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0"
-    ;;
+        PARAMS_ARCH="-march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0"
+        CFLAGS="-g -O3"
+        CXXFLAGS="-g -O3"
+        ;;
+    x86_64)
+        AS_IF([test yes = AS_VAR_GET([ax_cv_have_func_attribute_ifunc])],
+            [CFLAGS="-g -O3"
+            CXXFLAGS="-g -O3"])
+        ;;
 esac
+CFLAGS="${CFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}
+CXXFLAGS="${CXXFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}
 AC_OUTPUT
