@@ -29,6 +29,7 @@ AC_ARG_ENABLE([neon],
                 arm*|aarch64*)
                     enable_neon=yes
                     AC_DEFINE([NEON_OPTS])
+                    CFLAGS="${CFLAGS} -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
                     ;;
                 *)
                     enable_neon=no
@@ -39,6 +40,7 @@ AC_ARG_ENABLE([neon],
             if [ grep "neon" /proc/cpuinfo ] ; then
                 enable_neon=yes
                 AC_DEFINE([NEON_OPTS])
+                CFLAGS="${CFLAGS} -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
             else
                 enable_neon=no
             fi
@@ -46,4 +48,9 @@ AC_ARG_ENABLE([neon],
         *)
             enable_neon=no
     esac])
+case `uname -m` in
+    arm*|aarch64*)
+        CFLAGS="${CFLAGS} -march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0"
+    ;;
+esac
 AC_OUTPUT
