@@ -34,8 +34,13 @@ if test yes = $enable_neon; then
     PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
 fi
 case `uname -m` in
-    arm*|aarch64*)
+    arm*)
         PARAMS_ARCH="-march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0"
+        CFLAGS="-g -O3"
+        CXXFLAGS="-g -O3"
+        ;;
+    aarch64*)
+        PARAMS_ARCH="-march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0"
         CFLAGS="-g -O3"
         CXXFLAGS="-g -O3"
         ;;
