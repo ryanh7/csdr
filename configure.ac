@@ -33,21 +33,23 @@ if test yes = $enable_neon; then
     AC_DEFINE([NEON_OPTS])
     PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
 fi
+OPTIMIZED_FLAGS="-g -O3 -ffast-math"
 case `uname -m` in
     arm*)
         PARAMS_ARCH="-march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0"
-        CFLAGS="-g -O3"
-        CXXFLAGS="-g -O3"
+        CFLAGS="${OPTIMIZED_FLAGS}"
+        CXXFLAGS="${OPTIMIZED_FLAGS}"
         ;;
     aarch64*)
         PARAMS_ARCH="-march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0"
-        CFLAGS="-g -O3"
-        CXXFLAGS="-g -O3"
+        CFLAGS="${OPTIMIZED_FLAGS}"
+        CXXFLAGS="${OPTIMIZED_FLAGS}"
         ;;
     x86_64)
+        PARAMS_ARCH="-mfpmath=sse"
         AS_IF([test yes = AS_VAR_GET([ax_cv_have_func_attribute_ifunc])],
-            [CFLAGS="-g -O3"
-            CXXFLAGS="-g -O3"])
+            [CFLAGS="${OPTIMIZED_FLAGS}"
+            CXXFLAGS="${OPTIMIZED_FLAGS}"])
         ;;
 esac
 CFLAGS="${CFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}"
