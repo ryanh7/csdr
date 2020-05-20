@@ -34,5 +34,16 @@ AC_ARG_ENABLE([neon],
                     enable_neon=no
             esac
         ;;
+    esac], [case `uname -m` in
+        arm*|aarch64*)
+            if [ grep "neon" /proc/cpuinfo ] ; then
+                enable_neon=yes
+                AC_DEFINE([NEON_OPTS])
+            else
+                enable_neon=no
+            fi
+            ;;
+        *)
+            enable_neon=no
     esac])
 AC_OUTPUT
