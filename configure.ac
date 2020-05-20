@@ -29,7 +29,7 @@ AC_ARG_ENABLE([neon],
     else
         enable_neon=no
     fi])
-if test yes = enable_neon; then
+if test yes = $enable_neon; then
     AC_DEFINE([NEON_OPTS])
     PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
 fi
@@ -45,6 +45,6 @@ case `uname -m` in
             CXXFLAGS="-g -O3"])
         ;;
 esac
-CFLAGS="${CFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}
-CXXFLAGS="${CXXFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}
+CFLAGS="${CFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}"
+CXXFLAGS="${CXXFLAGS} ${PARAMS_ARCH} ${PARAMS_SIMD}"
 AC_OUTPUT
