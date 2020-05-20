@@ -18,4 +18,21 @@ AS_IF([test yes = AS_VAR_GET([ax_cv_have_func_attribute_ifunc])],
 AC_DEFINE(USE_FFTW)
 AC_DEFINE(USE_IMA_ADPCM)
 AC_DEFINE(LIBCSDR_GPL)
+AC_ARG_ENABLE([neon],
+    AS_HELP_STRING([[[--enable-neon]]], [Enable ARM CPU NEON optimizations]),
+    [case $enableval in
+        no|off)
+            enable_neon=no
+            ;;
+        *)
+            case `uname -m` in
+                arm*|aarch64*)
+                    enable_neon=yes
+                    AC_DEFINE([NEON_OPTS])
+                    ;;
+                *)
+                    enable_neon=no
+            esac
+        ;;
+    esac])
 AC_OUTPUT

@@ -31,14 +31,13 @@ void fft_destroy(FFT_PLAN_T* plan);
  * available. Unfortunately, there's no way to detect this at compile- or
  * runtime.
  *
- * CSDR_DISABLE_FFTW_MEASURE can therefore be used to disable the use of
- * FFTW_MEASURE globally.
+ * this is a problem on ARM CPUs, so we disable FFTW_MEASURE for those.
  *
  * additional information: http://www.fftw.org/fftw3_doc/Cycle-Counters.html
  *
  * https://github.com/simonyiszk/openwebrx/issues/139
  */
-#ifdef CSDR_DISABLE_FFTW_MEASURE
+#ifdef __arm__
 #define CSDR_FFTW_MEASURE FFTW_ESTIMATE
 #else
 #define CSDR_FFTW_MEASURE FFTW_MEASURE
