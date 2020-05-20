@@ -11,6 +11,10 @@ AC_CONFIG_FILES(Makefile)
 AC_CHECK_LIB([m],[floorf])
 PKG_CHECK_MODULES([FFTW3], [fftw3f])
 AX_PTHREAD
+AX_GCC_FUNC_ATTRIBUTE([ifunc])
+AS_IF([test yes = AS_VAR_GET([ax_cv_have_func_attribute_ifunc])],
+    [CFLAGS="-g -O3"
+    CXXFLAGS="-g -O3"])
 AC_DEFINE(USE_FFTW)
 AC_DEFINE(USE_IMA_ADPCM)
 AC_DEFINE(LIBCSDR_GPL)

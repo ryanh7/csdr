@@ -54,11 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MFIRDES_GWS(NAME) \
     if(!strcmp( #NAME , input )) return WINDOW_ ## NAME;
 
-#ifdef CSDR_FMV_X86
-#define CSDR_TARGET_CLONES __attribute__((target_clones("avx","sse4.2","sse3","sse2","default")))
-#else
-#define CSDR_TARGET_CLONES
-#endif
+#include "fmv.h"
 
 window_t firdes_get_window_from_string(char* input)
 {
