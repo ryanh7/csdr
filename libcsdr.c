@@ -491,28 +491,28 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decim
 
 
 /*
-q0, q1: input signal I sample and Q sample
-q2:     taps
-q4, q5: accumulator for I branch and Q branch (will be the output)
+v0, v1: input signal I sample and Q sample
+v2:     taps
+v4, v5: accumulator for I branch and Q branch (will be the output)
 */
 
         asm volatile(
-            "       veor q4, q4\n\t"
-            "       veor q5, q5\n\t"
-            "for_fdccasm: vld2.32   {q0-q1}, [%[pinput]]!\n\t" //load q0 and q1 directly from the memory address stored in pinput, with interleaving (so that we get the I samples in q0 and the Q samples in q1), also increment the memory address in pinput (hence the "!" mark) //http://community.arm.com/groups/processors/blog/2010/03/17/coding-for-neon--part-1-load-and-stores
-            "       vld1.32 {q2}, [%[ptaps]]!\n\t"
-            "       vmla.f32 q4, q0, q2\n\t" //quad_acc_i += quad_input_i * quad_taps_1 //http://stackoverflow.com/questions/3240440/how-to-use-the-multiply-and-accumulate-intrinsics-in-arm-cortex-a8 //http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0489e/CIHEJBIE.html
-            "       vmla.f32 q5, q1, q2\n\t" //quad_acc_q += quad_input_q * quad_taps_1
+            "       eor v4.16B, v4.16B, v4.16B\n\t"
+            "       eor v5.16B, v5.16B, v5.16B\n\t"
+            "for_fdccasm: ld2   {v0.4S-v1.4S}, [%[pinput]], #32 \n\t" //load q0 and q1 directly from the memory address stored in pinput, with interleaving (so that we get the I samples in q0 and the Q samples in q1), also increment the memory address in pinput (hence the "!" mark) //http://community.arm.com/groups/processors/blog/2010/03/17/coding-for-neon--part-1-load-and-stores
+            "       ld1 {v2.4S}, [%[ptaps]], #16\n\t"
+            "       fmla v4.4S, v0.4S, v2.4S\n\t" //quad_acc_i += quad_input_i * quad_taps_1 //http://stackoverflow.com/questions/3240440/how-to-use-the-multiply-and-accumulate-intrinsics-in-arm-cortex-a8 //http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0489e/CIHEJBIE.html
+            "       fmla v5.4S, v1.4S, v2.4S\n\t" //quad_acc_q += quad_input_q * quad_taps_1
             "       cmp %[ptaps], %[ptaps_end]\n\t" //if(ptaps != ptaps_end)
             "       bcc for_fdccasm\n\t"            //  then goto for_fdcasm
-            "       vst1.32 {q4}, [%[quad_acci]]\n\t" //if the loop is finished, store the two accumulators in memory
-            "       vst1.32 {q5}, [%[quad_accq]]\n\t"
+            "       st1 {v4.4S}, [%[quad_acci]]\n\t" //if the loop is finished, store the two accumulators in memory
+            "       st1 {v5.4S}, [%[quad_accq]]\n\t"
         :
             [pinput]"+r"(pinput), [ptaps]"+r"(ptaps) //output operand list
         :
             [ptaps_end]"r"(ptaps_end), [quad_acci]"r"(quad_acciq), [quad_accq]"r"(quad_acciq+4) //input operand list
         :
-            "memory", "q0", "q1", "q2", "q4", "q5", "cc" //clobber list
+            "memory", "v0", "v1", "v2", "v4", "v5", "cc" //clobber list
         );
         //original for loops for reference:
         //for(int ti=0; ti<taps_length; ti++) acci += (iof(input,i+ti)) * taps[ti]; //@fir_decimate_cc: i loop

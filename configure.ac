@@ -44,6 +44,7 @@ case `uname -m` in
         PARAMS_ARCH="-march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0"
         CFLAGS="${OPTIMIZED_FLAGS}"
         CXXFLAGS="${OPTIMIZED_FLAGS}"
+        AC_DEFINE([NEON_OPTS])
         ;;
     x86_64)
         PARAMS_ARCH="-mfpmath=sse"
