@@ -9,7 +9,7 @@ libcsdr_la_CFLAGS = $(FFTW3_CFLAGS)
 libcsdr_la_LIBADD = $(FFTW3_LIBS)
 
 bin_PROGRAMS = csdr nmux
-csdr_SOURCES = csdr.c
+csdr_SOURCES = csdr.c benchmark.c
 csdr_LDADD = libcsdr.la $(FFTW3_LIBS)
 
 nmux_SOURCES = nmux.cpp tsmpool.h tsmpool.cpp

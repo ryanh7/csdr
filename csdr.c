@@ -53,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include "fastddc.h"
 #include <assert.h>
+#include "benchmark.h"
 
 char usage[]=
 "csdr - a simple commandline tool for Software Defined Radio receiver DSP.\n\n"
@@ -172,6 +173,7 @@ char usage[]=
 "    fastddc_fwd_cc <decimation> [transition_bw [window]]\n"
 "    fastddc_inv_cc <shift_rate> <decimation> [transition_bw [window]]\n"
 "    _fft2octave <fft_size>\n"
+"    benchmark \n"
 "    convert_f_i16             #deprecated, use instead: convert_f_s16\n"
 "    convert_i16_f             #deprecated, use instead: convert_s16_f\n"
 "    floatdump_f               #deprecated, use instead: dump_f\n"
@@ -3596,6 +3598,11 @@ int main(int argc, char *argv[])
             TRY_YIELD;
         }
     }
+
+    if(!strcmp(argv[1],"benchmark")) {
+        return csdr_benchmark();
+    }
+
 
     if(!strcmp(argv[1],"none"))
     {

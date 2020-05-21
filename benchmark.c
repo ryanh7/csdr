@@ -28,23 +28,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <time.h>
-
-#include "libcsdr.h"
-#include "libcsdr_gpl.h"
+#include "benchmark.h"
 
 #define T_BUFSIZE (1024*1024/4)
 #define T_N (200)
 #define T_TAPS (1023)
 #define T_DECFACT (200)
 
-int main()
+int csdr_benchmark()
 {
 	fprintf(stderr,"Getting a %d of random samples...\n", T_BUFSIZE);
 	int urand_fp = open("/dev/urandom",O_RDWR);
