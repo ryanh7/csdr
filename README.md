@@ -825,6 +825,12 @@ Syntax:
 
 See the [buffer sizes](#buffer_sizes) section.
 
+----
+
+### [squelch_and_smeter_cc](#squelch_and_smeter_cc)
+
+Syntax:
+
     squelch_and_smeter_cc --fifo <squelch_fifo> --outfifo <smeter_fifo> <use_every_nth> <report_every_nth>
 
 This is a controllable squelch, which reads the squelch level input from `<squelch_fifo>` and writes the power level output to `<smeter_fifo>`. Both input and output are in the format of `%g\n`. While calculating the power level, it takes only every `<use_every_nth>` sample into consideration. It writes the S-meter value for every `<report_every_nth>` buffer to `<smeter_fifo>`. If the squelch level is set to 0, it it forces the squelch to be open. If the squelch is closed, it fills the output with zero.

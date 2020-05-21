@@ -37,7 +37,7 @@ void fft_destroy(FFT_PLAN_T* plan);
  *
  * https://github.com/simonyiszk/openwebrx/issues/139
  */
-#ifdef __arm__
+#if defined __arm__ || __aarch64__
 #define CSDR_FFTW_MEASURE FFTW_ESTIMATE
 #else
 #define CSDR_FFTW_MEASURE FFTW_MEASURE
