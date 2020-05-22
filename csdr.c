@@ -1151,9 +1151,9 @@ int main(int argc, char *argv[])
         padded_taps_length = taps_length+(NEON_ALIGNMENT/4)-1 - ((taps_length+(NEON_ALIGNMENT/4)-1)%(NEON_ALIGNMENT/4));
         errhead(); fprintf(stderr,"padded_taps_length = %d\n", padded_taps_length);
 
-        taps = (float*) (float*)malloc((padded_taps_length+NEON_ALIGNMENT)*sizeof(float));
+        taps = (float*)malloc((padded_taps_length+NEON_ALIGNMENT)*sizeof(float));
         errhead(); fprintf(stderr,"taps = %x\n", taps);
-        taps =  (float*)((((unsigned)taps)+NEON_ALIGNMENT-1) & ~(NEON_ALIGNMENT-1));
+        taps = (float*)((((size_t)taps)+NEON_ALIGNMENT-1) & ~(NEON_ALIGNMENT-1));
         errhead(); fprintf(stderr,"NEON aligned taps = %x\n", taps);
         for(int i=0;i<padded_taps_length-taps_length;i++) taps[taps_length+i]=0;
 #else
