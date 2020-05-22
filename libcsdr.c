@@ -318,8 +318,85 @@ shift_addfast_data_t shift_addfast_init(float rate)
     return output;
 }
 
-#ifdef NEON_OPTS
-#pragma message "Manual NEON optimizations are ON: we have a faster shift_addfast_cc now."
+#if defined NEON_OPTS && defined__arm__
+#pragma message "Manual NEON (arm32) optimizations are ON: we have a faster shift_addfast_cc now."
+
+float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_addfast_data_t* d, float starting_phase)
+{
+    //input_size should be multiple of 4
+    float cos_start[4], sin_start[4];
+    float cos_vals[4], sin_vals[4];
+    for(int i=0;i<4;i++)
+    {
+        cos_start[i] = cos(starting_phase);
+        sin_start[i] = sin(starting_phase);
+    }
+
+    float* pdcos = d->dcos;
+    float* pdsin = d->dsin;
+    register float* pinput = (float*)input;
+    register float* pinput_end = (float*)(input+input_size);
+    register float* poutput = (float*)output;
+
+    //Register map:
+    #define RDCOS "q0" //dcos, dsin
+    #define RDSIN "q1"
+    #define RCOSST "q2" //cos_start, sin_start
+    #define RSINST "q3"
+    #define RCOSV "q4" //cos_vals, sin_vals
+    #define RSINV "q5"
+    #define ROUTI "q6" //output_i, output_q
+    #define ROUTQ "q7"
+    #define RINPI "q8" //input_i, input_q
+    #define RINPQ "q9"
+    #define R3(x,y,z) x ", " y ", " z "\n\t"
+
+    asm volatile( //(the range of q is q0-q15)
+        "       vld1.32 {" RDCOS "}, [%[pdcos]]\n\t"
+        "       vld1.32 {" RDSIN "}, [%[pdsin]]\n\t"
+        "       vld1.32 {" RCOSST "}, [%[cos_start]]\n\t"
+        "       vld1.32 {" RSINST "}, [%[sin_start]]\n\t"
+        "for_addfast: vld2.32 {" RINPI "-" RINPQ "}, [%[pinput]]!\n\t" //load q0 and q1 directly from the memory address stored in pinput, with interleaving (so that we get the I samples in RINPI and the Q samples in RINPQ), also increment the memory address in pinput (hence the "!" mark)
+
+        //C version:
+        //cos_vals[j] = cos_start * d->dcos[j] - sin_start * d->dsin[j];
+        //sin_vals[j] = sin_start * d->dcos[j] + cos_start * d->dsin[j];
+
+        "       vmul.f32 " R3(RCOSV, RCOSST, RDCOS)  //cos_vals[i] = cos_start * d->dcos[i]
+        "       vmls.f32 " R3(RCOSV, RSINST, RDSIN)  //cos_vals[i] -= sin_start * d->dsin[i]
+        "       vmul.f32 " R3(RSINV, RSINST, RDCOS)  //sin_vals[i] = sin_start * d->dcos[i]
+        "       vmla.f32 " R3(RSINV, RCOSST, RDSIN)  //sin_vals[i] += cos_start * d->dsin[i]
+
+        //C version:
+        //iof(output,4*i+j)=cos_vals[j]*iof(input,4*i+j)-sin_vals[j]*qof(input,4*i+j);
+        //qof(output,4*i+j)=sin_vals[j]*iof(input,4*i+j)+cos_vals[j]*qof(input,4*i+j);
+        "       vmul.f32 " R3(ROUTI, RCOSV, RINPI) //output_i =  cos_vals * input_i
+        "       vmls.f32 " R3(ROUTI, RSINV, RINPQ) //output_i -= sin_vals * input_q
+        "       vmul.f32 " R3(ROUTQ, RSINV, RINPI) //output_q =  sin_vals * input_i
+        "       vmla.f32 " R3(ROUTQ, RCOSV, RINPQ) //output_i += cos_vals * input_q
+
+        "       vst2.32 {" ROUTI "-" ROUTQ "}, [%[poutput]]!\n\t" //store the outputs in memory
+        //"     add %[poutput],%[poutput],#32\n\t"
+        "       vdup.32 " RCOSST ", d9[1]\n\t" // cos_start[0-3] = cos_vals[3]
+        "       vdup.32 " RSINST ", d11[1]\n\t" // sin_start[0-3] = sin_vals[3]
+
+        "       cmp %[pinput], %[pinput_end]\n\t" //if(pinput != pinput_end)
+        "       bcc for_addfast\n\t"              //    then goto for_addfast
+    :
+        [pinput]"+r"(pinput), [poutput]"+r"(poutput) //output operand list -> C variables that we will change from ASM
+    :
+        [pinput_end]"r"(pinput_end), [pdcos]"r"(pdcos), [pdsin]"r"(pdsin), [sin_start]"r"(sin_start), [cos_start]"r"(cos_start) //input operand list
+    :
+        "memory", "q0", "q1", "q2", "q4", "q5", "q6", "q7", "q8", "q9", "cc" //clobber list
+    );
+    starting_phase+=input_size*d->phase_increment;
+    while(starting_phase>PI) starting_phase-=2*PI;
+    while(starting_phase<-PI) starting_phase+=2*PI;
+    return starting_phase;
+}
+
+#elif defined NEON_OPTS && defined __aarch64__
+#pragma message "Manual NEON (aarch64) optimizations are ON: we have a faster shift_addfast_cc now."
 
 float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_addfast_data_t* d, float starting_phase)
 {
@@ -467,8 +544,67 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 
 #endif
 
-#ifdef NEON_OPTS
-#pragma message "Manual NEON optimizations are ON: we have a faster fir_decimate_cc now."
+#if defined NEON_OPTS && defined __arm__
+#pragma message "Manual NEON (arm32) optimizations are ON: we have a faster fir_decimate_cc now."
+
+//max help: http://community.arm.com/groups/android-community/blog/2015/03/27/arm-neon-programming-quick-reference
+
+int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
+{
+    //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
+    //It uses real taps. It returns the number of output samples actually written.
+    //It needs overlapping input based on its returned value:
+    //number of processed input samples = returned value * decimation factor
+    //The output buffer should be at least input_length / 3.
+    // i: input index | ti: tap index | oi: output index
+    int oi=0;
+    for(int i=0; i<input_size; i+=decimation) //@fir_decimate_cc: outer loop
+    {
+        if(i+taps_length>input_size) break;
+        register float* pinput=(float*)&(input[i]);
+        register float* ptaps=taps;
+        register float* ptaps_end=taps+taps_length;
+        float quad_acciq [8];
+
+
+/*
+q0, q1: input signal I sample and Q sample
+q2:     taps
+q4, q5: accumulator for I branch and Q branch (will be the output)
+*/
+
+        asm volatile(
+            "       veor q4, q4\n\t"
+            "       veor q5, q5\n\t"
+            "for_fdccasm: vld2.32   {q0-q1}, [%[pinput]]!\n\t" //load q0 and q1 directly from the memory address stored in pinput, with interleaving (so that we get the I samples in q0 and the Q samples in q1), also increment the memory address in pinput (hence the "!" mark) //http://community.arm.com/groups/processors/blog/2010/03/17/coding-for-neon--part-1-load-and-stores
+            "       vld1.32 {q2}, [%[ptaps]]!\n\t"
+            "       vmla.f32 q4, q0, q2\n\t" //quad_acc_i += quad_input_i * quad_taps_1 //http://stackoverflow.com/questions/3240440/how-to-use-the-multiply-and-accumulate-intrinsics-in-arm-cortex-a8 //http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0489e/CIHEJBIE.html
+            "       vmla.f32 q5, q1, q2\n\t" //quad_acc_q += quad_input_q * quad_taps_1
+            "       cmp %[ptaps], %[ptaps_end]\n\t" //if(ptaps != ptaps_end)
+            "       bcc for_fdccasm\n\t"            //  then goto for_fdcasm
+            "       vst1.32 {q4}, [%[quad_acci]]\n\t" //if the loop is finished, store the two accumulators in memory
+            "       vst1.32 {q5}, [%[quad_accq]]\n\t"
+        :
+            [pinput]"+r"(pinput), [ptaps]"+r"(ptaps) //output operand list
+        :
+            [ptaps_end]"r"(ptaps_end), [quad_acci]"r"(quad_acciq), [quad_accq]"r"(quad_acciq+4) //input operand list
+        :
+            "memory", "q0", "q1", "q2", "q4", "q5", "cc" //clobber list
+        );
+        //original for loops for reference:
+        //for(int ti=0; ti<taps_length; ti++) acci += (iof(input,i+ti)) * taps[ti]; //@fir_decimate_cc: i loop
+        //for(int ti=0; ti<taps_length; ti++) accq += (qof(input,i+ti)) * taps[ti]; //@fir_decimate_cc: q loop
+
+        //for(int n=0;n<8;n++) fprintf(stderr, "\n>> [%d] %g \n", n, quad_acciq[n]);
+        iof(output,oi)=quad_acciq[0]+quad_acciq[1]+quad_acciq[2]+quad_acciq[3]; //we're still not ready, as we have to add up the contents of a quad accumulator register to get a single accumulated value
+        qof(output,oi)=quad_acciq[4]+quad_acciq[5]+quad_acciq[6]+quad_acciq[7];
+        oi++;
+    }
+    return oi;
+}
+
+#elif defined NEON_OPTS && defined __aarch64__
+#pragma message "Manual NEON (aarch64) optimizations are ON: we have a faster fir_decimate_cc now."
 
 //max help: http://community.arm.com/groups/android-community/blog/2015/03/27/arm-neon-programming-quick-reference
 
