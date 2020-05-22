@@ -24,14 +24,32 @@ AC_ARG_ENABLE([neon],
         *)
             enable_neon=yes
             ;;
-    esac], [if grep "neon" /proc/cpuinfo > /dev/null ; then
-        enable_neon=yes
-    else
-        enable_neon=no
-    fi])
+    esac], [case `uname -m` in
+        arm*)
+            if grep "neon" /proc/cpuinfo > /dev/null ; then
+                enable_neon=yes
+            else
+                enable_neon=no
+            fi
+            ;;
+        aarch64*)
+            # aarch64 mandated neon
+            enable_neon=yes
+            ;;
+        *)
+            enable_neon=no
+            ;;
+    esac])
 if test yes = $enable_neon; then
     AC_DEFINE([NEON_OPTS])
-    PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
+    case `uname -m` in
+        arm*)
+            PARAMS_SIMD="-mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad"
+            ;;
+        *)
+            PARAMS_SIMD=""
+            ;;
+    esac
 fi
 OPTIMIZED_FLAGS="-g -O3 -ffast-math"
 case `uname -m` in
@@ -44,7 +62,6 @@ case `uname -m` in
         PARAMS_ARCH="-march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0"
         CFLAGS="${OPTIMIZED_FLAGS}"
         CXXFLAGS="${OPTIMIZED_FLAGS}"
-        AC_DEFINE([NEON_OPTS])
         ;;
     x86_64)
         PARAMS_ARCH="-mfpmath=sse"
