@@ -439,23 +439,23 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
         //cos_vals[j] = cos_start * d->dcos[j] - sin_start * d->dsin[j];
         //sin_vals[j] = sin_start * d->dcos[j] + cos_start * d->dsin[j];
 
-        "       mul " R3(RCOSV, RCOSST, RDCOS)  //cos_vals[i] = cos_start * d->dcos[i]
-        "       mls " R3(RCOSV, RSINST, RDSIN)  //cos_vals[i] -= sin_start * d->dsin[i]
-        "       mul " R3(RSINV, RSINST, RDCOS)  //sin_vals[i] = sin_start * d->dcos[i]
+        "       fmul " R3(RCOSV, RCOSST, RDCOS)  //cos_vals[i] = cos_start * d->dcos[i]
+        "       fmls " R3(RCOSV, RSINST, RDSIN)  //cos_vals[i] -= sin_start * d->dsin[i]
+        "       fmul " R3(RSINV, RSINST, RDCOS)  //sin_vals[i] = sin_start * d->dcos[i]
         "       fmla " R3(RSINV, RCOSST, RDSIN)  //sin_vals[i] += cos_start * d->dsin[i]
 
         //C version:
         //iof(output,4*i+j)=cos_vals[j]*iof(input,4*i+j)-sin_vals[j]*qof(input,4*i+j);
         //qof(output,4*i+j)=sin_vals[j]*iof(input,4*i+j)+cos_vals[j]*qof(input,4*i+j);
-        "       mul " R3(ROUTI, RCOSV, RINPI) //output_i =  cos_vals * input_i
-        "       mls " R3(ROUTI, RSINV, RINPQ) //output_i -= sin_vals * input_q
-        "       mul " R3(ROUTQ, RSINV, RINPI) //output_q =  sin_vals * input_i
+        "       fmul " R3(ROUTI, RCOSV, RINPI) //output_i =  cos_vals * input_i
+        "       fmls " R3(ROUTI, RSINV, RINPQ) //output_i -= sin_vals * input_q
+        "       fmul " R3(ROUTQ, RSINV, RINPI) //output_q =  sin_vals * input_i
         "       fmla " R3(ROUTQ, RCOSV, RINPQ) //output_i += cos_vals * input_q
 
         "       st2 {" ROUTI "-" ROUTQ "}, [%[poutput]], #32\n\t" //store the outputs in memory
         //"     add %[poutput],%[poutput],#32\n\t"
-        "       dup " RCOSST ", w9\n\t" // cos_start[0-3] = cos_vals[3]
-        "       dup " RSINST ", w11\n\t" // sin_start[0-3] = sin_vals[3]
+        "       dup " RCOSST ", v4.4S[3]\n\t" // cos_start[0-3] = cos_vals[3]
+        "       dup " RSINST ", v5.4S[3]\n\t" // sin_start[0-3] = sin_vals[3]
 
         "       cmp %[pinput], %[pinput_end]\n\t" //if(pinput != pinput_end)
         "       bcc for_addfast\n\t"              //    then goto for_addfast
