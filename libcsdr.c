@@ -454,8 +454,8 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 
         "       st2 {" ROUTI "-" ROUTQ "}, [%[poutput]], #32\n\t" //store the outputs in memory
         //"     add %[poutput],%[poutput],#32\n\t"
-        "       dup " RCOSST ", v4.4S[3]\n\t" // cos_start[0-3] = cos_vals[3]
-        "       dup " RSINST ", v5.4S[3]\n\t" // sin_start[0-3] = sin_vals[3]
+        "       dup " RCOSST ", " RCOSV "[3]\n\t" // cos_start[0-3] = cos_vals[3]
+        "       dup " RSINST ", " RSINV "[3]\n\t" // sin_start[0-3] = sin_vals[3]
 
         "       cmp %[pinput], %[pinput_end]\n\t" //if(pinput != pinput_end)
         "       bcc for_addfast\n\t"              //    then goto for_addfast
