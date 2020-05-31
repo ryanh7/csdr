@@ -5,7 +5,7 @@ csdr (0.16.0) buster focal; urgency=low
   * Include autotool-based build system
   * Migrate "test200" tool: It is now available as "csdr benchmark"
 
- -- Jakob Ketterl <jakob.ketterl@gmx.de> Sun, 31 May 2020 11:15:00 +0000
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sun, 31 May 2020 11:15:00 +0000
 
 csdr (0.15.1) buster; urgency=low
 
