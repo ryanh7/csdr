@@ -1,3 +1,7 @@
+csdr (0.16.1) UNRELEASED; urgency=low
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sun, 31 May 2020 11:50:00 +0000
+
 csdr (0.16.0) buster focal; urgency=low
 
   * Replace local CPU optimization with Function Multiversioning to be
