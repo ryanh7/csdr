@@ -1,3 +1,7 @@
+#ifdef __APPLE__
+#include "shims.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
