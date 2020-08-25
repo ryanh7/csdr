@@ -203,8 +203,8 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 		{
             //The error is the difference between the required gain at the actual sample, and the previous gain value.
             //We actually use an envelope detector.
-            input_abs=fabs(input[i]);
-            error=reference/input_abs-gain;
+            input_abs = fabs(input[i]);
+            error = (input_abs * gain) / reference;
 
 			//An AGC is something nonlinear that's easier to implement in software:
 			//if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
@@ -214,18 +214,16 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 			//that had a sudden increase in their amplitude.
 			//It's also important to note that this algorithm has an exponential gain ramp.
 
-			if(error<0) //INCREASE IN SIGNAL LEVEL
+			if(error > 1) //INCREASE IN SIGNAL LEVEL
 			{
 				if(last_peak<input_abs)
 				{
-
 					state->attack_wait_counter=attack_wait_time;
 					last_peak=input_abs;
 				}
 				if(state->attack_wait_counter>0)
 				{
 					state->attack_wait_counter--;
-					//fprintf(stderr,"A");
 					dgain = 1;
 				}
 				else
@@ -234,7 +232,6 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 					dgain = 1 - attack_rate;
 					//Before starting to increase the gain next time, we will be waiting until hang_time for sure.
 					state->hang_counter=hang_time;
-
 				}
 			}
 			else //DECREASE IN SIGNAL LEVEL

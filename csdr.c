@@ -1366,7 +1366,7 @@ int main(int argc, char *argv[])
         if(!sendbufsize(initialize_buffers())) return -2;
 
         agc_state* state = malloc(sizeof(agc_state));
-        state->last_gain = 1.0;
+        state->last_gain = 10.0;
         state->hang_counter = 0;
         state->attack_wait_counter = 0;
         state->vk = 0;
