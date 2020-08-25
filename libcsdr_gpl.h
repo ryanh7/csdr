@@ -37,7 +37,15 @@ float shift_addition_cc(complexf *input, complexf* output, int input_size, shift
 float shift_addition_fc(float *input, complexf* output, int input_size, shift_addition_data_t d, float starting_phase);
 void shift_addition_cc_test(shift_addition_data_t d);
 
-float agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, short hang_time, short attack_wait_time, float gain_filter_alpha, float last_gain);
+typedef struct {
+    float last_gain;
+    unsigned long int hang_counter;
+    short attack_wait_counter;
+    float xk;
+    float vk;
+} agc_state;
+
+agc_state* agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, unsigned long int hang_time, short attack_wait_time, float gain_filter_alpha, agc_state* state);
 
 typedef struct decimating_shift_addition_status_s
 {

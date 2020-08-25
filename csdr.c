@@ -1342,16 +1342,16 @@ int main(int argc, char *argv[])
         //Process the params
         //Explanation of what these actually do is in the DSP source.
         //These good default values are for SSB sampled at 48000 kHz.
-        short hang_time=200;
-        if(argc>=3) sscanf(argv[2],"%hd",&hang_time);
+        unsigned long int hang_time=200;
+        if(argc>=3) sscanf(argv[2],"%lu",&hang_time);
 
-        float reference=0.2;
+        float reference=0.8;
         if(argc>=4) sscanf(argv[3],"%g",&reference);
 
-        float attack_rate=0.01;
+        float attack_rate=0.1;
         if(argc>=5) sscanf(argv[4],"%g",&attack_rate);
 
-        float decay_rate=0.0001;
+        float decay_rate=0.001;
         if(argc>=6) sscanf(argv[5],"%g",&decay_rate);
 
         float max_gain=65536;
@@ -1360,20 +1360,27 @@ int main(int argc, char *argv[])
         short attack_wait=0;
         if(argc>=8) sscanf(argv[7],"%hd",&attack_wait);
 
-        float filter_alpha=0.999;//0.001;
+        float filter_alpha=1.5;
         if(argc>=9) sscanf(argv[8],"%g",&filter_alpha);
 
         if(!sendbufsize(initialize_buffers())) return -2;
 
-        float last_gain=1.0;
+        agc_state* state = malloc(sizeof(agc_state));
+        state->last_gain = 1.0;
+        state->hang_counter = 0;
+        state->attack_wait_counter = 0;
+        state->vk = 0;
+        state->xk = 0;
+
         for(;;)
         {
             FEOF_CHECK;
             FREAD_R;
-            last_gain=agc_ff(input_buffer, output_buffer, the_bufsize, reference, attack_rate, decay_rate, max_gain, hang_time, attack_wait, filter_alpha, last_gain);
+            state = agc_ff(input_buffer, output_buffer, the_bufsize, reference, attack_rate, decay_rate, max_gain, hang_time, attack_wait, filter_alpha, state);
             FWRITE_R;
             TRY_YIELD;
         }
+        free(state);
     }
 #endif
 

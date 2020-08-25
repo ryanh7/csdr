@@ -160,7 +160,7 @@ decimating_shift_addition_status_t decimating_shift_addition_cc(complexf *input,
 }
 
 
-float agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, short hang_time, short attack_wait_time, float gain_filter_alpha, float last_gain)
+agc_state* agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, unsigned long int hang_time, short attack_wait_time, float gain_filter_alpha, agc_state* state)
 {
 	/*
 		Notes on parameters (with some default values):
@@ -188,22 +188,24 @@ float agc_ff(float* input, float* output, int input_size, float reference, float
 			http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_HPSDR_mRX_PS/Source/wdsp/wcpAGC.c
 			GNU Radio's agc,agc2,agc3 have quite good ideas about this.
 	*/
-	register short hang_counter=0;
-	register short attack_wait_counter=0;
-	float gain=last_gain;
-	float last_peak=reference/last_gain; //approx.
+	float gain=state->last_gain;
+	float last_peak=reference/state->last_gain; //approx.
 	float input_abs;
 	float error, dgain;
-	output[0]=last_gain*input[0]; //we skip this one sample, because it is easier this way
-	for(int i=1;i<input_size;i++) //@agc_ff
-	{
-		//The error is the difference between the required gain at the actual sample, and the previous gain value.
-		//We actually use an envelope detector.
-		input_abs=fabs(input[i]);
-		error=reference/input_abs-gain;
 
+	float xk, vk, rk;
+	float dt = 0.5;
+	float beta = 0.005;
+
+	for(int i=0;i<input_size;i++) //@agc_ff
+	{
 		if(input[i]!=0) //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
 		{
+            //The error is the difference between the required gain at the actual sample, and the previous gain value.
+            //We actually use an envelope detector.
+            input_abs=fabs(input[i]);
+            error=reference/input_abs-gain;
+
 			//An AGC is something nonlinear that's easier to implement in software:
 			//if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
 			//We also have a decay_rate that comes into consideration when the amplitude increases.
@@ -217,46 +219,63 @@ float agc_ff(float* input, float* output, int input_size, float reference, float
 				if(last_peak<input_abs)
 				{
 
-					attack_wait_counter=attack_wait_time;
+					state->attack_wait_counter=attack_wait_time;
 					last_peak=input_abs;
 				}
-				if(attack_wait_counter>0)
+				if(state->attack_wait_counter>0)
 				{
-					attack_wait_counter--;
+					state->attack_wait_counter--;
 					//fprintf(stderr,"A");
-					dgain=0;
+					dgain = 1;
 				}
 				else
 				{
 					//If the signal level increases, we decrease the gain quite fast.
-					dgain=error*attack_rate;
+					dgain = 1 - attack_rate;
 					//Before starting to increase the gain next time, we will be waiting until hang_time for sure.
-					hang_counter=hang_time;
+					state->hang_counter=hang_time;
 
 				}
 			}
 			else //DECREASE IN SIGNAL LEVEL
 			{
-				if(hang_counter>0) //Before starting to increase the gain, we will be waiting until hang_time.
+				if(state->hang_counter>0) //Before starting to increase the gain, we will be waiting until hang_time.
 				{
-					hang_counter--;
-					dgain=0; //..until then, AGC is inactive and gain doesn't change.
+					state->hang_counter--;
+					dgain = 1; //..until then, AGC is inactive and gain doesn't change.
 				}
-				else dgain=error*decay_rate; //If the signal level decreases, we increase the gain quite slowly.
+				else {
+				    dgain = 1 + decay_rate; //If the signal level decreases, we increase the gain quite slowly.
+				}
 			}
-			gain=gain+dgain;
+			gain = gain * dgain;
 			//fprintf(stderr,"g=%f dg=%f\n",gain,dgain);
 		}
-		if(gain>max_gain) gain=max_gain; //We also have to limit our gain, it can't be infinity.
-		if(gain<0) gain=0;
-		//output[i]=gain*input[i]; //Here we do the actual scaling of the samples.
-		//Here we do the actual scaling of the samples, but we run an IIR filter on the gain values:
-		output[i]=(gain=gain+last_gain-gain_filter_alpha*last_gain)*input[i]; //dc-pass-filter: freqz([1 -1],[1 -0.99]) y[i]=x[i]+y[i-1]-alpha*x[i-1]
-		//output[i]=input[i]*(last_gain+gain_filter_alpha*(gain-last_gain)); //LPF
 
-		last_gain=gain;
+        // alpha beta filter
+		xk = state->xk + (state->vk * dt);
+		vk = state->vk;
+
+		rk = gain - xk;
+
+		xk += gain_filter_alpha * rk;
+		vk += (beta * rk) / dt;
+
+		state->xk = xk;
+		state->vk = vk;
+
+		gain = state->xk;
+
+        // clamp gain to max_gain and 0
+		if(gain>max_gain) gain=max_gain;
+		if(gain<0) gain=0;
+
+        // actual sample scaling
+		output[i]= gain * input[i];
 	}
-	return gain; //this will be the last_gain next time
+
+    state->last_gain=gain;
+	return state;
 }
 
 #endif
