@@ -160,7 +160,7 @@ decimating_shift_addition_status_t decimating_shift_addition_cc(complexf *input,
 }
 
 
-agc_state* agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, unsigned long int hang_time, short attack_wait_time, float gain_filter_alpha, agc_state* state)
+agc_state* agc_ff(float* input, float* output, int input_size, agc_params* params, agc_state* state)
 {
 	/*
 		Notes on parameters (with some default values):
@@ -188,8 +188,8 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 			http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_HPSDR_mRX_PS/Source/wdsp/wcpAGC.c
 			GNU Radio's agc,agc2,agc3 have quite good ideas about this.
 	*/
-	float gain=state->last_gain;
-	float last_peak=reference/state->last_gain; //approx.
+	float gain = state->last_gain;
+	float last_peak = params->reference / state->last_gain; //approx.
 	float input_abs;
 	float error, dgain;
 
@@ -197,14 +197,13 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 	float dt = 0.5;
 	float beta = 0.005;
 
-	for(int i=0;i<input_size;i++) //@agc_ff
-	{
-		if(input[i]!=0) //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
-		{
+	for (int i = 0; i < input_size; i++) {
+    //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
+		if (input[i] != 0) {
             //The error is the difference between the required gain at the actual sample, and the previous gain value.
             //We actually use an envelope detector.
             input_abs = fabs(input[i]);
-            error = (input_abs * gain) / reference;
+            error = (input_abs * gain) / params->reference;
 
 			//An AGC is something nonlinear that's easier to implement in software:
 			//if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
@@ -214,39 +213,33 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 			//that had a sudden increase in their amplitude.
 			//It's also important to note that this algorithm has an exponential gain ramp.
 
-			if(error > 1) //INCREASE IN SIGNAL LEVEL
-			{
-				if(last_peak<input_abs)
-				{
-					state->attack_wait_counter=attack_wait_time;
-					last_peak=input_abs;
+			if (error > 1) {
+    			//INCREASE IN SIGNAL LEVEL
+				if (last_peak < input_abs) {
+					state->attack_wait_counter = params->attack_wait_time;
+					last_peak = input_abs;
 				}
-				if(state->attack_wait_counter>0)
-				{
+
+				if (state->attack_wait_counter > 0) {
 					state->attack_wait_counter--;
 					dgain = 1;
-				}
-				else
-				{
+				} else {
 					//If the signal level increases, we decrease the gain quite fast.
-					dgain = 1 - attack_rate;
+					dgain = 1 - params->attack_rate;
 					//Before starting to increase the gain next time, we will be waiting until hang_time for sure.
-					state->hang_counter=hang_time;
+					state->hang_counter = params->hang_time;
 				}
-			}
-			else //DECREASE IN SIGNAL LEVEL
-			{
-				if(state->hang_counter>0) //Before starting to increase the gain, we will be waiting until hang_time.
-				{
+			} else {
+			    //DECREASE IN SIGNAL LEVEL
+				if (state->hang_counter > 0) {
+					//Before starting to increase the gain, we will be waiting until hang_time.
 					state->hang_counter--;
 					dgain = 1; //..until then, AGC is inactive and gain doesn't change.
-				}
-				else {
-				    dgain = 1 + decay_rate; //If the signal level decreases, we increase the gain quite slowly.
+				} else {
+				    dgain = 1 + params->decay_rate; //If the signal level decreases, we increase the gain quite slowly.
 				}
 			}
-			gain = gain * dgain;
-			//fprintf(stderr,"g=%f dg=%f\n",gain,dgain);
+			gain *= dgain;
 		}
 
         // alpha beta filter
@@ -255,7 +248,7 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 
 		rk = gain - xk;
 
-		xk += gain_filter_alpha * rk;
+		xk += params->gain_filter_alpha * rk;
 		vk += (beta * rk) / dt;
 
 		state->xk = xk;
@@ -264,11 +257,11 @@ agc_state* agc_ff(float* input, float* output, int input_size, float reference, 
 		gain = state->xk;
 
         // clamp gain to max_gain and 0
-		if(gain>max_gain) gain=max_gain;
-		if(gain<0) gain=0;
+		if (gain > params->max_gain) gain = params->max_gain;
+		if (gain < 0) gain = 0;
 
         // actual sample scaling
-		output[i]= gain * input[i];
+		output[i] = gain * input[i];
 	}
 
     state->last_gain=gain;

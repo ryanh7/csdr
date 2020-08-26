@@ -54,6 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fastddc.h"
 #include <assert.h>
 #include "benchmark.h"
+#include <getopt.h>
 
 char usage[]=
 "csdr - a simple commandline tool for Software Defined Radio receiver DSP.\n\n"
@@ -1337,31 +1338,100 @@ int main(int argc, char *argv[])
     }
 
 #ifdef LIBCSDR_GPL
-    if(!strcmp(argv[1],"agc_ff"))
-    {
-        //Process the params
-        //Explanation of what these actually do is in the DSP source.
-        //These good default values are for SSB sampled at 48000 kHz.
-        unsigned long int hang_time=200;
-        if(argc>=3) sscanf(argv[2],"%lu",&hang_time);
+    if(!strcmp(argv[1],"agc_ff")) {
 
-        float reference=0.8;
-        if(argc>=4) sscanf(argv[3],"%g",&reference);
+        // fast profile defaults
+        agc_params fast_agc_params = {
+            0.8,
+            0.1,
+            0.001,
+            65536,
+            1,
+            200,
+            0,
+            1.5
+        };
 
-        float attack_rate=0.1;
-        if(argc>=5) sscanf(argv[4],"%g",&attack_rate);
+        // slow profile defaults
+        agc_params slow_agc_params = {
+            0.8,
+            0.01,
+            0.0001,
+            65536,
+            1,
+            600,
+            0,
+            1.5
+        };
 
-        float decay_rate=0.001;
-        if(argc>=6) sscanf(argv[5],"%g",&decay_rate);
+        static struct option long_options[] = {
+            {"help", no_argument, NULL, 'h'},
+            {"profile", required_argument, NULL, 'p'},
+            {"hangtime", required_argument, NULL, 't'},
+            {"reference", required_argument, NULL, 'r'},
+            {"attack", required_argument, NULL, 'a'},
+            {"decay", required_argument, NULL, 'd'},
+            {"max", required_argument, NULL, 'm'},
+            {"initial", required_argument, NULL, 'i'},
+            {"attackwait", required_argument, NULL, 'w'},
+            {"alpha", required_argument, NULL, 'l'},
+            { NULL, 0, NULL, 0 }
+        };
 
-        float max_gain=65536;
-        if(argc>=7) sscanf(argv[6],"%g",&max_gain);
+        char* profile = "fast";
+        agc_params collection = {0, 0, 0, 0, 0, 0, 0, 0};
 
-        short attack_wait=0;
-        if(argc>=8) sscanf(argv[7],"%hd",&attack_wait);
+        int c;
 
-        float filter_alpha=1.5;
-        if(argc>=9) sscanf(argv[8],"%g",&filter_alpha);
+        while ((c = getopt_long(argc, argv, "hp:t:r:a:d:m:i:w:l:", long_options, NULL)) != -1) {
+            switch (c) {
+                case 'h':
+                    // TODO print_usage();
+                    return 0;
+                case 'p':
+                    profile = optarg;
+                    break;
+                case 't':
+                    sscanf(optarg, "%lu", &collection.hang_time);
+                    break;
+                case 'r':
+                    sscanf(optarg, "%g", &collection.reference);
+                    break;
+                case 'a':
+                    sscanf(optarg, "%g", &collection.attack_rate);
+                    break;
+                case 'd':
+                    sscanf(optarg, "%g", &collection.decay_rate);
+                    break;
+                case 'm':
+                    sscanf(optarg, "%g", &collection.max_gain);
+                    break;
+                case 'w':
+                    sscanf(optarg, "%hd", &collection.attack_wait_time);
+                    break;
+                case 'l':
+                    sscanf(optarg, "%g", &collection.gain_filter_alpha);
+                    break;
+            }
+        }
+
+        agc_params* params = malloc(sizeof(agc_params));
+        agc_params* inuse = &fast_agc_params;
+        if (!strcmp(profile, "slow")) {
+            inuse = &slow_agc_params;
+        }
+        memcpy(params, inuse, sizeof(agc_params));
+
+        // apply values from the command line
+        if (collection.hang_time != 0) params->hang_time = collection.hang_time;
+        if (collection.reference != 0) params->reference = collection.reference;
+        if (collection.attack_rate != 0) params->attack_rate = collection.attack_rate;
+        if (collection.decay_rate != 0) params->decay_rate = collection.decay_rate;
+        if (collection.max_gain != 0) params->max_gain = collection.max_gain;
+        if (collection.attack_wait_time != 0) params->attack_wait_time = collection.attack_wait_time;
+        if (collection.gain_filter_alpha != 0) params->gain_filter_alpha = collection.gain_filter_alpha;
+
+        fprintf(stderr, "AGC PARAMS:\n  hang_time = %d\n  reference = %f\n  attack_rate = %f\n  decay_rate = %f\n  max_gain = %f\n  attack_wait_time = %d\n  gain_filter_alpha = %f\n", params->hang_time, params->reference, params->attack_rate, params->decay_rate, params->max_gain, params->attack_wait_time, params->gain_filter_alpha);
 
         if(!sendbufsize(initialize_buffers())) return -2;
 
@@ -1376,11 +1446,12 @@ int main(int argc, char *argv[])
         {
             FEOF_CHECK;
             FREAD_R;
-            state = agc_ff(input_buffer, output_buffer, the_bufsize, reference, attack_rate, decay_rate, max_gain, hang_time, attack_wait, filter_alpha, state);
+            state = agc_ff(input_buffer, output_buffer, the_bufsize, params, state);
             FWRITE_R;
             TRY_YIELD;
         }
         free(state);
+        free(params);
     }
 #endif
 

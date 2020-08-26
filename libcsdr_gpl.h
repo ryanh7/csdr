@@ -45,7 +45,18 @@ typedef struct {
     float vk;
 } agc_state;
 
-agc_state* agc_ff(float* input, float* output, int input_size, float reference, float attack_rate, float decay_rate, float max_gain, unsigned long int hang_time, short attack_wait_time, float gain_filter_alpha, agc_state* state);
+typedef struct {
+    float reference;
+    float attack_rate;
+    float decay_rate;
+    float max_gain;
+    float initial_gain;
+    unsigned long int hang_time;
+    short attack_wait_time;
+    float gain_filter_alpha;
+} agc_params;
+
+agc_state* agc_ff(float* input, float* output, int input_size, agc_params* params, agc_state* state);
 
 typedef struct decimating_shift_addition_status_s
 {
