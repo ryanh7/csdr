@@ -629,7 +629,7 @@ It is an automatic gain control function.
 - `--profile` switches between the two sets of default values for "fast" and "slow" agc. You can still override them
   with the arguments below for fine-tuning.
 
-If no arguments are given, the "fast" profile automatically active:
+If no arguments are given, the agc will run with the defaults of the "fast" profile:
 
 ```
   hang_time = 200
