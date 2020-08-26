@@ -620,19 +620,26 @@ Parameters are described under `firdes_bandpass_c` and `firdes_lowpass_f`.
 
 ### [agc_ff](#agc_ff)
 
-Syntax: 
+Syntax:
 
-    csdr agc_ff [hang_time [reference [attack_rate [decay_rate [max_gain [attack_wait [filter_alpha]]]]]]]
+    csdr agc_ff [--profile (slow|fast)] [--hangtime t] [--reference r] [--attack a] [--decay d] [--max m] [--initial i] [--attackwait w] [--alpha l]
 
 It is an automatic gain control function.
 
-- `hang_time` is the number of samples to wait before starting to increase the gain after a peak.
-- `reference` is the reference level for the AGC. It tries to keep the amplitude of the output signal close to that.
-- `attack_rate` is the rate of decreasing the signal level if it gets higher than it used to be before.
-- `decay_rate` is the rate of increasing the signal level if it gets lower than it used to be before.
-- AGC won't increase the gain over `max_gain`.
-- `attack_wait` is the number of sampels to wait before starting to decrease the gain, because sometimes very short peaks happen, and we don't want them to spoil the reception by substantially decreasing the gain of the AGC.
-- `filter_alpha` is the parameter of the loop filter.
+- `--profile` switches between the two sets of default for "fast" and "slow" agc. The profiles include corresponding
+  defaults for all the parameters below, but you can still override them with the arguments below for fine-tuning.
+
+All arguments below take a number as a parameter:
+
+- `--hangtime` is the number of samples to wait before starting to increase the gain after a peak.
+- `--reference` is the reference level for the AGC. It tries to keep the amplitude of the output signal close to that.
+- `--attack` is the rate of decreasing the signal level if it gets higher than it used to be before.
+- `--decay` is the rate of increasing the signal level if it gets lower than it used to be before.
+- AGC won't increase the gain over `--max`.
+- `--initial` sets an initial gain value (best guess)
+- `--attack_wait` is the number of samples to wait before starting to decrease the gain, because sometimes very short
+  peaks happen, and we don't want them to spoil the reception by substantially decreasing the gain of the AGC.
+- `--alpha` is the parameter of the AGC smoothing alpha filter.
 
 Its default parameters work best for an audio signal sampled at 48000 Hz.
 
