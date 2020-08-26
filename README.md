@@ -626,8 +626,21 @@ Syntax:
 
 It is an automatic gain control function.
 
-- `--profile` switches between the two sets of default for "fast" and "slow" agc. The profiles include corresponding
-  defaults for all the parameters below, but you can still override them with the arguments below for fine-tuning.
+- `--profile` switches between the two sets of default values for "fast" and "slow" agc. You can still override them
+  with the arguments below for fine-tuning.
+
+If no arguments are given, the "fast" profile automatically active:
+
+```
+  hang_time = 200
+  reference = 0.800000
+  attack_rate = 0.100000
+  decay_rate = 0.001000
+  max_gain = 65536.000000
+  initial_gain = 1.000000
+  attack_wait_time = 0
+  gain_filter_alpha = 1.500000
+```
 
 All arguments below take a number as a parameter:
 
