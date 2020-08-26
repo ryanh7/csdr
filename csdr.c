@@ -3715,5 +3715,12 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+#ifdef CSDR_VERSION
+    if (!strcmp(argv[1], "version")) {
+        fprintf(stderr, "csdr version %s\n", CSDR_VERSION);
+        return 0;
+    }
+#endif
+
     fprintf(stderr,"csdr: function name given in argument 1 (%s) does not exist. Possible causes:\n- You mistyped the commandline.\n- You need to update csdr to a newer version (if available).\n", argv[1]); return -1;
 }
