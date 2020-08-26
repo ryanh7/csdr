@@ -1346,7 +1346,6 @@ int main(int argc, char *argv[])
             0.1,
             0.001,
             65536,
-            1,
             200,
             0,
             1.5
@@ -1358,7 +1357,6 @@ int main(int argc, char *argv[])
             0.01,
             0.0001,
             65536,
-            1,
             600,
             0,
             1.5
@@ -1379,7 +1377,8 @@ int main(int argc, char *argv[])
         };
 
         char* profile = "fast";
-        agc_params collection = {0, 0, 0, 0, 0, 0, 0, 0};
+        agc_params collection = {0, 0, 0, 0, 0, 0, 0};
+        float initial_gain = 1;
 
         int c;
 
@@ -1407,7 +1406,7 @@ int main(int argc, char *argv[])
                     sscanf(optarg, "%g", &collection.max_gain);
                     break;
                 case 'i':
-                    sscanf(optarg, "%g", &collection.initial_gain);
+                    sscanf(optarg, "%g", &initial_gain);
                     break;
                 case 'w':
                     sscanf(optarg, "%hd", &collection.attack_wait_time);
@@ -1431,16 +1430,15 @@ int main(int argc, char *argv[])
         if (collection.attack_rate != 0) params->attack_rate = collection.attack_rate;
         if (collection.decay_rate != 0) params->decay_rate = collection.decay_rate;
         if (collection.max_gain != 0) params->max_gain = collection.max_gain;
-        if (collection.initial_gain != 0) params->initial_gain = collection.initial_gain;
         if (collection.attack_wait_time != 0) params->attack_wait_time = collection.attack_wait_time;
         if (collection.gain_filter_alpha != 0) params->gain_filter_alpha = collection.gain_filter_alpha;
 
-        fprintf(stderr, "AGC PARAMS:\n  hang_time = %d\n  reference = %f\n  attack_rate = %f\n  decay_rate = %f\n  max_gain = %f\n  initial_gain = %f\n  attack_wait_time = %d\n  gain_filter_alpha = %f\n", params->hang_time, params->reference, params->attack_rate, params->decay_rate, params->max_gain, params->initial_gain, params->attack_wait_time, params->gain_filter_alpha);
+        fprintf(stderr, "AGC PARAMS:\n  hang_time = %d\n  reference = %f\n  attack_rate = %f\n  decay_rate = %f\n  max_gain = %f\n  initial_gain = %f\n  attack_wait_time = %d\n  gain_filter_alpha = %f\n", params->hang_time, params->reference, params->attack_rate, params->decay_rate, params->max_gain, initial_gain, params->attack_wait_time, params->gain_filter_alpha);
 
         if(!sendbufsize(initialize_buffers())) return -2;
 
         agc_state* state = malloc(sizeof(agc_state));
-        state->last_gain = params->initial_gain;
+        state->last_gain = initial_gain;
         state->hang_counter = 0;
         state->attack_wait_counter = 0;
         state->vk = 0;

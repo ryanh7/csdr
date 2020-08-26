@@ -50,7 +50,6 @@ typedef struct {
     float attack_rate;
     float decay_rate;
     float max_gain;
-    float initial_gain;
     unsigned long int hang_time;
     short attack_wait_time;
     float gain_filter_alpha;
