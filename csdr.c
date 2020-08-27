@@ -100,7 +100,8 @@ char usage[]=
 "    fir_interpolate_cc <interpolation_factor> [transition_bw [window]]\n"
 "    firdes_lowpass_f <cutoff_rate> <length> [window [--octave]]\n"
 "    firdes_bandpass_c <low_cut> <high_cut> <length> [window [--octave]]\n"
-"    agc_ff [hang_time [reference [attack_rate [decay_rate [max_gain [attack_wait [filter_alpha]]]]]]]\n"
+"    agc_ff [--profile (slow|fast)] [--hangtime t] [--reference r] [--attack a] [--decay d] [--max m] [--initial i] [--attackwait w] [--alpha l]\n"
+"    agc_s16 [--profile (slow|fast)] [--hangtime t] [--reference r] [--attack a] [--decay d] [--max m] [--initial i] [--attackwait w] [--alpha l]\n"
 "    fastagc_ff [block_size [reference]]\n"
 "    rational_resampler_ff <interpolation> <decimation> [transition_bw [window]]\n"
 "    old_fractional_decimator_ff <decimation_rate> [transition_bw [window]]\n"
@@ -1338,7 +1339,9 @@ int main(int argc, char *argv[])
     }
 
 #ifdef LIBCSDR_GPL
-    if(!strcmp(argv[1],"agc_ff")) {
+    if (!strcmp(argv[1], "agc_ff") || !strcmp(argv[1], "agc_s16")) {
+        // store this since getopt will manipulate it
+        char* mode = argv[1];
 
         // fast profile defaults
         agc_params fast_agc_params = {
@@ -1444,13 +1447,24 @@ int main(int argc, char *argv[])
         state->vk = 0;
         state->xk = 0;
 
-        for(;;)
-        {
-            FEOF_CHECK;
-            FREAD_R;
-            state = agc_ff(input_buffer, output_buffer, the_bufsize, params, state);
-            FWRITE_R;
-            TRY_YIELD;
+        if (!strcmp(mode, "agc_ff")) {
+            for(;;)
+            {
+                FEOF_CHECK;
+                FREAD_R;
+                state = agc_ff(input_buffer, output_buffer, the_bufsize, params, state);
+                FWRITE_R;
+                TRY_YIELD;
+            }
+        } else if (!strcmp(mode, "agc_s16")) {
+            for(;;)
+            {
+                FEOF_CHECK;
+                FREAD_R;
+                state = agc_s16((short*) input_buffer, (short*) output_buffer, the_bufsize, params, state);
+                FWRITE_R;
+                TRY_YIELD;
+            }
         }
         free(state);
         free(params);

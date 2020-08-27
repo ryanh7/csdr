@@ -57,6 +57,8 @@ typedef struct {
 
 agc_state* agc_ff(float* input, float* output, int input_size, agc_params* params, agc_state* state);
 
+agc_state* agc_s16(short* input, short* output, int input_size, agc_params* params, agc_state* state);
+
 typedef struct decimating_shift_addition_status_s
 {
 	int decimation_remain;

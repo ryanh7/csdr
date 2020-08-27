@@ -198,11 +198,93 @@ agc_state* agc_ff(float* input, float* output, int input_size, agc_params* param
 	float beta = 0.005;
 
 	for (int i = 0; i < input_size; i++) {
-    //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
+        //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
 		if (input[i] != 0) {
             //The error is the difference between the required gain at the actual sample, and the previous gain value.
             //We actually use an envelope detector.
             input_abs = fabs(input[i]);
+            error = (input_abs * gain) / params->reference;
+
+			//An AGC is something nonlinear that's easier to implement in software:
+			//if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
+			//We also have a decay_rate that comes into consideration when the amplitude increases.
+			//The higher these rates are, the faster is the response of the AGC to amplitude changes.
+			//However, attack_rate should be higher than the decay_rate as we want to avoid clipping signals.
+			//that had a sudden increase in their amplitude.
+			//It's also important to note that this algorithm has an exponential gain ramp.
+
+			if (error > 1) {
+    			//INCREASE IN SIGNAL LEVEL
+				if (last_peak < input_abs) {
+					state->attack_wait_counter = params->attack_wait_time;
+					last_peak = input_abs;
+				}
+
+				if (state->attack_wait_counter > 0) {
+					state->attack_wait_counter--;
+					dgain = 1;
+				} else {
+					//If the signal level increases, we decrease the gain quite fast.
+					dgain = 1 - params->attack_rate;
+					//Before starting to increase the gain next time, we will be waiting until hang_time for sure.
+					state->hang_counter = params->hang_time;
+				}
+			} else {
+			    //DECREASE IN SIGNAL LEVEL
+				if (state->hang_counter > 0) {
+					//Before starting to increase the gain, we will be waiting until hang_time.
+					state->hang_counter--;
+					dgain = 1; //..until then, AGC is inactive and gain doesn't change.
+				} else {
+				    dgain = 1 + params->decay_rate; //If the signal level decreases, we increase the gain quite slowly.
+				}
+			}
+			gain *= dgain;
+		}
+
+        // alpha beta filter
+		xk = state->xk + (state->vk * dt);
+		vk = state->vk;
+
+		rk = gain - xk;
+
+		xk += params->gain_filter_alpha * rk;
+		vk += (beta * rk) / dt;
+
+		state->xk = xk;
+		state->vk = vk;
+
+		gain = state->xk;
+
+        // clamp gain to max_gain and 0
+		if (gain > params->max_gain) gain = params->max_gain;
+		if (gain < 0) gain = 0;
+
+        // actual sample scaling
+		output[i] = gain * input[i];
+	}
+
+    state->last_gain=gain;
+	return state;
+}
+
+agc_state* agc_s16(short* input, short* output, int input_size, agc_params* params, agc_state* state)
+{
+	float gain = state->last_gain;
+	float last_peak = params->reference / state->last_gain; //approx.
+	short input_abs;
+	float error, dgain;
+
+	float xk, vk, rk;
+	float dt = 0.5;
+	float beta = 0.005;
+
+	for (int i = 0; i < input_size; i++) {
+    //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
+		if (input[i] != 0) {
+            //The error is the difference between the required gain at the actual sample, and the previous gain value.
+            //We actually use an envelope detector.
+            input_abs = abs(input[i]);
             error = (input_abs * gain) / params->reference;
 
 			//An AGC is something nonlinear that's easier to implement in software:

@@ -658,6 +658,16 @@ Its default parameters work best for an audio signal sampled at 48000 Hz.
 
 ----
 
+### [agc_s16](#agc_s16)
+
+Syntax:
+
+    csdr agc_s16 [--profile (slow|fast)] [--hangtime t] [--reference r] [--attack a] [--decay d] [--max m] [--initial i] [--attackwait w] [--alpha l]
+
+Operation is identical as `agc_ff`, but processes signed 16-bit integer samples.
+
+----
+
 ### [fastagc_ff](#fastagc_ff)
 
 Syntax: 
