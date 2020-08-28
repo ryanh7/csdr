@@ -246,6 +246,8 @@ int clone_(int bufsize_param)
 
 #define FREAD_U8    fread (input_buffer,    sizeof(unsigned char), the_bufsize, stdin)
 #define FWRITE_U8   fwrite (output_buffer,  sizeof(unsigned char), the_bufsize, stdout)
+#define FREAD_S16   fread (input_buffer,    sizeof(short),      the_bufsize, stdin)
+#define FWRITE_S16  fwrite (output_buffer,  sizeof(short),      the_bufsize, stdout)
 #define FREAD_R     fread (input_buffer,    sizeof(float),      the_bufsize, stdin)
 #define FREAD_C     fread (input_buffer,    sizeof(float)*2,    the_bufsize, stdin)
 #define FWRITE_R    fwrite (output_buffer,  sizeof(float),      the_bufsize, stdout)
@@ -1460,9 +1462,9 @@ int main(int argc, char *argv[])
             for(;;)
             {
                 FEOF_CHECK;
-                FREAD_R;
+                FREAD_S16;
                 state = agc_s16((short*) input_buffer, (short*) output_buffer, the_bufsize, params, state);
-                FWRITE_R;
+                FWRITE_S16;
                 TRY_YIELD;
             }
         }

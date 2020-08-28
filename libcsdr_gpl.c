@@ -270,8 +270,9 @@ agc_state* agc_ff(float* input, float* output, int input_size, agc_params* param
 
 agc_state* agc_s16(short* input, short* output, int input_size, agc_params* params, agc_state* state)
 {
+	short reference = params->reference * 32767;
 	float gain = state->last_gain;
-	float last_peak = params->reference / state->last_gain; //approx.
+	float last_peak = reference / state->last_gain; //approx.
 	short input_abs;
 	float error, dgain;
 
@@ -285,7 +286,7 @@ agc_state* agc_s16(short* input, short* output, int input_size, agc_params* para
             //The error is the difference between the required gain at the actual sample, and the previous gain value.
             //We actually use an envelope detector.
             input_abs = abs(input[i]);
-            error = (input_abs * gain) / params->reference;
+            error = (input_abs * gain) / reference;
 
 			//An AGC is something nonlinear that's easier to implement in software:
 			//if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
