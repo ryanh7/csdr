@@ -262,6 +262,12 @@ agc_state* agc_ff(float* input, float* output, int input_size, agc_params* param
 
         // actual sample scaling
 		output[i] = gain * input[i];
+		// limiting
+		if (output[i] > 1.0) {
+		    output[i] = 1.0;
+		} else if (output[i] < -1.0) {
+		    output[i] = -1.0;
+		}
 	}
 
     state->last_gain=gain;
@@ -344,7 +350,14 @@ agc_state* agc_s16(short* input, short* output, int input_size, agc_params* para
 		if (gain < 0) gain = 0;
 
         // actual sample scaling
-		output[i] = gain * input[i];
+        // limiting
+        if (gain * input[i] > SHRT_MAX) {
+            output[i] = SHRT_MAX;
+        } else if (gain * input[i] < SHRT_MIN) {
+            output[i] = SHRT_MIN;
+        } else {
+    		output[i] = gain * input[i];
+        }
 	}
 
     state->last_gain=gain;

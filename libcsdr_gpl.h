@@ -26,6 +26,7 @@ This file is part of libcsdr.
 #include "libcsdr.h"
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 
 typedef struct shift_addition_data_s
 {
