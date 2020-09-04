@@ -819,37 +819,14 @@ float inline fir_one_pass_ff(float* input, float* taps, int taps_length)
     return acc;
 }
 
-old_fractional_decimator_ff_t old_fractional_decimator_ff(float* input, float* output, int input_size, float rate, float *taps, int taps_length, old_fractional_decimator_ff_t d)
+complexf inline fir_one_pass_cc(complexf* input, float* taps, int taps_length)
 {
-    if(rate<=1.0) return d; //sanity check, can't decimate <=1.0
-    //This routine can handle floating point decimation rates.
-    //It linearly interpolates between two samples that are taken into consideration from the filtered input.
-    int oi=0;
-    int index_high;
-    float where=d.remain;
-    float result_high, result_low;
-    if(where==0.0) //in the first iteration index_high may be zero (so using the item index_high-1 would lead to invalid memory access).
-    {
-        output[oi++]=fir_one_pass_ff(input,taps,taps_length);
-        where+=rate;
+    complexf acc = {0, 0};
+    for(int i=0;i<taps_length;i++) {
+        acc.i = taps[i] * input[i].i;
+        acc.q = taps[i] * input[i].q;
     }
-
-    int previous_index_high=-1;
-    //we optimize to calculate ceilf(where) only once every iteration, so we do it here:
-    for(;(index_high=ceilf(where))+taps_length<input_size;where+=rate) //@fractional_decimator_ff
-    {
-        if(previous_index_high==index_high-1) result_low=result_high; //if we step less than 2.0 then we do already have the result for the FIR filter for that index
-        else result_low=fir_one_pass_ff(input+index_high-1,taps,taps_length);
-        result_high=fir_one_pass_ff(input+index_high,taps,taps_length);
-        float register rate_between_samples=where-index_high+1;
-        output[oi++]=result_low*(1-rate_between_samples)+result_high*rate_between_samples;
-        previous_index_high=index_high;
-    }
-
-    d.input_processed=index_high-1;
-    d.remain=where-d.input_processed;
-    d.output_size=oi;
-    return d;
+    return acc;
 }
 
 fractional_decimator_ff_t fractional_decimator_ff_init(float rate, int num_poly_points, float* taps, int taps_length)
@@ -874,10 +851,45 @@ fractional_decimator_ff_t fractional_decimator_ff_init(float rate, int num_poly_
         id++;
     }
     d.where=-d.xifirst;
-    d.coeffs_buf=(float*)malloc(d.num_poly_points*sizeof(float)); 
-    d.filtered_buf=(float*)malloc(d.num_poly_points*sizeof(float)); 
+    d.coeffs_buf=(float*)malloc(d.num_poly_points*sizeof(float));
+    d.filtered_buf=(float*)malloc(d.num_poly_points*sizeof(float));
     //d.last_inputs_circbuf = (float)malloc(d.num_poly_points*sizeof(float));
-    //d.last_inputs_startsat = 0; 
+    //d.last_inputs_startsat = 0;
+    //d.last_inputs_samplewhere = -1;
+    //for(int i=0;i<num_poly_points; i++) d.last_inputs_circbuf[i] = 0;
+    d.rate = rate;
+    d.taps = taps;
+    d.taps_length = taps_length;
+    d.input_processed = 0;
+    return d;
+}
+
+fractional_decimator_cc_t fractional_decimator_cc_init(float rate, int num_poly_points, float* taps, int taps_length)
+{
+    fractional_decimator_cc_t d;
+    d.num_poly_points = num_poly_points&~1; //num_poly_points needs to be even!
+    d.poly_precalc_denomiator = (float*)malloc(d.num_poly_points*sizeof(float));
+    //x0..x3
+    //-1,0,1,2
+    //-(4/2)+1
+    //x0..x5
+    //-2,-1,0,1,2,3
+    d.xifirst=-(num_poly_points/2)+1, d.xilast=num_poly_points/2;
+    int id = 0; //index in poly_precalc_denomiator
+    for(int xi=d.xifirst;xi<=d.xilast;xi++)
+    {
+        d.poly_precalc_denomiator[id]=1;
+        for(int xj=d.xifirst;xj<=d.xilast;xj++)
+        {
+            if(xi!=xj) d.poly_precalc_denomiator[id] *= (xi-xj); //poly_precalc_denomiator could be integer as well. But that would later add a necessary conversion.
+        }
+        id++;
+    }
+    d.where=-d.xifirst;
+    d.coeffs_buf=(float*)malloc(d.num_poly_points*sizeof(float));
+    d.filtered_buf=(complexf*)malloc(d.num_poly_points*sizeof(complexf));
+    //d.last_inputs_circbuf = (float)malloc(d.num_poly_points*sizeof(float));
+    //d.last_inputs_startsat = 0;
     //d.last_inputs_samplewhere = -1;
     //for(int i=0;i<num_poly_points; i++) d.last_inputs_circbuf[i] = 0;
     d.rate = rate;
@@ -931,6 +943,52 @@ void fractional_decimator_ff(float* input, float* output, int input_size, fracti
     d->where -= d->input_processed;
     d->output_size = oi;
 }
+
+void fractional_decimator_cc(complexf* input, complexf* output, int input_size, fractional_decimator_cc_t* d)
+{
+    //This routine can handle floating point decimation rates.
+    //It applies polynomial interpolation to samples that are taken into consideration from a pre-filtered input.
+    //The pre-filter can be switched off by applying taps=NULL.
+    //fprintf(stderr, "drate=%f\n", d->rate);
+    if(DEBUG_ASSERT) assert(d->rate > 1.0);
+    if(DEBUG_ASSERT) assert(d->where >= -d->xifirst);
+    int oi=0; //output index
+    int index_high;
+#define FD_INDEX_LOW (index_high-1)
+    //we optimize to calculate ceilf(where) only once every iteration, so we do it here:
+    for(;(index_high=ceilf(d->where))+d->num_poly_points+d->taps_length<input_size;d->where+=d->rate) //@fractional_decimator_ff
+    {
+        //d->num_poly_points above is theoretically more than we could have here, but this makes the spectrum look good
+        int sxifirst = FD_INDEX_LOW + d->xifirst;
+        int sxilast = FD_INDEX_LOW + d->xilast;
+        if(d->taps)
+            for(int wi=0;wi<d->num_poly_points;wi++) d->filtered_buf[wi] = fir_one_pass_cc(input+FD_INDEX_LOW+wi, d->taps, d->taps_length);
+        else
+            for(int wi=0;wi<d->num_poly_points;wi++) d->filtered_buf[wi] = *(input+FD_INDEX_LOW+wi);
+        int id=0;
+        float xwhere = d->where - FD_INDEX_LOW;
+        for(int xi=d->xifirst;xi<=d->xilast;xi++)
+        {
+            d->coeffs_buf[id]=1;
+            for(int xj=d->xifirst;xj<=d->xilast;xj++)
+            {
+                if(xi!=xj) d->coeffs_buf[id] *= (xwhere-xj);
+            }
+            id++;
+        }
+        complexf acc = {0, 0};
+        for(int i=0;i<d->num_poly_points;i++)
+        {
+            acc.i += (d->coeffs_buf[i]/d->poly_precalc_denomiator[i])*d->filtered_buf[i].i;  //(xnom/xden)*yn
+            acc.q += (d->coeffs_buf[i]/d->poly_precalc_denomiator[i])*d->filtered_buf[i].q;  //(xnom/xden)*yn
+        }
+        output[oi++]=acc;
+    }
+    d->input_processed = FD_INDEX_LOW + d->xifirst;
+    d->where -= d->input_processed;
+    d->output_size = oi;
+}
+
 
 /*
  * Some notes to myself on the circular buffer I wanted to implement here:
