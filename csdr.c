@@ -122,6 +122,7 @@ char usage[]=
 "    fmmod_fc\n"
 "    fixed_amplitude_cc <new_amplitude>\n"
 "    mono2stereo_s16\n"
+"    stereo2mono_s16\n"
 "    setbuf <buffer_size>\n"
 "    fft_exchange_sides_ff <fft_size>\n"
 "    squelch_and_smeter_cc --fifo <squelch_fifo> --outfifo <smeter_fifo> <use_every_nth> <report_every_nth>\n"
@@ -1456,6 +1457,7 @@ int main(int argc, char *argv[])
                 FREAD_R;
                 state = agc_ff(input_buffer, output_buffer, the_bufsize, params, state);
                 FWRITE_R;
+                fprintf(stderr, "\r  current gain: %f               ", state->last_gain);
                 TRY_YIELD;
             }
         } else if (!strcmp(mode, "agc_s16")) {
@@ -1465,6 +1467,7 @@ int main(int argc, char *argv[])
                 FREAD_S16;
                 state = agc_s16((short*) input_buffer, (short*) output_buffer, the_bufsize, params, state);
                 FWRITE_S16;
+                fprintf(stderr, "\r  current gain: %f               ", state->last_gain);
                 TRY_YIELD;
             }
         }
@@ -2273,7 +2276,6 @@ int main(int argc, char *argv[])
     if((!strcmp(argv[1],"mono2stereo_i16"))||(!strcmp(argv[1],"mono2stereo_s16")))
     {
         if(!sendbufsize(initialize_buffers())) return -2;
-        float last_phase = 0;
         for(;;)
         {
             FEOF_CHECK;
@@ -2284,6 +2286,19 @@ int main(int argc, char *argv[])
                 *(((short*)output_buffer)+2*i+1)=*(((short*)input_buffer)+i);
             }
             fwrite (output_buffer, sizeof(short)*2, the_bufsize, stdout);
+            TRY_YIELD;
+        }
+    }
+
+    if (!strcmp(argv[1], "stereo2mono_s16")) {
+        if (!sendbufsize(initialize_buffers())) return -2;
+        for(;;) {
+            FEOF_CHECK;
+            fread(input_buffer, sizeof(short), the_bufsize, stdin);
+            for (int i = 0; i < the_bufsize / 2; i++) {
+                ((short*) output_buffer)[i] = ((short*) input_buffer)[i * 2] / 2 + ((short*) input_buffer)[i * 2 + 1] / 2;
+            }
+            fwrite(output_buffer, sizeof(short), the_bufsize / 2, stdout);
             TRY_YIELD;
         }
     }

@@ -847,6 +847,16 @@ The output will be:
 
 ----
 
+### [stereo2mono_s16](#stereo2mono_s16)
+
+Syntax:
+
+    csdr stereo2mono_s16
+
+Performs a stereo downmix, where every two samples coming in are averaged into one output sample.
+
+----
+
 ### [setbuf](#setbuf)
 
 Syntax: 
