@@ -1457,7 +1457,6 @@ int main(int argc, char *argv[])
                 FREAD_R;
                 state = agc_ff(input_buffer, output_buffer, the_bufsize, params, state);
                 FWRITE_R;
-                fprintf(stderr, "\r  current gain: %f               ", state->last_gain);
                 TRY_YIELD;
             }
         } else if (!strcmp(mode, "agc_s16")) {
@@ -1467,7 +1466,6 @@ int main(int argc, char *argv[])
                 FREAD_S16;
                 state = agc_s16((short*) input_buffer, (short*) output_buffer, the_bufsize, params, state);
                 FWRITE_S16;
-                fprintf(stderr, "\r  current gain: %f               ", state->last_gain);
                 TRY_YIELD;
             }
         }
