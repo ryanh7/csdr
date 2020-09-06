@@ -1673,14 +1673,18 @@ int main(int argc, char *argv[])
         }
         else { errhead(); fprintf(stderr,"not using taps\n"); }
         fractional_decimator_cc_t d = fractional_decimator_cc_init(rate, num_poly_points, taps, taps_length);
+
+        // we can reuse the buffers, but we have to tell the compiler the correct type for pointer arithmetics
+        complexf* input_buffer_f = (complexf*) input_buffer;
+        complexf* output_buffer_f = (complexf*) output_buffer;
         for(;;)
         {
             FEOF_CHECK;
             if(d.input_processed==0) d.input_processed=the_bufsize;
-            else memcpy(input_buffer, input_buffer+d.input_processed, sizeof(complexf)*(the_bufsize-d.input_processed));
-            fread(input_buffer+(the_bufsize-d.input_processed), sizeof(complexf), d.input_processed, stdin);
-            fractional_decimator_cc((complexf*) input_buffer, (complexf*) output_buffer, the_bufsize, &d);
-            fwrite(output_buffer, sizeof(complexf), d.output_size, stdout);
+            else memcpy(input_buffer_f, input_buffer_f+d.input_processed, sizeof(complexf)*(the_bufsize-d.input_processed));
+            fread(input_buffer_f+(the_bufsize-d.input_processed), sizeof(complexf), d.input_processed, stdin);
+            fractional_decimator_cc(input_buffer_f, output_buffer_f, the_bufsize, &d);
+            fwrite(output_buffer_f, sizeof(complexf), d.output_size, stdout);
             //fprintf(stderr, "os = %d, ip = %d\n", d.output_size, d.input_processed);
             TRY_YIELD;
         }
