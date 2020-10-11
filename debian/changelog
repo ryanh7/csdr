@@ -1,3 +1,7 @@
+csdr (0.18.0) UNRELEASED; urgency=low
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sun, 11 Oct 2020 21:00:00 +0000
+
 csdr (0.17.0) buster focal; urgency=low
 
   * Improve agc performance
