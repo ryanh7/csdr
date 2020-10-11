@@ -1,10 +1,10 @@
-csdr (0.17.0) UNRELEASED; urgency=low
+csdr (0.17.0) buster focal; urgency=low
 
   * Improve agc performance
   * Rework of agc_ff command line interface
-  * Introduce ne agc_s16 for modes that have 16bit output
+  * Introduce new agc_s16 for modes that have 16bit output
 
- -- Jakob Ketterl <jakob.ketterl@gmx.de>  Wed, 26 Aug 2020 21:56:00 +0000
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Wed, 11 Oct 2020 12:22:00 +0000
 
 csdr (0.16.0) buster focal; urgency=low
 
