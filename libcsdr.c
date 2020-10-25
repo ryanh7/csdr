@@ -674,15 +674,19 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decim
     //The output buffer should be at least input_length / 3.
     // i: input index | ti: tap index | oi: output index
     int oi=0;
-    for(int i=0; i<input_size; i+=decimation) //@fir_decimate_cc: outer loop
-    {
-        if(i+taps_length>input_size) break;
-        float acci=0;
-        for(int ti=0; ti<taps_length; ti++) acci += (iof(input,i+ti)) * taps[ti]; //@fir_decimate_cc: i loop
-        float accq=0;
-        for(int ti=0; ti<taps_length; ti++) accq += (qof(input,i+ti)) * taps[ti]; //@fir_decimate_cc: q loop
-        iof(output,oi)=acci;
-        qof(output,oi)=accq;
+    int ti;
+    float acci;
+    float accq;
+    int max_i = input_size - taps_length;
+    for (int i = 0; i <= max_i; i += decimation) {
+        acci=0;
+        accq=0;
+        for (ti = 0; ti < taps_length; ti++) {
+            acci += input[i + ti].i * taps[ti];
+            accq += input[i + ti].q * taps[ti];
+        }
+        output[oi].i = acci;
+        output[oi].q = accq;
         oi++;
     }
     return oi;
