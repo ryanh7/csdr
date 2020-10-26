@@ -16,3 +16,5 @@ csdr_CFLAGS = -DCSDR_VERSION=\"$(PACKAGE_VERSION)\"
 nmux_SOURCES = nmux.cpp tsmpool.h tsmpool.cpp
 nmux_CXXFLAGS = $(PTHREAD_CFLAGS)
 nmux_LDADD = $(PTHREAD_LIBS)
+
+pkgconfig_DATA = csdr.pc
