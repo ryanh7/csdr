@@ -10,5 +10,4 @@ Description: A simple DSP library for Software Defined Radio
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lcsdr
 Cflags: -I${includedir}
-Requires: @AX_PACKAGE_REQUIRES@
-Requires.private: @AX_PACKAGE_REQUIRES_PRIVATE@
+Requires: fftw3f
