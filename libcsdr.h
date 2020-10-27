@@ -77,7 +77,6 @@ typedef enum window_s
 //FFT
 //Note: these reference to things in this file (e.g. complexf):
 #include "fft_fftw.h"
-#include "fft_rpi.h"
 
 // =================================================================================
 
