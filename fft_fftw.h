@@ -7,18 +7,10 @@
 #include <fftw3.h>
 #define FFT_LIBRARY_USED "fftw3"
 
-#define FFT_PLAN_T struct fft_plan_s
 #define fft_malloc fftwf_malloc
 #define fft_free fftwf_free
 
-struct fft_plan_s 
-{
-	int size;
-	void* input;
-	void* output;
-	fftwf_plan plan;
-};
-
+#include "csdr_types.h"
 #include "libcsdr.h"
 
 FFT_PLAN_T* make_fft_c2c(int size, complexf* input, complexf* output, int forward, int benchmark);

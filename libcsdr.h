@@ -28,6 +28,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "csdr_types.h"
+
 #pragma once
 #define MIN_M(x,y) (((x)>(y))?(y):(x))
 #define MAX_M(x,y) (((x)<(y))?(y):(x))
@@ -42,8 +44,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                        | |
                        |_|
 */
-
-typedef struct complexf_s { float i; float q; } complexf;
 
 //apply to pointers:
 #define iof(complexf_input_p,i) (*(((float*)complexf_input_p)+2*(i)))
