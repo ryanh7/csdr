@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <limits.h>
 #include "libcsdr.h"
+#include "fft_fftw.h"
 #include "predefined.h"
 #include <assert.h>
 #include <stdarg.h>

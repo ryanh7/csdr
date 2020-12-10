@@ -1,6 +1,7 @@
 #include <math.h>
 #include "libcsdr.h"
 #include "libcsdr_gpl.h"
+#include "fft_fftw.h"
 
 typedef struct fastddc_s
 {

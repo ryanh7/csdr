@@ -10,7 +10,14 @@
 #define fft_malloc fftwf_malloc
 #define fft_free fftwf_free
 
-#include "csdr_types.h"
+typedef struct fft_plan_s
+{
+	int size;
+	void* input;
+	void* output;
+	fftwf_plan plan;
+} FFT_PLAN_T;
+
 #include "libcsdr.h"
 
 FFT_PLAN_T* make_fft_c2c(int size, complexf* input, complexf* output, int forward, int benchmark);

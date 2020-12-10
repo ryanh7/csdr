@@ -28,7 +28,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "csdr_types.h"
 #include <stdio.h>
 
 #pragma once
@@ -45,6 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                        | |
                        |_|
 */
+
+typedef struct complexf_s { float i; float q; } complexf;
 
 //apply to pointers:
 #define iof(complexf_input_p,i) (*(((float*)complexf_input_p)+2*(i)))
@@ -75,9 +76,8 @@ typedef enum window_s
 
 #define WINDOW_DEFAULT WINDOW_HAMMING
 
-//FFT
-//Note: these reference to things in this file (e.g. complexf):
-#include "fft_fftw.h"
+// forward declaration to avoid pulling fft stuff into here
+typedef struct fft_plan_s FFT_PLAN_T;
 
 // =================================================================================
 

@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdarg.h>
 #include "libcsdr.h"
 #include "libcsdr_gpl.h"
+#include "fft_fftw.h"
 #include "ima_adpcm.h"
 #include <sched.h>
 #include <math.h>
