@@ -1729,7 +1729,7 @@ int main(int argc, char *argv[])
         complexf* windowed=(complexf*)fft_malloc(sizeof(complexf)*fft_size);
         complexf* output=(complexf*)fft_malloc(sizeof(complexf)*fft_size);
         if(benchmark) { errhead(); fprintf(stderr,"benchmarking..."); }
-        FFT_PLAN_T* plan=make_fft_c2c(fft_size, windowed, output, 1, benchmark);
+        fft_plan_t* plan=make_fft_c2c(fft_size, windowed, output, 1, benchmark);
         if(benchmark) fprintf(stderr," done\n");
         if(octave) printf("setenv(\"GNUTERM\",\"X11 noraise\");y=zeros(1,%d);semilogy(y,\"ydatasource\",\"y\");\n",fft_size);
         float *windowt;
@@ -1923,7 +1923,7 @@ int main(int argc, char *argv[])
         errhead(); fprintf(stderr,"initializing... ");
         struct timespec start_time, end_time;
         clock_gettime(CLOCK_MONOTONIC_RAW, &start_time);
-        FFT_PLAN_T* plan=make_fft_c2c(fft_size,input,output,1,benchmark);
+        fft_plan_t* plan=make_fft_c2c(fft_size,input,output,1,benchmark);
         clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
         fprintf(stderr,"done in %g seconds.\n",TIME_TAKEN(start_time,end_time));
 
@@ -1973,19 +1973,19 @@ int main(int argc, char *argv[])
         //prepare making the filter and doing FFT on it
         complexf* taps=(complexf*)calloc(sizeof(complexf),fft_size); //initialize to zero
         complexf* taps_fft=(complexf*)malloc(sizeof(complexf)*fft_size);
-        FFT_PLAN_T* plan_taps = make_fft_c2c(fft_size, taps, taps_fft, 1, 0); //forward, don't benchmark (we need this only once)
+        fft_plan_t* plan_taps = make_fft_c2c(fft_size, taps, taps_fft, 1, 0); //forward, don't benchmark (we need this only once)
 
         //make FFT plans for continously processing the input
         complexf* input = fft_malloc(fft_size*sizeof(complexf));
         complexf* input_fourier = fft_malloc(fft_size*sizeof(complexf));
-        FFT_PLAN_T* plan_forward = make_fft_c2c(fft_size, input, input_fourier, 1, 1); //forward, do benchmark
+        fft_plan_t* plan_forward = make_fft_c2c(fft_size, input, input_fourier, 1, 1); //forward, do benchmark
 
         complexf* output_fourier = fft_malloc(fft_size*sizeof(complexf));
         complexf* output_1 = fft_malloc(fft_size*sizeof(complexf));
         complexf* output_2 = fft_malloc(fft_size*sizeof(complexf));
         //we create 2x output buffers so that one will preserve the previous overlap:
-        FFT_PLAN_T* plan_inverse_1 = make_fft_c2c(fft_size, output_fourier, output_1, 0, 1); //inverse, do benchmark
-        FFT_PLAN_T* plan_inverse_2 = make_fft_c2c(fft_size, output_fourier, output_2, 0, 1);
+        fft_plan_t* plan_inverse_1 = make_fft_c2c(fft_size, output_fourier, output_1, 0, 1); //inverse, do benchmark
+        fft_plan_t* plan_inverse_2 = make_fft_c2c(fft_size, output_fourier, output_2, 0, 1);
         //we initialize this buffer to 0 as it will be taken as the overlap source for the first time:
         for(int i=0;i<fft_size;i++) iof(plan_inverse_2->output,i)=qof(plan_inverse_2->output,i)=0;
 
@@ -2002,8 +2002,8 @@ int main(int argc, char *argv[])
             {
                 FEOF_CHECK;
                 fread(input, sizeof(complexf), input_size, stdin);
-                FFT_PLAN_T* plan_inverse = (odd)?plan_inverse_2:plan_inverse_1;
-                FFT_PLAN_T* plan_contains_last_overlap = (odd)?plan_inverse_1:plan_inverse_2; //the other
+                fft_plan_t* plan_inverse = (odd)?plan_inverse_2:plan_inverse_1;
+                fft_plan_t* plan_contains_last_overlap = (odd)?plan_inverse_1:plan_inverse_2; //the other
                 complexf* last_overlap = (complexf*)plan_contains_last_overlap->output + input_size; //+ fft_size - overlap_length;
                 apply_fir_fft_cc (plan_forward, plan_inverse, taps_fft, last_overlap, overlap_length);
                 int returned=fwrite(plan_inverse->output, sizeof(complexf), input_size, stdout);
@@ -2423,7 +2423,7 @@ int main(int argc, char *argv[])
 
         int benchmark = 1; 
         if(benchmark) { errhead(); fprintf(stderr,"benchmarking FFT..."); }
-        FFT_PLAN_T* plan=make_fft_c2c(ddc.fft_size, windowed, output, 1, benchmark);
+        fft_plan_t* plan=make_fft_c2c(ddc.fft_size, windowed, output, 1, benchmark);
         if(benchmark) fprintf(stderr," done\n");
 
         for(;;)
@@ -2482,7 +2482,7 @@ int main(int argc, char *argv[])
         //prepare making the filter and doing FFT on it
         complexf* taps=(complexf*)calloc(sizeof(complexf),ddc.fft_size); //initialize to zero
         complexf* taps_fft=(complexf*)malloc(sizeof(complexf)*ddc.fft_size);
-        FFT_PLAN_T* plan_taps = make_fft_c2c(ddc.fft_size, taps, taps_fft, 1, 0); //forward, don't benchmark (we need this only once)
+        fft_plan_t* plan_taps = make_fft_c2c(ddc.fft_size, taps, taps_fft, 1, 0); //forward, don't benchmark (we need this only once)
 
         //make the filter
         float filter_half_bw = 0.5/decimation;
@@ -2495,7 +2495,7 @@ int main(int argc, char *argv[])
         complexf* inv_input =    (complexf*)fft_malloc(sizeof(complexf)*ddc.fft_inv_size);
         complexf* inv_output =   (complexf*)fft_malloc(sizeof(complexf)*ddc.fft_inv_size);
         errhead(); fprintf(stderr,"benchmarking FFT...");
-        FFT_PLAN_T* plan_inverse = make_fft_c2c(ddc.fft_inv_size, inv_input, inv_output, 0, 1); //inverse, do benchmark
+        fft_plan_t* plan_inverse = make_fft_c2c(ddc.fft_inv_size, inv_input, inv_output, 0, 1); //inverse, do benchmark
         fprintf(stderr," done\n");
         
         //alloc. buffers
@@ -3592,7 +3592,7 @@ int main(int argc, char *argv[])
         float* windowed=(float*)fft_malloc(sizeof(float)*fft_in_size);
         complexf* output=(complexf*)fft_malloc(sizeof(complexf)*fft_out_size);
         if(benchmark) { errhead(); fprintf(stderr,"benchmarking..."); }
-        FFT_PLAN_T* plan=make_fft_r2c(fft_in_size, windowed, output, benchmark);
+        fft_plan_t* plan=make_fft_r2c(fft_in_size, windowed, output, benchmark);
         if(benchmark) fprintf(stderr," done\n");
         //if(octave) printf("setenv(\"GNUTERM\",\"X11 noraise\");y=zeros(1,%d);semilogy(y,\"ydatasource\",\"y\");\n",fft_size); // TODO
         float *windowt;

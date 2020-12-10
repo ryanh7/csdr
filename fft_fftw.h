@@ -16,14 +16,14 @@ typedef struct fft_plan_s
 	void* input;
 	void* output;
 	fftwf_plan plan;
-} FFT_PLAN_T;
+} fft_plan_t;
 
 #include "libcsdr.h"
 
-FFT_PLAN_T* make_fft_c2c(int size, complexf* input, complexf* output, int forward, int benchmark);
-FFT_PLAN_T* make_fft_r2c(int size, float* input, complexf* output, int benchmark);
-void fft_execute(FFT_PLAN_T* plan);
-void fft_destroy(FFT_PLAN_T* plan);
+fft_plan_t* make_fft_c2c(int size, complexf* input, complexf* output, int forward, int benchmark);
+fft_plan_t* make_fft_r2c(int size, float* input, complexf* output, int benchmark);
+void fft_execute(fft_plan_t* plan);
+void fft_destroy(fft_plan_t* plan);
 
 /*
  * FFTW_MEASURE is inacceptably slow when there is no hardware cycle counter

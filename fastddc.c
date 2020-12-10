@@ -103,7 +103,7 @@ void fft_swap_sides(complexf* io, int fft_size)
 	}
 }
 
-decimating_shift_addition_status_t fastddc_inv_cc(complexf* input, complexf* output, fastddc_t* ddc, FFT_PLAN_T* plan_inverse, complexf* taps_fft, decimating_shift_addition_status_t shift_stat)
+decimating_shift_addition_status_t fastddc_inv_cc(complexf* input, complexf* output, fastddc_t* ddc, fft_plan_t* plan_inverse, complexf* taps_fft, decimating_shift_addition_status_t shift_stat)
 {
 	//implements DDC by using the overlap & scrap method
 	//TODO: +/-1s on overlap_size et al

@@ -77,7 +77,7 @@ typedef enum window_s
 #define WINDOW_DEFAULT WINDOW_HAMMING
 
 // forward declaration to avoid pulling fft stuff into here
-typedef struct fft_plan_s FFT_PLAN_T;
+typedef struct fft_plan_s fft_plan_t;
 
 // =================================================================================
 
@@ -222,7 +222,7 @@ shift_unroll_data_t shift_unroll_init(float rate, int size);
 int log2n(int x);
 int next_pow2(int x);
 #ifdef USE_FFTW
-void apply_fir_fft_cc(FFT_PLAN_T* plan, FFT_PLAN_T* plan_inverse, complexf* taps_fft, complexf* last_overlap, int overlap_size);
+void apply_fir_fft_cc(fft_plan_t* plan, fft_plan_t* plan_inverse, complexf* taps_fft, complexf* last_overlap, int overlap_size);
 #endif
 void gain_ff(float* input, float* output, int input_size, float gain);
 float get_power_f(float* input, int input_size, int decimation);
