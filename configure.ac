@@ -26,19 +26,22 @@ AC_ARG_ENABLE([ima_adpcm],
     esac], [
         AC_DEFINE(USE_IMA_ADPCM)
     ])
+AC_DEFINE(USE_FFTW)
 AC_ARG_ENABLE([gpl],
     AS_HELP_STRING([[[--disable-gpl]]], [Disable compilation of extensions licensed under the GPL]),
     [case $enableval in
         no|off)
+            enable_gpl=no
             ;;
         *)
-            AC_DEFINE(USE_FFTW)
+            enable_gpl=yes
             AC_DEFINE(LIBCSDR_GPL)
         ;;
     esac], [
-        AC_DEFINE(USE_FFTW)
+        enable_gpl=yes
         AC_DEFINE(LIBCSDR_GPL)
     ])
+AM_CONDITIONAL([GPL], [test x$enable_gpl = xyes])
 AC_ARG_ENABLE([neon],
     AS_HELP_STRING([[[--enable-neon]]], [Enable ARM CPU NEON optimizations]),
     [case $enableval in

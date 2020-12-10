@@ -83,6 +83,7 @@ int csdr_benchmark()
 	clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
 	fprintf(stderr,"shift_table_cc (table size = %d) done in %g seconds.\n",65536,TIME_TAKEN(start_time,end_time));
 
+#ifdef LIBCSDR_GPL
 
 	//shift_addition_cc	
 	shift_addition_data_t data_addition = shift_addition_init(0.1);
@@ -92,6 +93,8 @@ int csdr_benchmark()
 	for(int i=0;i<T_N;i++) starting_phase = shift_addition_cc(buf_c, outbuf_c, T_BUFSIZE, data_addition, starting_phase);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
 	fprintf(stderr,"shift_addition_cc done in %g seconds.\n",TIME_TAKEN(start_time,end_time));
+
+#endif
 
 	//shift_addfast_cc	
 	shift_addfast_data_t data_addfast = shift_addfast_init(0.1);

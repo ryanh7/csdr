@@ -56,7 +56,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <strings.h>
 #include <errno.h>
+#ifdef LIBCSDR_GPL
 #include "fastddc.h"
+#endif
 #include <assert.h>
 #include "benchmark.h"
 #include <getopt.h>
@@ -89,8 +91,10 @@ char usage[]=
 "    shift_addition_cc --fifo <fifo_path>\n"
 "    shift_addition_cc_test\n"
 "    shift_table_cc <rate> [table_size]\n"
+#ifdef LIBCSDR_GPL
 "    shift_addition_fc <rate>\n"
 "    shift_addition_fc --fifo <fifo_path>\n"
+#endif
 "    decimating_shift_addition_cc <rate> [decimation]\n"
 "    dcblock_ff\n"
 "    fastdcblock_ff\n"
@@ -180,8 +184,10 @@ char usage[]=
 "    fft_one_side_ff <fft_size>\n"
 "    convert_f_samplerf <wait_for_this_sample>\n"
 "    add_dcoffset_cc\n"
+#ifdef LIBCSDR_GPL
 "    fastddc_fwd_cc <decimation> [transition_bw [window]]\n"
 "    fastddc_inv_cc <shift_rate> <decimation> [transition_bw [window]]\n"
+#endif
 "    _fft2octave <fft_size>\n"
 "    benchmark \n"
 "    convert_f_i16             #deprecated, use instead: convert_f_s16\n"
@@ -2387,6 +2393,8 @@ int main(int argc, char *argv[])
         }
     }
 
+#ifdef LIBCSDR_GPL
+
     /*
       ______        _   _____  _____   _____ 
      |  ____|      | | |  __ \|  __ \ / ____|
@@ -2521,6 +2529,8 @@ int main(int argc, char *argv[])
 
         }
     }
+
+#endif
 
     if( !strcmp(argv[1], "_fft2octave") ) 
     {
@@ -3507,6 +3517,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+#ifdef LIBCSDR_GPL
+
     if(!strcmp(argv[1],"shift_addition_fc"))
     {
         bigbufs=1;
@@ -3555,6 +3567,8 @@ int main(int argc, char *argv[])
         }
         return 0;
     }
+
+#endif
 
     if(!strcmp(argv[1],"fft_fc"))
     {

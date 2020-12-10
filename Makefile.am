@@ -1,7 +1,11 @@
 ACLOCAL_AMFLAGS = -I m4
 
 lib_LTLIBRARIES = libcsdr.la
+if GPL
 libcsdr_la_SOURCES = fft_fftw.c libcsdr.c libcsdr_gpl.c fastddc.c ima_adpcm.c fastddc.h fft_fftw.h ima_adpcm.h libcsdr_gpl.h libcsdr.h predefined.h
+else
+libcsdr_la_SOURCES = fft_fftw.c libcsdr.c libcsdr_gpl.c ima_adpcm.c fft_fftw.h ima_adpcm.h libcsdr_gpl.h libcsdr.h predefined.h
+endif
 libcsdr_la_includedir = $(includedir)
 libcsdr_la_include_HEADERS = libcsdr.h
 libcsdr_la_LDFLAGS = -release $(PACKAGE_VERSION)
