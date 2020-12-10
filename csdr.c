@@ -117,8 +117,10 @@ char usage[]=
 "    fft_benchmark <fft_size> <fft_cycles> [--benchmark]\n"
 "    bandpass_fir_fft_cc <low_cut> <high_cut> <transition_bw> [window]\n"
 "    bandpass_fir_fft_cc --fifo <fifo_path> <transition_bw> [window]\n"
+#ifdef USE_IMA_ADPCM
 "    encode_ima_adpcm_s16_u8\n"
 "    decode_ima_adpcm_u8_s16\n"
+#endif
 "    compress_fft_adpcm_f_u8 <fft_size>\n"
 "    flowcontrol <data_rate> <reads_per_second>\n"
 "    through\n"
@@ -186,8 +188,10 @@ char usage[]=
 "    convert_i16_f             #deprecated, use instead: convert_s16_f\n"
 "    floatdump_f               #deprecated, use instead: dump_f\n"
 "    mono2stereo_i16           #deprecated, use instead: mono2stereo_s16\n"
+#ifdef USE_IMA_ADPCM
 "    decode_ima_adpcm_u8_i16   #deprecated, use instead: decode_ima_adpcm_u8_s16\n"
 "    encode_ima_adpcm_i16_u8   #deprecated, use instead: encode_ima_adpcm_i16_u8\n"
+#endif
 "    \n"
 ;
 

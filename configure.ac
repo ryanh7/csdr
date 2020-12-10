@@ -15,9 +15,30 @@ AC_CHECK_LIB([m],[floorf])
 PKG_CHECK_MODULES([FFTW3], [fftw3f])
 AX_PTHREAD
 AX_GCC_FUNC_ATTRIBUTE([ifunc])
-AC_DEFINE(USE_FFTW)
-AC_DEFINE(USE_IMA_ADPCM)
-AC_DEFINE(LIBCSDR_GPL)
+AC_ARG_ENABLE([ima_adpcm],
+    AS_HELP_STRING([[[--disable-ima-adpcm]]], [Disable compilation of IMA ADPCM codec extensions]),
+    [case $enableval in
+        no|off)
+            ;;
+        *)
+            AC_DEFINE(USE_IMA_ADPCM)
+            ;;
+    esac], [
+        AC_DEFINE(USE_IMA_ADPCM)
+    ])
+AC_ARG_ENABLE([gpl],
+    AS_HELP_STRING([[[--disable-gpl]]], [Disable compilation of extensions licensed under the GPL]),
+    [case $enableval in
+        no|off)
+            ;;
+        *)
+            AC_DEFINE(USE_FFTW)
+            AC_DEFINE(LIBCSDR_GPL)
+        ;;
+    esac], [
+        AC_DEFINE(USE_FFTW)
+        AC_DEFINE(LIBCSDR_GPL)
+    ])
 AC_ARG_ENABLE([neon],
     AS_HELP_STRING([[[--enable-neon]]], [Enable ARM CPU NEON optimizations]),
     [case $enableval in
