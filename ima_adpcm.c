@@ -86,7 +86,7 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #ifdef USE_IMA_ADPCM
 
-#include "ima_adpcm.h"
+#include "libcsdr.h"
  
 const int indexAdjustTable[16] = {
    -1, -1, -1, -1,  // +0 - +3, decrease the step size

@@ -425,3 +425,15 @@ void pack_bits_1to8_u8_u8(unsigned char* input, unsigned char* output, int input
 unsigned char pack_bits_8to1_u8_u8(unsigned char* input);
 void dbpsk_decoder_c_u8(complexf* input, unsigned char* output, int input_size);
 int bfsk_demod_cf(complexf* input, float* output, int input_size, complexf* mark_filter, complexf* space_filter, int taps_length);
+
+#ifdef USE_IMA_ADPCM
+
+typedef struct ImaState {
+   int index;    // Index into step size table
+   int previousValue; // Most recent sample value
+} ima_adpcm_state_t;
+
+ima_adpcm_state_t encode_ima_adpcm_i16_u8(short* input, unsigned char* output, int input_length, ima_adpcm_state_t state);
+ima_adpcm_state_t decode_ima_adpcm_u8_i16(unsigned char* input, short* output, int input_length, ima_adpcm_state_t state);
+
+#endif
