@@ -1874,35 +1874,29 @@ int main(int argc, char *argv[])
 
 #ifdef USE_IMA_ADPCM
 
-#define COMPRESS_FFT_PAD_N 10
-//We will pad the FFT at the beginning, with the first value of the input data, COMPRESS_FFT_PAD_N times.
-//No, this is not advanced DSP, just the ADPCM codec produces some gabarge samples at the beginning,
-//so we just add data to become garbage and get skipped.
-//COMPRESS_FFT_PAD_N should be even.
-
     if(!strcmp(argv[1],"compress_fft_adpcm_f_u8"))
     {
         if(argc<=2) return badsyntax("need required parameters (fft_size)");
         int fft_size;
         sscanf(argv[2],"%d",&fft_size);
-        int real_data_size=fft_size+COMPRESS_FFT_PAD_N;
         if(!getbufsize()) return -2; //dummy
-        sendbufsize(real_data_size);
-        float* input_buffer_cwa = (float*)malloc(sizeof(float)*real_data_size);
-        short* temp_buffer_cwa = (short*)malloc(sizeof(short)*real_data_size);
-        unsigned char* output_buffer_cwa = (unsigned char*)malloc(sizeof(unsigned char)*(real_data_size/2));
-        ima_adpcm_state_t d;
-        d.index=d.previousValue=0;
+
+        fft_compress_ima_adpcm_t job;
+        fft_compress_ima_adpcm_init(&job, fft_size);
+
+        sendbufsize(job.real_data_size);
+
+        unsigned char* output = (unsigned char*) malloc(sizeof(unsigned char) * (job.real_data_size / 2));
         for(;;)
         {
             FEOF_CHECK;
-            fread(input_buffer_cwa+COMPRESS_FFT_PAD_N, sizeof(float), fft_size, stdin);
-            for(int i=0;i<COMPRESS_FFT_PAD_N;i++) input_buffer_cwa[i]=input_buffer_cwa[COMPRESS_FFT_PAD_N]; //do padding
-            for(int i=0;i<real_data_size;i++) temp_buffer_cwa[i]=input_buffer_cwa[i]*100; //convert float dB values to short
-            encode_ima_adpcm_i16_u8(temp_buffer_cwa, output_buffer_cwa, real_data_size, d); //we always return to original d at any new buffer
-            fwrite(output_buffer_cwa, sizeof(unsigned char), real_data_size/2, stdout);
+            fread(fft_compress_ima_adpcm_get_write_pointer(&job), sizeof(float), fft_size, stdin);
+            fft_compress_ima_adpcm(&job, output);
+            fwrite(output, sizeof(unsigned char), job.real_data_size/2, stdout);
             TRY_YIELD;
         }
+
+        fft_compress_ima_adpcm_free(&job);
     }
 #endif
 

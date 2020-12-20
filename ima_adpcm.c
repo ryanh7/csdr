@@ -87,6 +87,7 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifdef USE_IMA_ADPCM
 
 #include "libcsdr.h"
+#include <stdlib.h>
  
 const int indexAdjustTable[16] = {
    -1, -1, -1, -1,  // +0 - +3, decrease the step size
@@ -171,6 +172,30 @@ ima_adpcm_state_t decode_ima_adpcm_u8_i16(unsigned char* input, short* output, i
 		output[k++]=ImaAdpcmDecode( (input[i]>>4)&0xf,&state);
 	}
 	return state;
+}
+
+void fft_compress_ima_adpcm_init(fft_compress_ima_adpcm_t* job, uint32_t size) {
+    job->size = size;
+    job->real_data_size = size + COMPRESS_FFT_PAD_N;
+    job->input = (float*) malloc(sizeof(float) * job->real_data_size);
+    job->temp = (short*) malloc(sizeof(short) * job->real_data_size);
+    job->state.index = 0;
+    job->state.previousValue = 0;
+}
+
+void fft_compress_ima_adpcm_free(fft_compress_ima_adpcm_t* job) {
+    free(job->input);
+    free(job->temp);
+}
+
+float* fft_compress_ima_adpcm_get_write_pointer(fft_compress_ima_adpcm_t* job){
+    return job->input + COMPRESS_FFT_PAD_N;
+}
+
+void fft_compress_ima_adpcm(fft_compress_ima_adpcm_t* job, unsigned char* output) {
+    for (int i = 0; i < COMPRESS_FFT_PAD_N; i++) job->input[i] = job->input[COMPRESS_FFT_PAD_N]; //do padding
+    for (int i = 0; i < job->real_data_size; i++) job->temp[i] = job->input[i] * 100; //convert float dB values to short
+    encode_ima_adpcm_i16_u8(job->temp, output, job->real_data_size, job->state); //we always return to original d at any new buffer
 }
 
 #endif

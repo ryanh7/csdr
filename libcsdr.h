@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdio.h>
+#include <stdint.h>
 
 #pragma once
 #define MIN_M(x,y) (((x)>(y))?(y):(x))
@@ -435,5 +436,24 @@ typedef struct ImaState {
 
 ima_adpcm_state_t encode_ima_adpcm_i16_u8(short* input, unsigned char* output, int input_length, ima_adpcm_state_t state);
 ima_adpcm_state_t decode_ima_adpcm_u8_i16(unsigned char* input, short* output, int input_length, ima_adpcm_state_t state);
+
+//We will pad the FFT at the beginning, with the first value of the input data, COMPRESS_FFT_PAD_N times.
+//No, this is not advanced DSP, just the ADPCM codec produces some gabarge samples at the beginning,
+//so we just add data to become garbage and get skipped.
+//COMPRESS_FFT_PAD_N should be even.
+#define COMPRESS_FFT_PAD_N 10
+
+typedef struct fft_compress_ima_adpcm_s {
+    float* input;
+    short* temp;
+    uint32_t size;
+    uint32_t real_data_size;
+    ima_adpcm_state_t state;
+} fft_compress_ima_adpcm_t;
+
+void fft_compress_ima_adpcm_init(fft_compress_ima_adpcm_t* job, uint32_t size);
+void fft_compress_ima_adpcm_free(fft_compress_ima_adpcm_t* job);
+float* fft_compress_ima_adpcm_get_write_pointer(fft_compress_ima_adpcm_t* job);
+void fft_compress_ima_adpcm(fft_compress_ima_adpcm_t* job, unsigned char* output);
 
 #endif
