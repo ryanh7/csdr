@@ -112,7 +112,7 @@ typedef struct fir_decimate_s {
     int input_skip;
     complexf* write_pointer;
 } fir_decimate_t;
-fir_decimate_t fir_decimate_init(complexf* input_buffer, int decimation, float transition_bw, window_t window);
+fir_decimate_t fir_decimate_init(int decimation, float transition_bw, window_t window);
 int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decimate_t* decimator);
 
 int fir_interpolate_cc(complexf *input, complexf *output, int input_size, int interpolation, float *taps, int taps_length);

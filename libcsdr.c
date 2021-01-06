@@ -545,13 +545,13 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 
 #endif
 
-fir_decimate_t fir_decimate_init(complexf* input_buffer, int decimation, float transition_bw, window_t window) {
+fir_decimate_t fir_decimate_init(int decimation, float transition_bw, window_t window) {
     fir_decimate_t result;
     result.decimation = decimation;
     result.transition_bw = transition_bw;
     result.window = window;
     result.input_skip = 0;
-    result.write_pointer = input_buffer;
+    result.write_pointer = NULL;
 
     result.taps_length = firdes_filter_len(transition_bw);
     fprintf(stderr, "fir_decimate_cc: taps_length = %d\n", result.taps_length);

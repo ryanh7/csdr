@@ -1152,12 +1152,17 @@ int main(int argc, char *argv[])
         }
         else fprintf(stderr,"fir_decimate_cc: window = %s\n",firdes_get_string_from_window(window));
 
-        fir_decimate_t decimator = fir_decimate_init((complexf*) input_buffer, factor, transition_bw, window);
+        fir_decimate_t decimator = fir_decimate_init(factor, transition_bw, window);
 
         while (env_csdr_fixed_big_bufsize < decimator.taps_length*2) env_csdr_fixed_big_bufsize*=2; //temporary fix for buffer size if [transition_bw] is low
 
         if(!initialize_buffers()) return -2;
         sendbufsize(the_bufsize/factor);
+
+        // init function can't have the buffer since it is initialized after, so we set this manually
+        // would be better to encapsulate the buffer in fir_decimate_t
+        decimator.write_pointer = (complexf*) input_buffer;
+        decimator.input_skip = the_bufsize;
 
         int output_size = 0;
         for(;;)

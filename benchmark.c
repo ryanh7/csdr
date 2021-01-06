@@ -51,7 +51,7 @@ int csdr_benchmark()
 	}
 
 
-    fir_decimate_t decimator = fir_decimate_init(buf_c, T_DECFACT, 0.00391389432485, WINDOW_DEFAULT);
+    fir_decimate_t decimator = fir_decimate_init(T_DECFACT, 0.00391389432485, WINDOW_DEFAULT);
 
 	struct timespec start_time, end_time;	
 
