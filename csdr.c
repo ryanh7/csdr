@@ -1152,49 +1152,21 @@ int main(int argc, char *argv[])
         }
         else fprintf(stderr,"fir_decimate_cc: window = %s\n",firdes_get_string_from_window(window));
 
-        int taps_length=firdes_filter_len(transition_bw);
-        fprintf(stderr,"fir_decimate_cc: taps_length = %d\n",taps_length);
+        fir_decimate_t decimator = fir_decimate_init((complexf*) input_buffer, factor, transition_bw, window);
 
-        while (env_csdr_fixed_big_bufsize < taps_length*2) env_csdr_fixed_big_bufsize*=2; //temporary fix for buffer size if [transition_bw] is low
-        //fprintf(stderr, "env_csdr_fixed_big_bufsize = %d\n", env_csdr_fixed_big_bufsize);
+        while (env_csdr_fixed_big_bufsize < decimator.taps_length*2) env_csdr_fixed_big_bufsize*=2; //temporary fix for buffer size if [transition_bw] is low
 
         if(!initialize_buffers()) return -2;
         sendbufsize(the_bufsize/factor);
 
-
-        int padded_taps_length = taps_length;
-        float *taps;
-#define NEON_ALIGNMENT (4*4*2)
-#ifdef NEON_OPTS
-        errhead(); fprintf(stderr,"taps_length = %d\n", taps_length);
-        padded_taps_length = taps_length+(NEON_ALIGNMENT/4)-1 - ((taps_length+(NEON_ALIGNMENT/4)-1)%(NEON_ALIGNMENT/4));
-        errhead(); fprintf(stderr,"padded_taps_length = %d\n", padded_taps_length);
-
-        taps = (float*)malloc((padded_taps_length+NEON_ALIGNMENT)*sizeof(float));
-        errhead(); fprintf(stderr,"taps = %x\n", taps);
-        taps = (float*)((((size_t)taps)+NEON_ALIGNMENT-1) & ~(NEON_ALIGNMENT-1));
-        errhead(); fprintf(stderr,"NEON aligned taps = %x\n", taps);
-        for(int i=0;i<padded_taps_length-taps_length;i++) taps[taps_length+i]=0;
-#else
-        taps=(float*)malloc(taps_length*sizeof(float));
-#endif
-
-        firdes_lowpass_f(taps,taps_length,0.5/(float)factor,window);
-
-        int input_skip=0;
-        int output_size=0;
-        FREAD_C;
+        int output_size = 0;
         for(;;)
         {
             FEOF_CHECK;
-            output_size=fir_decimate_cc((complexf*)input_buffer, (complexf*)output_buffer, the_bufsize, factor, taps, padded_taps_length);
-            //fprintf(stderr, "os %d\n",output_size);
+            fread(decimator.write_pointer, sizeof(complexf), decimator.input_skip, stdin);
+            output_size = fir_decimate_cc((complexf*)input_buffer, (complexf*)output_buffer, the_bufsize, &decimator);
             fwrite(output_buffer, sizeof(complexf), output_size, stdout);
             TRY_YIELD;
-            input_skip=factor*output_size;
-            memmove((complexf*)input_buffer,((complexf*)input_buffer)+input_skip,(the_bufsize-input_skip)*sizeof(complexf)); //memmove lets the source and destination overlap
-            fread(((complexf*)input_buffer)+(the_bufsize-input_skip), sizeof(complexf), input_skip, stdin);
-            //fprintf(stderr,"iskip=%d output_size=%d start=%x target=%x skipcount=%x \n",input_skip,output_size,input_buffer, ((complexf*)input_buffer)+(BIG_BUFSIZE-input_skip),(BIG_BUFSIZE-input_skip));
         }
     }
 

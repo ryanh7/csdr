@@ -102,7 +102,19 @@ void limit_ff(float* input, float* output, int input_size, float max_amplitude);
 
 //filters, decimators, resamplers, shift, etc.
 float fir_one_pass_ff(float* input, float* taps, int taps_length);
-int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length);
+
+typedef struct fir_decimate_s {
+    int decimation;
+    float transition_bw;
+    window_t window;
+    float* taps;
+    int taps_length;
+    int input_skip;
+    complexf* write_pointer;
+} fir_decimate_t;
+fir_decimate_t fir_decimate_init(complexf* input_buffer, int decimation, float transition_bw, window_t window);
+int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decimate_t* decimator);
+
 int fir_interpolate_cc(complexf *input, complexf *output, int input_size, int interpolation, float *taps, int taps_length);
 int deemphasis_nfm_ff (float* input, float* output, int input_size, int sample_rate);
 float deemphasis_wfm_ff (float* input, float* output, int input_size, float tau, int sample_rate, float last_output);

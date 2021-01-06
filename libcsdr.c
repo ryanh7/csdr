@@ -545,12 +545,57 @@ float shift_addfast_cc(complexf *input, complexf* output, int input_size, shift_
 
 #endif
 
+fir_decimate_t fir_decimate_init(complexf* input_buffer, int decimation, float transition_bw, window_t window) {
+    fir_decimate_t result;
+    result.decimation = decimation;
+    result.transition_bw = transition_bw;
+    result.window = window;
+    result.input_skip = 0;
+    result.write_pointer = input_buffer;
+
+    result.taps_length = firdes_filter_len(transition_bw);
+    fprintf(stderr, "fir_decimate_cc: taps_length = %d\n", result.taps_length);
+
+    int padded_taps_length = result.taps_length;
+    float *taps;
+#define NEON_ALIGNMENT (4*4*2)
+#ifdef NEON_OPTS
+    errhead(); fprintf(stderr,"taps_length = %d\n", result.taps_length);
+    padded_taps_length = result.taps_length+(NEON_ALIGNMENT/4)-1 - ((result.taps_length+(NEON_ALIGNMENT/4)-1)%(NEON_ALIGNMENT/4));
+    errhead(); fprintf(stderr,"padded_taps_length = %d\n", padded_taps_length);
+
+    result.taps = (float*)malloc((padded_taps_length+NEON_ALIGNMENT)*sizeof(float));
+    errhead(); fprintf(stderr,"taps = %x\n", result.taps);
+    taps = (float*)((((size_t)result.taps)+NEON_ALIGNMENT-1) & ~(NEON_ALIGNMENT-1));
+    errhead(); fprintf(stderr,"NEON aligned taps = %x\n", result.taps);
+    for(int i=0;i<padded_taps_length-taps_length;i++) result.taps[taps_length+i]=0;
+#else
+    result.taps=(float*)malloc(result.taps_length*sizeof(float));
+#endif
+    result.taps_length = padded_taps_length;
+
+    firdes_lowpass_f(result.taps, result.taps_length, 0.5/(float) decimation, window);
+
+    return result;
+}
+
+static void fir_decimate_wrap_around(fir_decimate_t* decimator, complexf* input_buffer, int input_size, int output_size) {
+    decimator->input_skip = decimator->decimation * output_size;
+    //memmove lets the source and destination overlap
+    memmove(
+        input_buffer,
+        input_buffer + decimator->input_skip,
+        (input_size - decimator->input_skip) * sizeof(complexf)
+    );
+    decimator->write_pointer = input_buffer + (input_size - decimator->input_skip);
+}
+
 #if defined NEON_OPTS && defined __arm__
 #pragma message "Manual NEON (arm32) optimizations are ON: we have a faster fir_decimate_cc now."
 
 //max help: http://community.arm.com/groups/android-community/blog/2015/03/27/arm-neon-programming-quick-reference
 
-int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
+int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decimate_t* decimator)
 {
     //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
     //It uses real taps. It returns the number of output samples actually written.
@@ -559,12 +604,12 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decim
     //The output buffer should be at least input_length / 3.
     // i: input index | ti: tap index | oi: output index
     int oi=0;
-    for(int i=0; i<input_size; i+=decimation) //@fir_decimate_cc: outer loop
+    int max_i = input_size - decimator->taps_length;
+    for(int i = 0; i <= max_i; i += decimator->decimation) //@fir_decimate_cc: outer loop
     {
-        if(i+taps_length>input_size) break;
         register float* pinput=(float*)&(input[i]);
-        register float* ptaps=taps;
-        register float* ptaps_end=taps+taps_length;
+        register float* ptaps=decimator->taps;
+        register float* ptaps_end=decimator->taps+decimator->taps_length;
         float quad_acciq [8];
 
 
@@ -601,6 +646,7 @@ q4, q5: accumulator for I branch and Q branch (will be the output)
         qof(output,oi)=quad_acciq[4]+quad_acciq[5]+quad_acciq[6]+quad_acciq[7];
         oi++;
     }
+    fir_decimate_wrap_around(decimator, input, input_size, oi);
     return oi;
 }
 
@@ -609,7 +655,7 @@ q4, q5: accumulator for I branch and Q branch (will be the output)
 
 //max help: http://community.arm.com/groups/android-community/blog/2015/03/27/arm-neon-programming-quick-reference
 
-int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
+int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decimate_t* decimator)
 {
     //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
     //It uses real taps. It returns the number of output samples actually written.
@@ -618,14 +664,13 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decim
     //The output buffer should be at least input_length / 3.
     // i: input index | ti: tap index | oi: output index
     int oi=0;
-    for(int i=0; i<input_size; i+=decimation) //@fir_decimate_cc: outer loop
+    int max_i = input_size - decimator->taps_length;
+    for(int i = 0; i <= max_i; i += decimator->decimation) //@fir_decimate_cc: outer loop
     {
-        if(i+taps_length>input_size) break;
         register float* pinput=(float*)&(input[i]);
-        register float* ptaps=taps;
-        register float* ptaps_end=taps+taps_length;
+        register float* ptaps=decimator->taps;
+        register float* ptaps_end=decimator->taps+decomator.taps_length;
         float quad_acciq [8];
-
 
 /*
 v0, v1: input signal I sample and Q sample
@@ -660,13 +705,14 @@ v4, v5: accumulator for I branch and Q branch (will be the output)
         qof(output,oi)=quad_acciq[4]+quad_acciq[5]+quad_acciq[6]+quad_acciq[7];
         oi++;
     }
+    fir_decimate_wrap_around(decimator, input, input_size, oi);
     return oi;
 }
 
 #else
 
 CSDR_TARGET_CLONES
-int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decimation, float *taps, int taps_length)
+int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decimate_t* decimator)
 {
     //Theory: http://www.dspguru.com/dsp/faqs/multirate/decimation
     //It uses real taps. It returns the number of output samples actually written.
@@ -678,18 +724,19 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, int decim
     int ti;
     float acci;
     float accq;
-    int max_i = input_size - taps_length;
-    for (int i = 0; i <= max_i; i += decimation) {
+    int max_i = input_size - decimator->taps_length;
+    for (int i = 0; i <= max_i; i += decimator->decimation) {
         acci=0;
         accq=0;
-        for (ti = 0; ti < taps_length; ti++) {
-            acci += input[i + ti].i * taps[ti];
-            accq += input[i + ti].q * taps[ti];
+        for (ti = 0; ti < decimator->taps_length; ti++) {
+            acci += input[i + ti].i * decimator->taps[ti];
+            accq += input[i + ti].q * decimator->taps[ti];
         }
         output[oi].i = acci;
         output[oi].q = accq;
         oi++;
     }
+    fir_decimate_wrap_around(decimator, input, input_size, oi);
     return oi;
 }
 
