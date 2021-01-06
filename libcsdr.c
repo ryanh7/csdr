@@ -568,7 +568,7 @@ fir_decimate_t fir_decimate_init(int decimation, float transition_bw, window_t w
     errhead(); fprintf(stderr,"taps = %x\n", result.taps);
     taps = (float*)((((size_t)result.taps)+NEON_ALIGNMENT-1) & ~(NEON_ALIGNMENT-1));
     errhead(); fprintf(stderr,"NEON aligned taps = %x\n", result.taps);
-    for(int i=0;i<padded_taps_length-taps_length;i++) result.taps[taps_length+i]=0;
+    for(int i=0;i<padded_taps_length-result.taps_length;i++) result.taps[result.taps_length+i]=0;
 #else
     result.taps=(float*)malloc(result.taps_length*sizeof(float));
 #endif
