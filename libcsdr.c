@@ -669,7 +669,7 @@ int fir_decimate_cc(complexf *input, complexf *output, int input_size, fir_decim
     {
         register float* pinput=(float*)&(input[i]);
         register float* ptaps=decimator->taps;
-        register float* ptaps_end=decimator->taps+decimator.taps_length;
+        register float* ptaps_end=decimator->taps+decimator->taps_length;
         float quad_acciq [8];
 
 /*
