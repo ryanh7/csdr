@@ -1,3 +1,9 @@
+csdr (0.17.1) hirsute; urgency=low
+
+  * new build for Ubuntu Hirsute Hippo
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sun, 09 May 2021 22:28:00 +0000
+
 csdr (0.17.0) buster focal; urgency=low
 
   * Improve agc performance

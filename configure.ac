@@ -1,4 +1,4 @@
-AC_INIT([csdr], 0.17.0)
+AC_INIT([csdr], 0.17.1)
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_PROG_CC
