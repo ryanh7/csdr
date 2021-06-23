@@ -62,4 +62,6 @@ else()
     SET(CMAKE_C_FLAGS_DEBUG "-g -O3")
 endif()
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_subdirectory(src)
