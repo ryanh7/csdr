@@ -34,6 +34,10 @@ if (HAS_IFUNC)
     target_compile_definitions(csdr PUBLIC "-DCSDR_FMV")
 endif()
 
+if (HAS_NEON)
+    target_compile_definitions(csdr PUBLIC "-DNEON_OPTS")
+endif()
+
 install(TARGETS csdr
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
