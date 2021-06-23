@@ -10,6 +10,6 @@ Description: @PROJECT_DESCRIPTION@
 URL: https://github.com/jketterl/csdr
 Version: @PROJECT_VERSION@
 
-Libs: -L${libdir} -lcodecserver
+Libs: -L${libdir} -lcsdr
 Cflags: -I${includedir}
 @FFTW3F_REQUIRES@
