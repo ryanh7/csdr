@@ -13,12 +13,12 @@ Description: simple library for software defined radio
 
 Package: libcsdr-dev
 Architecture: any
-Depends: libcsdr0 (=${binary:Version})
+Depends: libcsdr0 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: development dependencies includes for libcsdr
  A simple DSP library for Software Defined Radio.
 
 Package: csdr
 Architecture: any
-Depends: libcsdr0 (=${binary:Version})
+Depends: libcsdr0 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: command-line sdr
  A simple DSP command-line tool for Software Defined Radio.
