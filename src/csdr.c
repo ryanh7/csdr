@@ -114,12 +114,16 @@ char usage[]=
 "    rational_resampler_ff <interpolation> <decimation> [transition_bw [window]]\n"
 "    fractional_decimator_ff <decimation_rate> [num_poly_points ( [transition_bw [window]] | --prefilter )]\n"
 "    fractional_decimator_cc <decimation_rate> [num_poly_points ( [transition_bw [window]] | --prefilter )]\n"
+#ifdef USE_FFTW
 "    fft_cc <fft_size> <out_of_every_n_samples> [window [--octave] [--benchmark]]\n"
 "    fft_fc <fft_size> <out_of_every_n_samples> [window [--benchmark]]\n"
+#endif
 "    logpower_cf [add_db]\n"
+#ifdef USE_FFTW
 "    fft_benchmark <fft_size> <fft_cycles> [--benchmark]\n"
 "    bandpass_fir_fft_cc <low_cut> <high_cut> <transition_bw> [window]\n"
 "    bandpass_fir_fft_cc --fifo <fifo_path> <transition_bw> [window]\n"
+#endif
 #ifdef USE_IMA_ADPCM
 "    encode_ima_adpcm_s16_u8\n"
 "    decode_ima_adpcm_u8_s16\n"
@@ -1681,6 +1685,8 @@ int main(int argc, char *argv[])
         }
     }
 
+#ifdef USE_FFTW
+
     if(!strcmp(argv[1],"fft_cc"))
     {
         if(argc<=3) return badsyntax("need required parameters (fft_size, out_of_every_n_samples)");
@@ -1757,6 +1763,9 @@ int main(int argc, char *argv[])
             TRY_YIELD;
         }
     }
+
+#endif
+
     #define LOGPOWERCF_BUFSIZE 64
     if(!strcmp(argv[1],"logpower_cf"))
     {
@@ -1877,6 +1886,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
+#ifdef USE_FFTW
     if(!strcmp(argv[1],"fft_benchmark"))
     {
         if(argc<=3) return badsyntax("need required parameters (fft_size, fft_cycles)");
@@ -1915,6 +1925,9 @@ int main(int argc, char *argv[])
         errhead(); fprintf(stderr,"%d transforms of %d processed in %g seconds, %g seconds each.\n",fft_cycles,fft_size,time_taken_fft,time_taken_fft/fft_cycles);
         return 0;
     }
+#endif
+
+#ifdef USE_FFTW
 
     if(!strcmp(argv[1],"bandpass_fir_fft_cc")) //this command does not exist as a separate function
     {
@@ -1993,6 +2006,8 @@ int main(int argc, char *argv[])
         }
 
     }
+
+#endif
 
 #ifdef USE_IMA_ADPCM
 #define IMA_ADPCM_BUFSIZE BUFSIZE
@@ -3540,6 +3555,8 @@ int main(int argc, char *argv[])
 
 #endif
 
+#ifdef USE_FFTW
+
     if(!strcmp(argv[1],"fft_fc"))
     {
         /*
@@ -3625,6 +3642,9 @@ int main(int argc, char *argv[])
             TRY_YIELD;
         }
     }
+
+#endif
+
 /*
     if(!strcmp(argv[1],"syncword_search"))
     {
