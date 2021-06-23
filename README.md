@@ -25,14 +25,15 @@ This animation shows the Gardner timing recovery algorithm in `csdr` locking on 
 How to compile
 --------------
 
-    autoreconf -i
-    ./configure
-    make
-    sudo make install
+```
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
 
 The project was only tested on Linux. It has the following dependencies: `libfftw3-dev`
-
-The compilation requires a working autoconf / automake setup. You'll need the following packages (for Debian): `build-essential autoconf automake libtool pkg-config`
 
 To run the examples, you will also need <a href="http://sdr.osmocom.org/trac/wiki/rtl-sdr">rtl_sdr</a> from Osmocom, and the following packages (at least on Debian): `mplayer octave gnuplot gnuplot-x11`
 
