@@ -53,6 +53,8 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES ^arm.*)
         SET(CMAKE_C_FLAGS_DEBUG "-g -O3 -ffast-math -march=armv7-a -mtune=cortex-a8 -funsafe-math-optimizations -Wformat=0")
     endif()
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES ^aarch64.*)
+    # aarch64 mandated neon
+    set(HAS_NEON true)
     SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0")
     SET(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0")
     SET(CMAKE_CXX_FLAGS_DEBUG "-g -O3 -ffast-math -march=armv8-a -mtune=cortex-a72 -funsafe-math-optimizations -Wformat=0")
