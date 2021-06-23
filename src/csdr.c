@@ -3781,9 +3781,9 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-#ifdef CSDR_VERSION
+#ifdef VERSION
     if (!strcmp(argv[1], "version")) {
-        fprintf(stderr, "csdr version %s\n", CSDR_VERSION);
+        fprintf(stderr, "csdr version %s\n", VERSION);
         return 0;
     }
 #endif
