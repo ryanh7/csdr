@@ -30,6 +30,10 @@ if (CSDR_IMA_ADPCM)
     target_compile_definitions(csdr PUBLIC "-DUSE_IMA_ADPCM")
 endif()
 
+if (HAS_IFUNC)
+    target_compile_definitions(csdr PUBLIC "-DCSDR_FMV")
+endif()
+
 install(TARGETS csdr
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

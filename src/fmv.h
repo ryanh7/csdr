@@ -1,6 +1,6 @@
 #ifndef FMV_H
 
-#if HAVE_FUNC_ATTRIBUTE_IFUNC
+#ifdef CSDR_FMV
 #if defined(__has_attribute)
 #if __has_attribute(target_clones)
 #if defined(__x86_64)
