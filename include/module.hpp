@@ -9,7 +9,8 @@ namespace Csdr {
     class Module {
         public:
             // TODO extract "Reader" interface and use here
-            Module(RingbufferReader<T>* in, Writer<U>* out);
+            void setReader(RingbufferReader<T>* reader);
+            void setWriter(Writer<U>* writer);
             virtual void process() = 0;
         protected:
             RingbufferReader<T>* reader;

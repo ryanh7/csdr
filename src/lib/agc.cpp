@@ -154,6 +154,11 @@ void Agc<T>::setMaxGain(float max_gain) {
 }
 
 template <typename T>
+void Agc<T>::setInitialGain(float initial_gain) {
+    last_gain = initial_gain;
+}
+
+template <typename T>
 void Agc<T>::setHangTime(unsigned long int hang_time) {
     this->hang_time = hang_time;
 }

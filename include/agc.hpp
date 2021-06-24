@@ -9,13 +9,13 @@ namespace Csdr {
     template <typename T>
     class Agc: public Module<T, T> {
         public:
-            Agc(RingbufferReader<T>* in, Writer<T>* out): Module<T, T>(in, out) {}
             void process() override;
 
             void setReference(float reference);
             void setAttack(float attack_rate);
             void setDecay(float decay_rate);
             void setMaxGain(float max_gain);
+            void setInitialGain(float initial_gain);
             void setHangTime(unsigned long int hang_time);
         private:
             T min();
@@ -32,7 +32,6 @@ namespace Csdr {
             short attack_wait_time = 0;
             float gain_filter_alpha = 1.5;
             // state
-            // TODO setter for initial gain
             float last_gain = 1;
             unsigned long int hang_counter = 0;
             short attack_wait_counter = 0;
