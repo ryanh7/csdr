@@ -57,3 +57,6 @@ if(FFTW3_FOUND)
 endif()
 configure_file(csdr.pc.in csdr.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/csdr.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+
+add_subdirectory(lib)
+add_subdirectory(csdr++)
