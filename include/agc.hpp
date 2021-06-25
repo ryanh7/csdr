@@ -23,12 +23,12 @@ namespace Csdr {
             T abs(T in);
 
             // params
-            // slow profile defaults
+            // fast profile defaults
             float reference = 0.8;
-            float attack_rate = 0.01;
-            float decay_rate = 0.0001;
+            float attack_rate = 0.1;
+            float decay_rate = 0.001;
             float max_gain = 65535;
-            unsigned long int hang_time = 600;
+            unsigned long int hang_time = 200;
             short attack_wait_time = 0;
             float gain_filter_alpha = 1.5;
             // state
