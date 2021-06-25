@@ -20,7 +20,12 @@ namespace Csdr {
             template <typename T>
             void runAgc();
             std::string format = "float";
+            std::string profile = "fast";
+            unsigned long int hangtime = 0;
+            float attack = 0;
+            float decay = 0;
             float max_gain = 65535;
+            float reference = 0.8;
             float initial_gain = 1;
     };
 

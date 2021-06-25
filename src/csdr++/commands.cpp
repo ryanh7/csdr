@@ -61,9 +61,14 @@ void Command::runModule(Module<T, U>* module) {
 }
 
 AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
-    add_set("-f,--format", format, {"s16", "float"}, "Data format (default: float)");
-    add_option("-m,--max", max_gain, "Maximum gain (default: 65535)");
-    add_option("-i,--initial", initial_gain, "Initial gain (default: 1)");
+    add_set("-f,--format", format, {"s16", "float"}, "Data format", true);
+    add_set("-p,--profile", profile, {"fast", "slow"}, "AGC profile", true);
+    add_option("-a,--attack", attack, "AGC attack rate (slow: 0.1; fast: 0.01)");
+    add_option("-d,--decay", decay, "AGC decay rate (slow: 0.0001; fast: 0.001)");
+    add_option("-t,--hangtime", hangtime, "AGC hang time (slow: 600; fast: 200)");
+    add_option("-m,--max", max_gain, "Maximum gain", true);
+    add_option("-i,--initial", initial_gain, "Initial gain", true);
+    add_option("-r,--reference", reference, "Reference level", true);
     callback( [this] () {
         if (format == "float") {
             runAgc<float>();
@@ -78,7 +83,21 @@ AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
 template <typename T>
 void AgcCommand::runAgc() {
     Agc<T>* agc = new Agc<T>();
+    if (profile == "fast") {
+        agc->setAttack(0.1);
+        agc->setDecay(0.001);
+        agc->setHangTime(200);
+    } else if (profile == "slow") {
+        agc->setAttack(0.01);
+        agc->setDecay(0.0001);
+        agc->setHangTime(600);
+    }
+    // override profile settings with explicit options on the command-line, if given
+    if (attack != 0) agc->setAttack(attack);
+    if (decay != 0) agc->setDecay(decay);
+    if (hangtime != 0) agc->setHangTime(hangtime);
     agc->setMaxGain(max_gain);
     agc->setInitialGain(initial_gain);
+    agc->setReference(reference);
     runModule(agc);
 }
