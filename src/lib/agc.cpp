@@ -8,8 +8,6 @@ using namespace Csdr;
 template <typename T>
 void Agc<T>::process() {
     T reference = this->reference * max();
-	float gain = last_gain;
-	float last_peak = reference / last_gain; //approx.
 	T input_abs;
 	float error, dgain;
 
@@ -39,20 +37,10 @@ void Agc<T>::process() {
 
 			if (error > 1) {
     			//INCREASE IN SIGNAL LEVEL
-				if (last_peak < input_abs) {
-					attack_wait_counter = attack_wait_time;
-					last_peak = input_abs;
-				}
-
-				if (attack_wait_counter > 0) {
-					attack_wait_counter--;
-					dgain = 1;
-				} else {
-					//If the signal level increases, we decrease the gain quite fast.
-					dgain = 1 - attack_rate;
-					//Before starting to increase the gain next time, we will be waiting until hang_time for sure.
-					hang_counter = hang_time;
-				}
+                //If the signal level increases, we decrease the gain quite fast.
+                dgain = 1 - attack_rate;
+                //Before starting to increase the gain next time, we will be waiting until hang_time for sure.
+                hang_counter = hang_time;
 			} else {
 			    //DECREASE IN SIGNAL LEVEL
 				if (hang_counter > 0) {
@@ -99,8 +87,6 @@ void Agc<T>::process() {
 	this->reader->advance(input_size);
 
 	free(output);
-
-    last_gain=gain;
 }
 
 template <>
@@ -155,7 +141,7 @@ void Agc<T>::setMaxGain(float max_gain) {
 
 template <typename T>
 void Agc<T>::setInitialGain(float initial_gain) {
-    last_gain = initial_gain;
+    gain = initial_gain;
 }
 
 template <typename T>
