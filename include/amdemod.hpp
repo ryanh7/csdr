@@ -5,9 +5,9 @@
 
 namespace Csdr {
 
-    class AmDemod: public Module<complex<float>, float> {
+    class AmDemod: public AnyLengthModule<complex<float>, float> {
         public:
-            void process() override;
+            void process(complex<float>* input, float* output, size_t work_size) override;
     };
 
 }

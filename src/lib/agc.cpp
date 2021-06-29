@@ -7,7 +7,7 @@
 using namespace Csdr;
 
 template <typename T>
-void Agc<T>::process() {
+void Agc<T>::process(T* input, T* output, size_t work_size) {
     T reference = this->reference * max();
 	T input_abs;
 	float error, dgain;
@@ -16,81 +16,69 @@ void Agc<T>::process() {
 	float dt = 0.5;
 	float beta = 0.005;
 
-	size_t available;
+    for (int i = 0; i < work_size; i++) {
+        //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
+        if (input[i] != 0) {
+            //The error is the difference between the required gain at the actual sample, and the previous gain value.
+            //We actually use an envelope detector.
+            input_abs = this->abs(input[i]);
+            error = (input_abs * gain) / reference;
 
-	while (available = this->reader->available()) {
+            //An AGC is something nonlinear that's easier to implement in software:
+            //if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
+            //We also have a decay_rate that comes into consideration when the amplitude increases.
+            //The higher these rates are, the faster is the response of the AGC to amplitude changes.
+            //However, attack_rate should be higher than the decay_rate as we want to avoid clipping signals.
+            //that had a sudden increase in their amplitude.
+            //It's also important to note that this algorithm has an exponential gain ramp.
 
-        size_t input_size = std::min(available, this->writer->writeable());
-        T* input = this->reader->getReadPointer();
-        T* output = this->writer->getWritePointer();
-
-        for (int i = 0; i < input_size; i++) {
-            //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
-            if (input[i] != 0) {
-                //The error is the difference between the required gain at the actual sample, and the previous gain value.
-                //We actually use an envelope detector.
-                input_abs = this->abs(input[i]);
-                error = (input_abs * gain) / reference;
-
-                //An AGC is something nonlinear that's easier to implement in software:
-                //if the amplitude decreases, we increase the gain by minimizing the gain error by attack_rate.
-                //We also have a decay_rate that comes into consideration when the amplitude increases.
-                //The higher these rates are, the faster is the response of the AGC to amplitude changes.
-                //However, attack_rate should be higher than the decay_rate as we want to avoid clipping signals.
-                //that had a sudden increase in their amplitude.
-                //It's also important to note that this algorithm has an exponential gain ramp.
-
-                if (error > 1) {
-                    //INCREASE IN SIGNAL LEVEL
-                    //If the signal level increases, we decrease the gain quite fast.
-                    dgain = 1 - attack_rate;
-                    //Before starting to increase the gain next time, we will be waiting until hang_time for sure.
-                    hang_counter = hang_time;
-                } else {
-                    //DECREASE IN SIGNAL LEVEL
-                    if (hang_counter > 0) {
-                        //Before starting to increase the gain, we will be waiting until hang_time.
-                        hang_counter--;
-                        dgain = 1; //..until then, AGC is inactive and gain doesn't change.
-                    } else {
-                        dgain = 1 + decay_rate; //If the signal level decreases, we increase the gain quite slowly.
-                    }
-                }
-                gain *= dgain;
-            }
-
-            // alpha beta filter
-            xk = this->xk + (this->vk * dt);
-            vk = this->vk;
-
-            rk = gain - xk;
-
-            xk += gain_filter_alpha * rk;
-            vk += (beta * rk) / dt;
-
-            this->xk = xk;
-            this->vk = vk;
-
-            gain = this->xk;
-
-            // clamp gain to max_gain and 0
-            if (gain > max_gain) gain = max_gain;
-            if (gain < 0) gain = 0;
-
-            // actual sample scaling
-            // limiting
-            if (gain * input[i] > max()) {
-                output[i] = max();
-            } else if (gain * input[i] < min()) {
-                output[i] = min();
+            if (error > 1) {
+                //INCREASE IN SIGNAL LEVEL
+                //If the signal level increases, we decrease the gain quite fast.
+                dgain = 1 - attack_rate;
+                //Before starting to increase the gain next time, we will be waiting until hang_time for sure.
+                hang_counter = hang_time;
             } else {
-                output[i] = gain * input[i];
+                //DECREASE IN SIGNAL LEVEL
+                if (hang_counter > 0) {
+                    //Before starting to increase the gain, we will be waiting until hang_time.
+                    hang_counter--;
+                    dgain = 1; //..until then, AGC is inactive and gain doesn't change.
+                } else {
+                    dgain = 1 + decay_rate; //If the signal level decreases, we increase the gain quite slowly.
+                }
             }
+            gain *= dgain;
         }
 
-        this->writer->advance(input_size);
-        this->reader->advance(input_size);
-	}
+        // alpha beta filter
+        xk = this->xk + (this->vk * dt);
+        vk = this->vk;
+
+        rk = gain - xk;
+
+        xk += gain_filter_alpha * rk;
+        vk += (beta * rk) / dt;
+
+        this->xk = xk;
+        this->vk = vk;
+
+        gain = this->xk;
+
+        // clamp gain to max_gain and 0
+        if (gain > max_gain) gain = max_gain;
+        if (gain < 0) gain = 0;
+
+        // actual sample scaling
+        // limiting
+        if (gain * input[i] > max()) {
+            output[i] = max();
+        } else if (gain * input[i] < min()) {
+            output[i] = min();
+        } else {
+            output[i] = gain * input[i];
+        }
+    }
 }
 
 template <>

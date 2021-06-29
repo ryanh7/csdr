@@ -7,11 +7,13 @@
 
 namespace Csdr {
 
-    class FmDemod: public Module<complex<float>, float> {
+    class FmDemod: public AnyLengthModule<complex<float>, float> {
         public:
             FmDemod();
             ~FmDemod();
-            void process() override;
+            void process(complex<float>* input, float* output, size_t work_size) override;
+        protected:
+            size_t maxLength() override { return buffer_size; }
         private:
             complex<float> last_sample = {0, 0};
             size_t buffer_size = 1024;

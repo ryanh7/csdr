@@ -7,9 +7,9 @@
 namespace Csdr {
 
     template <typename T>
-    class Agc: public Module<T, T> {
+    class Agc: public AnyLengthModule<T, T> {
         public:
-            void process() override;
+            void process(T* input, T* output, size_t work_size) override;
 
             void setReference(float reference);
             void setAttack(float attack_rate);
