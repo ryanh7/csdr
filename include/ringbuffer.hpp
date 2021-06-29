@@ -15,6 +15,7 @@ namespace Csdr {
             void advance(size_t how_much);
             void advance(size_t& what, size_t how_much);
             size_t available(size_t read_pos);
+            size_t getWritePos();
         private:
             T* data;
             size_t size;

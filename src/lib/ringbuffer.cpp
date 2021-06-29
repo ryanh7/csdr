@@ -48,9 +48,15 @@ size_t Ringbuffer<T>::available(size_t read_pos) {
     }
 }
 
+template<typename T>
+size_t Ringbuffer<T>::getWritePos() {
+    return write_pos;
+}
+
 template <typename T>
 RingbufferReader<T>::RingbufferReader(Ringbuffer<T>* buffer) {
     this->buffer = buffer;
+    read_pos = buffer->getWritePos();
 }
 
 template <typename T>
