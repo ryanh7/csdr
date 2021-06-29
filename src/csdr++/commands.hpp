@@ -34,4 +34,9 @@ namespace Csdr {
             FmdemodCommand();
     };
 
+    class AmdemodCommand: public Command {
+        public:
+            AmdemodCommand();
+    };
+
 }

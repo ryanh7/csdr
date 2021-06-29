@@ -1,6 +1,7 @@
 #include "commands.hpp"
 #include "agc.hpp"
 #include "fmdemod.hpp"
+#include "amdemod.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -106,5 +107,11 @@ void AgcCommand::runAgc() {
 FmdemodCommand::FmdemodCommand(): Command("fmdemod", "FM demodulation") {
     callback( [this] () {
         runModule(new FmDemod());
+    });
+}
+
+AmdemodCommand::AmdemodCommand(): Command("amdemod", "AM demodulation") {
+    callback( [this] () {
+        runModule(new AmDemod());
     });
 }
