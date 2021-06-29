@@ -29,4 +29,9 @@ namespace Csdr {
             float initial_gain = 1;
     };
 
+    class FmdemodCommand: public Command {
+        public:
+            FmdemodCommand();
+    };
+
 }

@@ -1,5 +1,6 @@
 #include "commands.hpp"
 #include "agc.hpp"
+#include "fmdemod.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -100,4 +101,10 @@ void AgcCommand::runAgc() {
     agc->setInitialGain(initial_gain);
     agc->setReference(reference);
     runModule(agc);
+}
+
+FmdemodCommand::FmdemodCommand(): Command("fmdemod", "FM demodulation") {
+    callback( [this] () {
+        runModule(new FmDemod());
+    });
 }

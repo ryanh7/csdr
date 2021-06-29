@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "complex.hpp"
 
 using namespace Csdr;
 
@@ -14,3 +15,4 @@ void Module<T, U>::setWriter(Writer<U>* writer) {
 
 template class Module<short, short>;
 template class Module<float, float>;
+template class Module<complex<float>, float>;

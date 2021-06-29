@@ -1,4 +1,5 @@
 #include "ringbuffer.hpp"
+#include "complex.hpp"
 
 using namespace Csdr;
 
@@ -79,3 +80,6 @@ template class RingbufferReader<short>;
 
 template class Ringbuffer<float>;
 template class RingbufferReader<float>;
+
+template class Ringbuffer<complex<float>>;
+template class RingbufferReader<complex<float>>;
