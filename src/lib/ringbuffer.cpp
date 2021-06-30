@@ -71,7 +71,7 @@ Ringbuffer<T>::~Ringbuffer() {
 
 template <typename T>
 size_t Ringbuffer<T>::writeable() {
-    return size - write_pos;
+    return size - 1;
 }
 
 template<typename T>
@@ -96,11 +96,7 @@ void Ringbuffer<T>::advance(size_t how_much) {
 
 template <typename T>
 size_t Ringbuffer<T>::available(size_t read_pos) {
-    if (write_pos >= read_pos) {
-        return write_pos - read_pos;
-    } else {
-        return size - read_pos;
-    }
+    return (size + write_pos - read_pos) % size;
 }
 
 template<typename T>
