@@ -8,6 +8,7 @@
 #include "logpower.hpp"
 #include "logaveragepower.hpp"
 #include "fftexchangesides.hpp"
+#include "realpart.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -206,5 +207,11 @@ FftExchangeSidesCommand::FftExchangeSidesCommand(): Command("fftswap", "Switch F
     add_option("fft_size", fftSize, "Number of FFT bins")->required();
     callback( [this] () {
         runModule(new FftExchangeSides(fftSize));
+    });
+}
+
+RealpartCommand::RealpartCommand(): Command("realpart", "Extract the real part of an IQ signal") {
+    callback( [this] () {
+        runModule(new Realpart());
     });
 }

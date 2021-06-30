@@ -85,4 +85,9 @@ namespace Csdr {
             unsigned int fftSize = 0;
     };
 
+    class RealpartCommand: public Command {
+        public:
+            RealpartCommand();
+    };
+
 }
