@@ -62,4 +62,27 @@ namespace Csdr {
             std::string window = "hamming";
     };
 
+    class LogPowerCommand: public Command {
+        public:
+            LogPowerCommand();
+        private:
+            float add_db = 0;
+    };
+
+    class LogAveragePowerCommand: public Command {
+        public:
+            LogAveragePowerCommand();
+        private:
+            unsigned int fftSize = 0;
+            unsigned int avgNumber = 0;
+            float add_db = 0.0;
+    };
+
+    class FftExchangeSidesCommand: public Command {
+        public:
+            FftExchangeSidesCommand();
+        private:
+            unsigned int fftSize = 0;
+    };
+
 }

@@ -5,6 +5,9 @@
 #include "dcblock.hpp"
 #include "converter.hpp"
 #include "fft.hpp"
+#include "logpower.hpp"
+#include "logaveragepower.hpp"
+#include "fftexchangesides.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -181,4 +184,27 @@ bool FftCommand::isPowerOf2(unsigned int size) {
         bitcount += (size >> i) & 1;
     }
     return bitcount == 1;
+}
+
+LogPowerCommand::LogPowerCommand(): Command("logpower", "Calculate dB power") {
+    add_option("add_db", add_db, "Offset in dB", true);
+    callback( [this] () {
+        runModule(new LogPower(add_db));
+    });
+}
+
+LogAveragePowerCommand::LogAveragePowerCommand(): Command("logaveragepower", "Calculate average dB power") {
+    add_option("fft_size", fftSize, "Number of FFT bins")->required();
+    add_option("avg_number", avgNumber, "Number of FFTs to average")->required();
+    add_option("-a,--add", add_db, "Offset in dB", true);
+    callback( [this] () {
+        runModule(new LogAveragePower(fftSize, avgNumber, add_db));
+    });
+}
+
+FftExchangeSidesCommand::FftExchangeSidesCommand(): Command("fftswap", "Switch FFT sides") {
+    add_option("fft_size", fftSize, "Number of FFT bins")->required();
+    callback( [this] () {
+        runModule(new FftExchangeSides(fftSize));
+    });
 }

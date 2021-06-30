@@ -28,6 +28,9 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new DcBlockCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new ConvertCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new FftCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new LogPowerCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new LogAveragePowerCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new FftExchangeSidesCommand()));
 
     app.require_subcommand(1);
 
