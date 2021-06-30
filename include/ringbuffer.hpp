@@ -1,8 +1,15 @@
 #pragma once
 
 #include <cstdlib>
+#include <stdexcept>
+#include <unistd.h>
 
 namespace Csdr {
+
+    class BufferError: public std::runtime_error {
+        public:
+            BufferError(std::string err): std::runtime_error(err) {}
+    };
 
     template <typename T>
     class Ringbuffer {
@@ -17,6 +24,7 @@ namespace Csdr {
             size_t available(size_t read_pos);
             size_t getWritePos();
         private:
+            T* allocate_mirrored(size_t size);
             T* data;
             size_t size;
             size_t write_pos = 0;

@@ -1,17 +1,72 @@
 #include "ringbuffer.hpp"
 #include "complex.hpp"
 
+#include <sys/mman.h>
+
 using namespace Csdr;
 
 template <typename T>
 Ringbuffer<T>::Ringbuffer(size_t size) {
-    this->size = size;
-    data = (T*) malloc(sizeof(T) * size);
+    data = allocate_mirrored(size);
+    if (data == nullptr) {
+        throw BufferError("unable to allocate ringbuffer memory");
+    }
+}
+
+template <typename T>
+T* Ringbuffer<T>::allocate_mirrored(size_t size) {
+
+#ifdef PAGESIZE
+	static constexpr unsigned int PAGE_SIZE = PAGESIZE;
+#else
+	static const unsigned int PAGE_SIZE = ::sysconf(_SC_PAGESIZE);
+#endif
+
+    size_t bytes = ((sizeof(T) * size + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE;
+    if (bytes % sizeof(T)) {
+        throw BufferError("unable to align buffer with page size");
+    }
+    this->size = bytes / sizeof(T);
+
+    int counter = 10;
+    while (counter-- > 0) {
+        unsigned char* addr = static_cast<unsigned char*>(::mmap(NULL, 2 * bytes, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0));
+
+        if (addr == MAP_FAILED) {
+            continue;
+        }
+
+        addr = static_cast<unsigned char*>(::mremap(addr, 2 * bytes, bytes, 0));
+        if (addr == MAP_FAILED) {
+            continue;
+        }
+
+        unsigned char* addr2 = static_cast<unsigned char*>(::mremap(addr, 0, bytes, MREMAP_MAYMOVE, addr + bytes));
+        if (addr2 == MAP_FAILED) {
+            ::munmap(addr, bytes);
+            continue;
+        }
+
+        if (addr2 != addr + bytes) {
+            ::munmap(addr, bytes);
+            ::munmap(addr2, bytes);
+            continue;
+        }
+
+        return (T*) addr;
+    }
+
+    return nullptr;
 }
 
 template <typename T>
 Ringbuffer<T>::~Ringbuffer() {
-    free(data);
+    if (data != nullptr) {
+        unsigned char* addr = (unsigned char*) data;
+        size_t bytes = this->size * sizeof(T);
+        ::munmap(addr, bytes);
+        ::munmap(addr + bytes, bytes);
+    }
 }
 
 template <typename T>
