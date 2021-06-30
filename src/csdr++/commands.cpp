@@ -35,9 +35,8 @@ void Command::runModule(Module<T, U>* module) {
             run = false;
         } else if (rc) {
             if (FD_ISSET(fileno(stdin), &read_fds)) {
-                int writeable = buffer->writeable();
-                // clamp so we don't woverwrite the whole buffer in one go
-                if (writeable > 1024) writeable = 1024;
+                // clamp so we don't overwrite the whole buffer in one go
+                size_t writeable = std::min((size_t) 1024, buffer->writeable());
                 writeable = (writeable * sizeof(T)) - read_over;
                 read = std::cin.readsome(((char*) buffer->getWritePointer()) + read_over, writeable);
                 if (read == 0) {
