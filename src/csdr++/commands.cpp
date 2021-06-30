@@ -3,6 +3,7 @@
 #include "fmdemod.hpp"
 #include "amdemod.hpp"
 #include "dcblock.hpp"
+#include "converter.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -119,5 +120,31 @@ AmdemodCommand::AmdemodCommand(): Command("amdemod", "AM demodulation") {
 DcBlockCommand::DcBlockCommand(): Command("dcblock", "DC block") {
     callback( [this] () {
         runModule(new DcBlock());
+    });
+}
+
+ConvertCommand::ConvertCommand(): Command("convert", "Convert between stream formats") {
+    add_set("-i,--informat", inFormat, {"s16", "float"}, "Input data format", true);
+    add_set("-o,--outformat", outFormat, {"s16", "float"}, "Output data format", true);
+    callback( [this] () {
+        if (inFormat == outFormat) {
+            std::cerr << "input and output format are identical, cannot convert\n";
+            return;
+        }
+        if (inFormat == "s16") {
+            if (outFormat == "float") {
+                runModule(new Converter<short, float>());
+            } else {
+                std::cerr << "unable to handle output format \"" << outFormat << "\"\n";
+            }
+        } else if (inFormat == "float") {
+            if (outFormat == "s16") {
+                runModule(new Converter<float, short>());
+            } else {
+                std::cerr << "unable to handle output format \"" << outFormat << "\"\n";
+            }
+        } else {
+            std::cerr << "unable to handle input format \"" << inFormat << "\"\n";
+        }
     });
 }

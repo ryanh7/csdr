@@ -18,6 +18,8 @@ void Module<T, U>::setWriter(Writer<U>* writer) {
 template class Module<short, short>;
 template class Module<float, float>;
 template class Module<complex<float>, float>;
+template class Module<short, float>;
+template class Module<float, short>;
 
 template <typename T, typename U>
 void AnyLengthModule<T, U>::process() {
@@ -33,6 +35,8 @@ void AnyLengthModule<T, U>::process() {
 template class AnyLengthModule<short, short>;
 template class AnyLengthModule<float, float>;
 template class AnyLengthModule<complex<float>, float>;
+template class AnyLengthModule<short, float>;
+template class AnyLengthModule<float, short>;
 
 template <typename T, typename U>
 void FixedLengthModule<T, U>::process () {

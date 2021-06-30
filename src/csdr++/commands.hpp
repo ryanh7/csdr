@@ -44,4 +44,12 @@ namespace Csdr {
             DcBlockCommand();
     };
 
+    class ConvertCommand: public Command {
+        public:
+            ConvertCommand();
+        private:
+            std::string inFormat = "float";
+            std::string outFormat = "s16";
+    };
+
 }
