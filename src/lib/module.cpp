@@ -33,3 +33,16 @@ void AnyLengthModule<T, U>::process() {
 template class AnyLengthModule<short, short>;
 template class AnyLengthModule<float, float>;
 template class AnyLengthModule<complex<float>, float>;
+
+template <typename T, typename U>
+void FixedLengthModule<T, U>::process () {
+    size_t available;
+    size_t length;
+    while ((available = this->reader->available()) > (length = getLength())) {
+        process(this->reader->getReadPointer(), this->writer->getWritePointer());
+        this->reader->advance(length);
+        this->writer->advance(length);
+    }
+}
+
+template class FixedLengthModule<float, float>;

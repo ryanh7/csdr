@@ -2,6 +2,7 @@
 #include "agc.hpp"
 #include "fmdemod.hpp"
 #include "amdemod.hpp"
+#include "dcblock.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -112,5 +113,11 @@ FmdemodCommand::FmdemodCommand(): Command("fmdemod", "FM demodulation") {
 AmdemodCommand::AmdemodCommand(): Command("amdemod", "AM demodulation") {
     callback( [this] () {
         runModule(new AmDemod());
+    });
+}
+
+DcBlockCommand::DcBlockCommand(): Command("dcblock", "DC block") {
+    callback( [this] () {
+        runModule(new DcBlock());
     });
 }

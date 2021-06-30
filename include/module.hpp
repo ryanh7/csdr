@@ -28,4 +28,13 @@ namespace Csdr {
             virtual size_t maxLength() { return SIZE_MAX; }
     };
 
+    template <typename T, typename U>
+    class FixedLengthModule: public Module<T, U> {
+        public:
+            void process() override;
+            virtual void process(T* input, U* output) = 0;
+        protected:
+            virtual size_t getLength() = 0;
+    };
+
 }

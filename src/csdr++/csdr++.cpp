@@ -25,6 +25,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new AgcCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new FmdemodCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new AmdemodCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new DcBlockCommand()));
 
     app.require_subcommand(1);
 

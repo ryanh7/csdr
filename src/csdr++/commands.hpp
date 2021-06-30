@@ -39,4 +39,9 @@ namespace Csdr {
             AmdemodCommand();
     };
 
+    class DcBlockCommand: public Command {
+        public:
+            DcBlockCommand();
+    };
+
 }
