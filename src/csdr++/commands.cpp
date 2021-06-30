@@ -4,6 +4,7 @@
 #include "amdemod.hpp"
 #include "dcblock.hpp"
 #include "converter.hpp"
+#include "fft.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -147,4 +148,37 @@ ConvertCommand::ConvertCommand(): Command("convert", "Convert between stream for
             std::cerr << "unable to handle input format \"" << inFormat << "\"\n";
         }
     });
+}
+
+FftCommand::FftCommand(): Command("fft", "Fast Fourier transformation") {
+    add_option("fft_size", fftSize, "FFT size")->required();
+    add_option("every_n_samples", everyNSamples, "Run FFT every N samples")->required();
+    add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function", true);
+    callback( [this] () {
+        if (!isPowerOf2(fftSize)) {
+            std::cerr << "FFT size must be power of 2\n";
+            return;
+        }
+        Window* w;
+        if (window == "boxcar") {
+            w = new BoxcarWindow();
+        } else if (window == "blackman") {
+            w = new BlackmanWindow();
+        } else if (window == "hamming") {
+            w = new HammingWindow();
+        } else {
+            std::cerr << "window type \"" << window << "\" not available\n";
+            return;
+        }
+
+        runModule(new Fft(fftSize, everyNSamples, w));
+    });
+}
+
+bool FftCommand::isPowerOf2(unsigned int size) {
+    unsigned char bitcount = 0;
+    for (int i = 0; i < 32; i++) {
+        bitcount += (size >> i) & 1;
+    }
+    return bitcount == 1;
 }

@@ -22,13 +22,7 @@ include(CheckLibraryExists)
 check_library_exists(m floorf "" CSDR_HAS_LIBM)
 
 include(FindPkgConfig)
-pkg_check_modules(FFTW3 fftw3f)
-
-if(NOT FFTW3_FOUND)
-    message(WARNING "The FFTW3 library could not be found, csdr will be build without any FFT functionality.
-This should work, but it's probably not what you want.
-Please install FFTW3 and it's header files to make this warning go away.")
-endif()
+pkg_check_modules(FFTW3 REQUIRED fftw3f)
 
 include(cmake/DetectIfunc.cmake)
 

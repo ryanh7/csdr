@@ -20,6 +20,7 @@ template class Module<float, float>;
 template class Module<complex<float>, float>;
 template class Module<short, float>;
 template class Module<float, short>;
+template class Module<complex<float>, complex<float>>;
 
 template <typename T, typename U>
 void AnyLengthModule<T, U>::process() {

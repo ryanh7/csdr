@@ -1,4 +1,5 @@
 #include "writer.hpp"
+#include "complex.hpp"
 
 #include <iostream>
 
@@ -10,7 +11,7 @@ StdoutWriter<T>::StdoutWriter(size_t buffer_size): buffer_size(buffer_size) {
 }
 
 template <typename T>
-StdoutWriter<T>::StdoutWriter(): StdoutWriter(1024) {}
+StdoutWriter<T>::StdoutWriter(): StdoutWriter(10240) {}
 
 template <typename T>
 StdoutWriter<T>::~StdoutWriter() {
@@ -43,3 +44,4 @@ template class StdoutWriter<char>;
 template class StdoutWriter<unsigned char>;
 template class StdoutWriter<short>;
 template class StdoutWriter<float>;
+template class StdoutWriter<complex<float>>;

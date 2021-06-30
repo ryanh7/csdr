@@ -52,4 +52,14 @@ namespace Csdr {
             std::string outFormat = "s16";
     };
 
+    class FftCommand: public Command {
+        public:
+            FftCommand();
+        private:
+            bool isPowerOf2(unsigned int size);
+            unsigned int fftSize = 0;
+            unsigned int everyNSamples = 0;
+            std::string window = "hamming";
+    };
+
 }
