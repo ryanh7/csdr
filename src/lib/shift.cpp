@@ -7,7 +7,16 @@ using namespace Csdr;
 
 Shift::Shift(float rate): rate(rate) {}
 
+void Shift::setRate(float rate) {
+    this->rate = rate;
+}
+
 ShiftAddfast::ShiftAddfast(float rate): Shift(rate) {
+    setRate(rate);
+}
+
+void ShiftAddfast::setRate(float rate) {
+    Shift::setRate(rate);
     phase_increment = 2 * rate * M_PI;
     for (int i = 0; i < 4; i++) {
         dsin[i] = sin(phase_increment * (i + 1));

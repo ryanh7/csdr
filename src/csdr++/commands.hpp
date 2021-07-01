@@ -2,6 +2,7 @@
 
 #include "CLI11.hpp"
 #include "module.hpp"
+#include "shift.hpp"
 
 namespace Csdr {
 
@@ -11,6 +12,9 @@ namespace Csdr {
         protected:
             template <typename T, typename U>
             void runModule(Module<T, U>* module);
+            virtual void processFifoData(std::string data) {}
+            std::string fifoName = "";
+            void addFifoOption();
     };
 
     class AgcCommand: public Command {
@@ -93,7 +97,10 @@ namespace Csdr {
     class ShiftCommand: public Command {
         public:
             ShiftCommand();
+        protected:
+            void processFifoData(std::string data) override;
         private:
+            Shift* shiftModule;
             float rate = 0.0;
     };
 

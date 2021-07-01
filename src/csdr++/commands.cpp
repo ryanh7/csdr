@@ -9,11 +9,11 @@
 #include "logaveragepower.hpp"
 #include "fftexchangesides.hpp"
 #include "realpart.hpp"
-#include "shift.hpp"
 
 #include <iostream>
 #include <errno.h>
 #include <cstring>
+#include <fcntl.h>
 
 using namespace Csdr;
 
@@ -26,14 +26,24 @@ void Command::runModule(Module<T, U>* module) {
     fd_set read_fds;
     struct timeval tv;
     int rc;
-    int nfds = fileno(stdin) + 1;
     size_t read;
     size_t read_over = 0;
+    int nfds = fileno(stdin) + 1;
+
+    FILE* fifo = nullptr;
+    char* fifo_input = nullptr;
+    if (fifoName != "") {
+        fifo = fopen(fifoName.c_str(), "r");
+        fcntl(fileno(fifo), F_SETFL, O_NONBLOCK);
+        nfds = std::max(fileno(stdin), fileno(fifo)) + 1;
+        fifo_input = (char*) malloc(1024);
+    }
 
     bool run = true;
     while (run) {
         FD_ZERO(&read_fds);
         FD_SET(fileno(stdin), &read_fds);
+        if (fifo) FD_SET(fileno(fifo), &read_fds);
         tv.tv_sec = 10;
         tv.tv_usec = 0;
 
@@ -55,6 +65,11 @@ void Command::runModule(Module<T, U>* module) {
                 read_over = (read + read_over) % sizeof(T);
                 module->process();
             }
+            if (fifo && FD_ISSET(fileno(fifo), &read_fds)) {
+                if (fgets(fifo_input, 1024, fifo) != NULL) {
+                    processFifoData(std::string(fifo_input, strlen(fifo_input) - 1));
+                }
+            }
         //} else {
             // no data, just timeout.
         }
@@ -63,10 +78,23 @@ void Command::runModule(Module<T, U>* module) {
             run = false;
         }
 
+        if (fifo && feof(fifo)) {
+            std::cerr << "WARNING: fifo indicates EOF, terminating\n";
+            run = false;
+        }
+
     }
 
+    if (fifo) {
+        fclose(fifo);
+        free(fifo_input);
+    }
     delete buffer;
     delete module;
+}
+
+void Command::addFifoOption() {
+    add_option("--fifo", fifoName, "Control fifo");
 }
 
 AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
@@ -218,8 +246,15 @@ RealpartCommand::RealpartCommand(): Command("realpart", "Extract the real part o
 }
 
 ShiftCommand::ShiftCommand(): Command("shift", "Shift a signal in the frequency domain") {
-    add_option("rate", rate, "Amount of shift relative to the sampling rate")->required();
+    add_option("rate", rate, "Amount of shift relative to the sampling rate");
+    addFifoOption();
     callback( [this] () {
-        runModule(new ShiftAddfast(rate));
+        ShiftAddfast* shift = new ShiftAddfast(rate);
+        shiftModule = shift;
+        runModule(shift);
     });
+}
+
+void ShiftCommand::processFifoData(std::string data) {
+    shiftModule->setRate(std::stof(data));
 }
