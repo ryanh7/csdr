@@ -38,6 +38,7 @@ template class AnyLengthModule<float, float>;
 template class AnyLengthModule<complex<float>, float>;
 template class AnyLengthModule<short, float>;
 template class AnyLengthModule<float, short>;
+template class AnyLengthModule<complex<float>, complex<float>>;
 
 template <typename T, typename U>
 void FixedLengthModule<T, U>::process () {
@@ -51,3 +52,4 @@ void FixedLengthModule<T, U>::process () {
 }
 
 template class FixedLengthModule<float, float>;
+template class FixedLengthModule<complex<float>, complex<float>>;

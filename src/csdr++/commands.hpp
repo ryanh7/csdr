@@ -90,4 +90,11 @@ namespace Csdr {
             RealpartCommand();
     };
 
+    class ShiftCommand: public Command {
+        public:
+            ShiftCommand();
+        private:
+            float rate = 0.0;
+    };
+
 }

@@ -9,6 +9,7 @@
 #include "logaveragepower.hpp"
 #include "fftexchangesides.hpp"
 #include "realpart.hpp"
+#include "shift.hpp"
 
 #include <iostream>
 #include <errno.h>
@@ -213,5 +214,12 @@ FftExchangeSidesCommand::FftExchangeSidesCommand(): Command("fftswap", "Switch F
 RealpartCommand::RealpartCommand(): Command("realpart", "Extract the real part of an IQ signal") {
     callback( [this] () {
         runModule(new Realpart());
+    });
+}
+
+ShiftCommand::ShiftCommand(): Command("shift", "Shift a signal in the frequency domain") {
+    add_option("rate", rate, "Amount of shift relative to the sampling rate")->required();
+    callback( [this] () {
+        runModule(new ShiftAddfast(rate));
     });
 }
