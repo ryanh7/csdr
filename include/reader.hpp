@@ -1,5 +1,7 @@
 #pragma once
 
+#include "complex.hpp"
+
 #include <cstdlib>
 
 namespace Csdr {
@@ -11,5 +13,21 @@ namespace Csdr {
             virtual T* getReadPointer() = 0;
             virtual void advance(size_t how_much) = 0;
     };
+
+    template <typename T>
+    class MemoryReader: public Reader<T> {
+        public:
+            MemoryReader(T* data, size_t size);
+            size_t available() override;
+            T* getReadPointer() override;
+            void advance(size_t how_much) override;
+            void rewind();
+        private:
+            T* data;
+            size_t size;
+            size_t read_pos = 0;
+    };
+
+    template class MemoryReader<complex<float>>;
 
 }

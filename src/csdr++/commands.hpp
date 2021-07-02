@@ -116,4 +116,9 @@ namespace Csdr {
             std::string window = "hamming";
     };
 
+    class BenchmarkCommand: public Command {
+        public:
+            BenchmarkCommand();
+    };
+
 }

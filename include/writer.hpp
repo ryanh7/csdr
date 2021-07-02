@@ -33,4 +33,21 @@ namespace Csdr {
     template class StdoutWriter<short>;
     template class StdoutWriter<float>;
     template class StdoutWriter<complex<float>>;
+
+    template <typename T>
+    class VoidWriter: public Writer<T> {
+        public:
+            explicit VoidWriter(size_t buffer_size);
+            VoidWriter();
+            ~VoidWriter();
+            size_t writeable() override;
+            T* getWritePointer() override;
+            void advance(__attribute__((unused)) size_t how_much) override {}
+        private:
+            size_t buffer_size;
+            T* data;
+    };
+
+    template class VoidWriter<complex<float>>;
+
 }

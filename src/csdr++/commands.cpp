@@ -10,6 +10,7 @@
 #include "fftexchangesides.hpp"
 #include "realpart.hpp"
 #include "firdecimate.hpp"
+#include "benchmark.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -281,5 +282,11 @@ FirDecimateCommand::FirDecimateCommand(): Command("firdecimate", "Decimate and f
             return;
         }
         runModule(new FirDecimate(decimationFactor, transitionBandwidth, w));
+    });
+}
+
+BenchmarkCommand::BenchmarkCommand(): Command("benchmark", "Perform internal benchmarks") {
+    callback( [this] () {
+        (new Benchmark())->run();
     });
 }
