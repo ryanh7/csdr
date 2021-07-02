@@ -18,13 +18,6 @@ StdoutWriter<T>::~StdoutWriter() {
 }
 
 template <typename T>
-size_t StdoutWriter<T>::write(T* data, size_t size) {
-    std::cout.write((const char*) data, sizeof(T) * size);
-    std::cout.flush();
-    return size;
-}
-
-template <typename T>
 size_t StdoutWriter<T>::writeable() {
     return buffer_size;
 }
@@ -36,5 +29,6 @@ T* StdoutWriter<T>::getWritePointer() {
 
 template <typename T>
 void StdoutWriter<T>::advance(size_t how_much) {
-    write(buffer, how_much);
+    std::cout.write((const char*) buffer, sizeof(T) * how_much);
+    std::cout.flush();
 }

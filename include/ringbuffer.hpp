@@ -1,5 +1,7 @@
 #pragma once
 
+#include "reader.hpp"
+
 #include <cstdlib>
 #include <stdexcept>
 #include <unistd.h>
@@ -8,13 +10,13 @@ namespace Csdr {
 
     class BufferError: public std::runtime_error {
         public:
-            BufferError(std::string err): std::runtime_error(err) {}
+            explicit BufferError(const std::string& err): std::runtime_error(err) {}
     };
 
     template <typename T>
     class Ringbuffer {
         public:
-            Ringbuffer<T>(size_t size);
+            explicit Ringbuffer<T>(size_t size);
             ~Ringbuffer();
             size_t writeable();
             T* getWritePointer();
@@ -31,9 +33,9 @@ namespace Csdr {
     };
 
     template <typename T>
-    class RingbufferReader {
+    class RingbufferReader: public Reader<T> {
         public:
-            RingbufferReader<T>(Ringbuffer<T>* buffer);
+            explicit RingbufferReader<T>(Ringbuffer<T>* buffer);
             size_t available();
             T* getReadPointer();
             void advance(size_t how_much);

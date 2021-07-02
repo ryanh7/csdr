@@ -5,7 +5,7 @@
 using namespace Csdr;
 
 template <typename T, typename U>
-void Module<T, U>::setReader(RingbufferReader<T>* reader) {
+void Module<T, U>::setReader(Reader<T>* reader) {
     this->reader = reader;
 }
 

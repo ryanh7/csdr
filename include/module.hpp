@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ringbuffer.hpp"
+#include "reader.hpp"
 #include "writer.hpp"
 #include "complex.hpp"
 
@@ -12,12 +12,11 @@ namespace Csdr {
     class Module {
         public:
             virtual ~Module() = default;
-            // TODO extract "Reader" interface and use here
-            void setReader(RingbufferReader<T>* reader);
+            void setReader(Reader<T>* reader);
             void setWriter(Writer<U>* writer);
             virtual void process() = 0;
         protected:
-            RingbufferReader<T>* reader;
+            Reader<T>* reader;
             Writer<U>* writer;
     };
 
