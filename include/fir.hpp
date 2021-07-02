@@ -15,8 +15,6 @@ namespace Csdr {
             SparseView<T> sparse(T* data);
     };
 
-    template class Filter<complex<float>>;
-
     template <typename T>
     class SparseView {
         public:
@@ -26,8 +24,6 @@ namespace Csdr {
             T* data;
             Filter<T>* filter;
     };
-
-    template class SparseView<complex<float>>;
 
     template <typename T>
     class FirFilter: public Filter<T> {
@@ -45,13 +41,9 @@ namespace Csdr {
             unsigned int taps_length;
     };
 
-    template class FirFilter<complex<float>>;
-
     template <typename T>
     class LowPassFilter: public FirFilter<T> {
         public:
             LowPassFilter(float cutoff, float transition, Window* window);
     };
-
-    template class LowPassFilter<complex<float>>;
 }

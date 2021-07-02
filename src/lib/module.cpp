@@ -35,3 +35,22 @@ void FixedLengthModule<T, U>::process () {
         this->writer->advance(length);
     }
 }
+
+namespace Csdr {
+    template class Module<short, short>;
+    template class Module<float, float>;
+    template class Module<complex<float>, float>;
+    template class Module<short, float>;
+    template class Module<float, short>;
+    template class Module<complex<float>, complex<float>>;
+
+    template class AnyLengthModule<short, short>;
+    template class AnyLengthModule<float, float>;
+    template class AnyLengthModule<complex<float>, float>;
+    template class AnyLengthModule<short, float>;
+    template class AnyLengthModule<float, short>;
+    template class AnyLengthModule<complex<float>, complex<float>>;
+
+    template class FixedLengthModule<float, float>;
+    template class FixedLengthModule<complex<float>, complex<float>>;
+}

@@ -56,3 +56,13 @@ template <typename T>
 T* VoidWriter<T>::getWritePointer() {
     return data;
 }
+
+namespace Csdr {
+    template class StdoutWriter<char>;
+    template class StdoutWriter<unsigned char>;
+    template class StdoutWriter<short>;
+    template class StdoutWriter<float>;
+    template class StdoutWriter<complex<float>>;
+
+    template class VoidWriter<complex<float>>;
+}

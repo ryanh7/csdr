@@ -96,3 +96,13 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
     }
     this->normalize();
 }
+
+namespace Csdr {
+    template class Filter<complex<float>>;
+
+    template class SparseView<complex<float>>;
+
+    template class FirFilter<complex<float>>;
+
+    template class LowPassFilter<complex<float>>;
+}

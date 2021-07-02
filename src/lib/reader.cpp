@@ -24,3 +24,7 @@ template <typename T>
 void MemoryReader<T>::rewind() {
     read_pos = 0;
 }
+
+namespace Csdr {
+    template class MemoryReader<complex<float>>;
+}

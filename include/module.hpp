@@ -20,13 +20,6 @@ namespace Csdr {
             Writer<U>* writer;
     };
 
-    template class Module<short, short>;
-    template class Module<float, float>;
-    template class Module<complex<float>, float>;
-    template class Module<short, float>;
-    template class Module<float, short>;
-    template class Module<complex<float>, complex<float>>;
-
     template <typename T, typename U>
     class AnyLengthModule: public Module<T, U> {
         public:
@@ -36,13 +29,6 @@ namespace Csdr {
             virtual size_t maxLength() { return SIZE_MAX; }
     };
 
-    template class AnyLengthModule<short, short>;
-    template class AnyLengthModule<float, float>;
-    template class AnyLengthModule<complex<float>, float>;
-    template class AnyLengthModule<short, float>;
-    template class AnyLengthModule<float, short>;
-    template class AnyLengthModule<complex<float>, complex<float>>;
-
     template <typename T, typename U>
     class FixedLengthModule: public Module<T, U> {
         public:
@@ -51,7 +37,4 @@ namespace Csdr {
         protected:
             virtual size_t getLength() = 0;
     };
-
-    template class FixedLengthModule<float, float>;
-    template class FixedLengthModule<complex<float>, complex<float>>;
 }

@@ -28,6 +28,4 @@ namespace Csdr {
             size_t read_pos = 0;
     };
 
-    template class MemoryReader<complex<float>>;
-
 }

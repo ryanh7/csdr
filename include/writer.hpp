@@ -28,12 +28,6 @@ namespace Csdr {
             T* buffer;
     };
 
-    template class StdoutWriter<char>;
-    template class StdoutWriter<unsigned char>;
-    template class StdoutWriter<short>;
-    template class StdoutWriter<float>;
-    template class StdoutWriter<complex<float>>;
-
     template <typename T>
     class VoidWriter: public Writer<T> {
         public:
@@ -47,7 +41,5 @@ namespace Csdr {
             size_t buffer_size;
             T* data;
     };
-
-    template class VoidWriter<complex<float>>;
 
 }
