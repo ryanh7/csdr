@@ -68,7 +68,7 @@ void FirFilter<T>::allocateTaps(unsigned int length) {
 
     taps = (float*) malloc((padded_taps_length + NEON_ALIGNMENT) * sizeof(float));
     taps = (float*) ((((size_t) taps) + NEON_ALIGNMENT - 1) & ~(NEON_ALIGNMENT - 1));
-    for (int i = 0; i < padded_taps_length - length; i++) taps[result.taps_length+i] = 0;
+    for (int i = 0; i < padded_taps_length - length; i++) taps[taps_length + i] = 0;
     taps_length = padded_taps_length;
 #else
     taps = (float*) malloc(length * sizeof(float));
