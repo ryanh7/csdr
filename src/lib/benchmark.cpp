@@ -42,7 +42,7 @@ void Benchmark::run() {
         reader->rewind();
     }
     clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
-    std::cerr << "fir_decimate_cc done in " << timeTaken(start_time, end_time) << " seconds.\n";
+    std::cerr << "firdecimate done in " << timeTaken(start_time, end_time) << " seconds.\n";
 }
 
 double Benchmark::timeTaken(struct ::timespec start, struct ::timespec end) {
