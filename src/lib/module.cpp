@@ -1,5 +1,4 @@
 #include "module.hpp"
-#include "complex.hpp"
 
 #include <algorithm>
 
@@ -15,13 +14,6 @@ void Module<T, U>::setWriter(Writer<U>* writer) {
     this->writer = writer;
 }
 
-template class Module<short, short>;
-template class Module<float, float>;
-template class Module<complex<float>, float>;
-template class Module<short, float>;
-template class Module<float, short>;
-template class Module<complex<float>, complex<float>>;
-
 template <typename T, typename U>
 void AnyLengthModule<T, U>::process() {
     size_t available;
@@ -33,13 +25,6 @@ void AnyLengthModule<T, U>::process() {
     }
 }
 
-template class AnyLengthModule<short, short>;
-template class AnyLengthModule<float, float>;
-template class AnyLengthModule<complex<float>, float>;
-template class AnyLengthModule<short, float>;
-template class AnyLengthModule<float, short>;
-template class AnyLengthModule<complex<float>, complex<float>>;
-
 template <typename T, typename U>
 void FixedLengthModule<T, U>::process () {
     size_t available;
@@ -50,6 +35,3 @@ void FixedLengthModule<T, U>::process () {
         this->writer->advance(length);
     }
 }
-
-template class FixedLengthModule<float, float>;
-template class FixedLengthModule<complex<float>, complex<float>>;

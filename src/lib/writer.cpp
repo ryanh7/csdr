@@ -1,5 +1,4 @@
 #include "writer.hpp"
-#include "complex.hpp"
 
 #include <iostream>
 
@@ -39,9 +38,3 @@ template <typename T>
 void StdoutWriter<T>::advance(size_t how_much) {
     write(buffer, how_much);
 }
-
-template class StdoutWriter<char>;
-template class StdoutWriter<unsigned char>;
-template class StdoutWriter<short>;
-template class StdoutWriter<float>;
-template class StdoutWriter<complex<float>>;

@@ -33,6 +33,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new FftExchangeSidesCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new RealpartCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new ShiftCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new FirDecimateCommand()));
 
     app.require_subcommand(1);
 

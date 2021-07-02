@@ -41,7 +41,7 @@ T* Ringbuffer<T>::allocate_mirrored(size_t size) {
             continue;
         }
 
-        unsigned char* addr2 = static_cast<unsigned char*>(::mremap(addr, 0, bytes, MREMAP_MAYMOVE, addr + bytes));
+        unsigned char* addr2 = static_cast<unsigned char*>(::mremap(addr, 0, bytes, MREMAP_FIXED | MREMAP_MAYMOVE, addr + bytes));
         if (addr2 == MAP_FAILED) {
             ::munmap(addr, bytes);
             continue;

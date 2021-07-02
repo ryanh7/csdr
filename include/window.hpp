@@ -20,22 +20,21 @@ namespace Csdr {
             template <typename T>
             void apply(T* input, T* output, size_t size);
             PrecalculatedWindow* precalculate(size_t size);
-        protected:
             virtual float kernel(float rate) = 0;
     };
 
     class BoxcarWindow: public Window {
-        protected:
+        public:
             float kernel(float rate) override;
     };
 
     class BlackmanWindow: public Window {
-        protected:
+        public:
             float kernel(float rate) override;
     };
 
     class HammingWindow: public Window {
-        protected:
+        public:
             float kernel(float rate) override;
     };
 

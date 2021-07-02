@@ -9,9 +9,10 @@
 #include "logaveragepower.hpp"
 #include "fftexchangesides.hpp"
 #include "realpart.hpp"
+#include "firdecimate.hpp"
 
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 #include <cstring>
 #include <fcntl.h>
 
@@ -19,12 +20,12 @@ using namespace Csdr;
 
 template <typename T, typename U>
 void Command::runModule(Module<T, U>* module) {
-    Ringbuffer<T>* buffer = new Ringbuffer<T>(10240);
+    Ringbuffer<T>* buffer = new Ringbuffer<T>(bufferSize());
     module->setReader(new RingbufferReader<T>(buffer));
     module->setWriter(new StdoutWriter<U>());
 
     fd_set read_fds;
-    struct timeval tv;
+    struct timeval tv = { .tv_sec = 10, .tv_usec = 0};
     int rc;
     size_t read;
     size_t read_over = 0;
@@ -32,11 +33,15 @@ void Command::runModule(Module<T, U>* module) {
 
     FILE* fifo = nullptr;
     char* fifo_input = nullptr;
-    if (fifoName != "") {
+    if (!fifoName.empty()) {
         fifo = fopen(fifoName.c_str(), "r");
-        fcntl(fileno(fifo), F_SETFL, O_NONBLOCK);
-        nfds = std::max(fileno(stdin), fileno(fifo)) + 1;
-        fifo_input = (char*) malloc(1024);
+        if (fifo == nullptr) {
+            std::cerr << "error opening fifo: " << strerror(errno) << "\n";
+        } else {
+            fcntl(fileno(fifo), F_SETFL, O_NONBLOCK);
+            nfds = std::max(fileno(stdin), fileno(fifo)) + 1;
+            fifo_input = (char*) malloc(1024);
+        }
     }
 
     bool run = true;
@@ -257,4 +262,24 @@ ShiftCommand::ShiftCommand(): Command("shift", "Shift a signal in the frequency 
 
 void ShiftCommand::processFifoData(std::string data) {
     shiftModule->setRate(std::stof(data));
+}
+
+FirDecimateCommand::FirDecimateCommand(): Command("firdecimate", "Decimate and filter") {
+    add_option("decimation_factor", decimationFactor, "Decimation factor")->required();
+    add_option("transition_bw", transitionBandwidth, "Transition bandwidth", true);
+    add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function", true);
+    callback( [this] () {
+        Window* w;
+        if (window == "boxcar") {
+            w = new BoxcarWindow();
+        } else if (window == "blackman") {
+            w = new BlackmanWindow();
+        } else if (window == "hamming") {
+            w = new HammingWindow();
+        } else {
+            std::cerr << "window type \"" << window << "\" not available\n";
+            return;
+        }
+        runModule(new FirDecimate(decimationFactor, transitionBandwidth, w));
+    });
 }

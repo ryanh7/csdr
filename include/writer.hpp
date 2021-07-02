@@ -1,5 +1,7 @@
 #pragma once
 
+#include "complex.hpp"
+
 #include <cstdlib>
 
 namespace Csdr {
@@ -11,7 +13,6 @@ namespace Csdr {
             virtual size_t writeable() = 0;
             virtual T* getWritePointer()  = 0;
             virtual void advance(size_t how_much) = 0;
-            //T* getWritePointer(size_t for_how_much);
     };
 
     template <typename T>
@@ -29,4 +30,9 @@ namespace Csdr {
             T* buffer;
     };
 
+    template class StdoutWriter<char>;
+    template class StdoutWriter<unsigned char>;
+    template class StdoutWriter<short>;
+    template class StdoutWriter<float>;
+    template class StdoutWriter<complex<float>>;
 }
