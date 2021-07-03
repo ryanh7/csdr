@@ -9,7 +9,8 @@ namespace Csdr {
         public:
             LogAveragePower(unsigned int fftSize, unsigned int avgNumber, float add_db);
             LogAveragePower(unsigned int fftSize, unsigned int avgNumber);
-            ~LogAveragePower();
+            ~LogAveragePower() override;
+            bool canProcess() override;
             void process() override;
         private:
             float* collector;

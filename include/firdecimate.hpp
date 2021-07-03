@@ -11,6 +11,7 @@ namespace Csdr {
         public:
             FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window);
             ~FirDecimate() override;
+            bool canProcess() override;
             void process() override;
         private:
             unsigned int decimation;

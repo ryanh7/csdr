@@ -38,7 +38,7 @@ void Benchmark::run() {
     //fir_decimate_cc
     clock_gettime(CLOCK_MONOTONIC_RAW, &start_time);
     for (int i = 0; i < T_N; i++) {
-        fd->process();
+        while (fd->canProcess()) fd->process();
         reader->rewind();
     }
     clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);

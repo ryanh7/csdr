@@ -17,6 +17,7 @@ namespace Csdr {
 
     class Window {
         public:
+            virtual ~Window() = default;
             template <typename T>
             void apply(T* input, T* output, size_t size);
             PrecalculatedWindow* precalculate(size_t size);

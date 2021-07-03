@@ -69,7 +69,7 @@ void Command::runModule(Module<T, U>* module) {
                 }
                 buffer->advance((read + read_over) / sizeof(T));
                 read_over = (read + read_over) % sizeof(T);
-                module->process();
+                while (module->canProcess()) module->process();
             }
             if (fifo && FD_ISSET(fileno(fifo), &read_fds)) {
                 if (fgets(fifo_input, 1024, fifo) != NULL) {

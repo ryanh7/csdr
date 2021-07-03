@@ -19,13 +19,14 @@ Fft::~Fft() {
     fftwf_destroy_plan(plan);
 }
 
+bool Fft::canProcess() {
+    return std::min(reader->available(), writer->writeable()) > std::max(fftSize, everyNSamples);
+}
+
 void Fft::process() {
-    size_t available;
-    while ((available = reader->available()) > std::max(fftSize, everyNSamples)) {
-        window->apply(reader->getReadPointer(), windowed, fftSize);
-        fftwf_execute(plan);
-        std::memcpy(writer->getWritePointer(), output_buffer, sizeof(complex<float>) * fftSize);
-        this->reader->advance(everyNSamples);
-        this->writer->advance(fftSize);
-    }
+    window->apply(reader->getReadPointer(), windowed, fftSize);
+    fftwf_execute(plan);
+    std::memcpy(writer->getWritePointer(), output_buffer, sizeof(complex<float>) * fftSize);
+    this->reader->advance(everyNSamples);
+    this->writer->advance(fftSize);
 }

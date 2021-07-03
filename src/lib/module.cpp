@@ -15,25 +15,35 @@ void Module<T, U>::setWriter(Writer<U>* writer) {
 }
 
 template <typename T, typename U>
+bool AnyLengthModule<T, U>::canProcess() {
+    return getWorkSize() > 0;
+}
+
+template <typename T, typename U>
+size_t AnyLengthModule<T, U>::getWorkSize() {
+    return std::min({this->reader->available(), this->writer->writeable(), maxLength()});
+}
+
+template <typename T, typename U>
 void AnyLengthModule<T, U>::process() {
-    size_t available;
-    while (available = this->reader->available()) {
-        size_t work_size = std::min({available, this->writer->writeable(), maxLength()});
-        process(this->reader->getReadPointer(), this->writer->getWritePointer(), work_size);
-        this->reader->advance(work_size);
-        this->writer->advance(work_size);
-    }
+    size_t available = getWorkSize();
+    process(this->reader->getReadPointer(), this->writer->getWritePointer(), available);
+    this->reader->advance(available);
+    this->writer->advance(available);
+}
+
+template <typename T, typename U>
+bool FixedLengthModule<T, U>::canProcess() {
+    size_t available = std::min(this->reader->available(), this->writer->writeable());
+    return available > getLength();
 }
 
 template <typename T, typename U>
 void FixedLengthModule<T, U>::process () {
-    size_t available;
-    size_t length;
-    while ((available = this->reader->available()) > (length = getLength())) {
-        process(this->reader->getReadPointer(), this->writer->getWritePointer());
-        this->reader->advance(length);
-        this->writer->advance(length);
-    }
+    size_t length = getLength();
+    process(this->reader->getReadPointer(), this->writer->getWritePointer());
+    this->reader->advance(length);
+    this->writer->advance(length);
 }
 
 namespace Csdr {
