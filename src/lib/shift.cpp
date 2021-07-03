@@ -12,12 +12,12 @@ void Shift::setRate(float rate) {
 }
 
 ShiftAddfast::ShiftAddfast(float rate): Shift(rate) {
-    setRate(rate);
+    ShiftAddfast::setRate(rate);
 }
 
 void ShiftAddfast::setRate(float rate) {
     Shift::setRate(rate);
-    phase_increment = 2 * rate * M_PI;
+    phase_increment = 2.0f * rate * M_PI;
     for (int i = 0; i < 4; i++) {
         dsin[i] = sin(phase_increment * (i + 1));
         dcos[i] = cos(phase_increment * (i + 1));
@@ -59,4 +59,41 @@ void ShiftAddfast::process_fmv(complex<float>* input, complex<float>* output, si
     starting_phase += size * phase_increment;
     while (starting_phase > M_PI) starting_phase -= 2 * M_PI;
     while (starting_phase < -M_PI) starting_phase += 2 * M_PI;
+}
+
+ShiftMath::ShiftMath(float rate): Shift(rate) {
+    ShiftMath::setRate(rate);
+}
+
+void ShiftMath::setRate(float rate) {
+    Shift::setRate(rate);
+    phase_increment = 2.0f * rate * M_PI;
+}
+
+void ShiftMath::process(complex<float> *input, complex<float> *output, size_t size) {
+    process_fmv(input, output, size);
+}
+
+CSDR_TARGET_CLONES
+void ShiftMath::process_fmv(complex<float>* input, complex<float>* output, size_t size) {
+    //rate *= 2;
+    //Shifts the complex spectrum. Basically a complex mixer. This version uses cmath.
+    float cosval, sinval;
+    for (int i = 0; i < size; i++) {
+        float phaseval = phase_increment * i + phase;
+        cosval = cos(phaseval);
+        sinval = sin(phaseval);
+        //we multiply two complex numbers.
+        //how? enter this to maxima (software) for explanation:
+        //   (a+b*%i)*(c+d*%i), rectform;
+        output[i] = {
+            cosval * input[i].i() - sinval * input[i].q(),
+            sinval * input[i].i() + cosval * input[i].q()
+        };
+    }
+
+    phase = phase_increment * size + phase;
+    while (phase > 2 * M_PI) phase -= 2 * M_PI;
+    while (phase < 0) phase += 2 * M_PI;
+
 }

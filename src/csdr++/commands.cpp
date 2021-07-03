@@ -255,7 +255,8 @@ ShiftCommand::ShiftCommand(): Command("shift", "Shift a signal in the frequency 
     add_option("rate", rate, "Amount of shift relative to the sampling rate");
     addFifoOption();
     callback( [this] () {
-        ShiftAddfast* shift = new ShiftAddfast(rate);
+        //auto shift = new ShiftMath(rate);
+        auto shift = new ShiftAddfast(rate);
         shiftModule = shift;
         runModule(shift);
     });
