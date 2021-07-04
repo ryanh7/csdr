@@ -47,6 +47,15 @@ complex<float> FirFilter<complex<float>>::processSample_fmv(complex<float> *data
     return acc;
 }
 
+template <typename T>
+T FirFilter<T>::processSample_fmv(T *data, size_t index) {
+    T acc = 0;
+    for (int ti = 0; ti < taps_length; ti++) {
+        acc += data[index + ti] * taps[ti];
+    }
+    return acc;
+}
+
 template<typename T>
 unsigned int FirFilter<T>::filterLength(float transition) {
     unsigned int result = 4.0 / transition;
@@ -99,10 +108,14 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
 
 namespace Csdr {
     template class Filter<complex<float>>;
+    template class Filter<float>;
 
     template class SparseView<complex<float>>;
+    template class SparseView<float>;
 
     template class FirFilter<complex<float>>;
+    template class FirFilter<float>;
 
     template class LowPassFilter<complex<float>>;
+    template class LowPassFilter<float>;
 }

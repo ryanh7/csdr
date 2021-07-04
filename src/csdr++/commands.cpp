@@ -11,6 +11,7 @@
 #include "realpart.hpp"
 #include "firdecimate.hpp"
 #include "benchmark.hpp"
+#include "fractionaldecimator.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -290,4 +291,42 @@ BenchmarkCommand::BenchmarkCommand(): Command("benchmark", "Perform internal ben
     callback( [this] () {
         (new Benchmark())->run();
     });
+}
+
+FractionalDecimatorCommand::FractionalDecimatorCommand(): Command("fractionaldecimator", "Decimate in fractions") {
+    add_set("-f,--format", format, {"float", "complex"}, "Format", true);
+    add_option("decimation_rate", decimation_rate, "Decimation rate");
+    add_option("-n,--numpoly", num_poly_points, "Number of poly points", true);
+    add_option("-t,--transition", transition, "Transition bandwidth for the prefilter");
+    add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function for the prefilter", true);
+    add_flag("-p,--prefilter", prefilter, "Apply filtering before decimation");
+    callback( [this] () {
+        if (format == "float") {
+            runDecimator<float>();
+        } else if (format == "complex") {
+            runDecimator<complex<float>>();
+        } else {
+            std::cerr << "invalid format \"" << format << "\"\n";
+        }
+    });
+}
+
+template <typename T>
+void FractionalDecimatorCommand::runDecimator() {
+    FirFilter<T>* filter = nullptr;
+    if (prefilter) {
+        Window* w;
+        if (window == "boxcar") {
+            w = new BoxcarWindow();
+        } else if (window == "blackman") {
+            w = new BlackmanWindow();
+        } else if (window == "hamming") {
+            w = new HammingWindow();
+        } else {
+            std::cerr << "window type \"" << window << "\" not available\n";
+            return;
+        }
+        filter = new LowPassFilter<T>(0.5 / (decimation_rate - transition), transition, w);
+    }
+    runModule(new FractionalDecimator<T>(decimation_rate, num_poly_points, filter));
 }

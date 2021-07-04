@@ -121,4 +121,18 @@ namespace Csdr {
             BenchmarkCommand();
     };
 
+    class FractionalDecimatorCommand: public Command {
+        public:
+            FractionalDecimatorCommand();
+        private:
+            template <typename t>
+            void runDecimator();
+            std::string format = "float";
+            float decimation_rate;
+            unsigned int num_poly_points = 12;
+            float transition = 0.03;
+            std::string window = "hamming";
+            bool prefilter = false;
+    };
+
 }
