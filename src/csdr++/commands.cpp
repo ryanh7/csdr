@@ -295,9 +295,9 @@ BenchmarkCommand::BenchmarkCommand(): Command("benchmark", "Perform internal ben
 
 FractionalDecimatorCommand::FractionalDecimatorCommand(): Command("fractionaldecimator", "Decimate in fractions") {
     add_set("-f,--format", format, {"float", "complex"}, "Format", true);
-    add_option("decimation_rate", decimation_rate, "Decimation rate");
+    add_option("decimation_rate", decimation_rate, "Decimation rate")->required();
     add_option("-n,--numpoly", num_poly_points, "Number of poly points", true);
-    add_option("-t,--transition", transition, "Transition bandwidth for the prefilter");
+    add_option("-t,--transition", transition, "Transition bandwidth for the prefilter", true);
     add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function for the prefilter", true);
     add_flag("-p,--prefilter", prefilter, "Apply filtering before decimation");
     callback( [this] () {
