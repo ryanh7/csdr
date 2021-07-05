@@ -150,4 +150,11 @@ namespace Csdr {
             unsigned int fftSize;
     };
 
+    class LimitCommand: public Command {
+        public:
+            LimitCommand();
+        private:
+            float maxAmplitude = 1.0f;
+    };
+
 }

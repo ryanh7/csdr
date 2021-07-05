@@ -37,6 +37,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new FractionalDecimatorCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new AdpcmCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new FftAdpcmCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new LimitCommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 

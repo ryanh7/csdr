@@ -13,6 +13,7 @@
 #include "benchmark.hpp"
 #include "fractionaldecimator.hpp"
 #include "adpcm.hpp"
+#include "limit.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -352,5 +353,12 @@ FftAdpcmCommand::FftAdpcmCommand(): Command("fftadpcm", "Specialized ADPCM for F
     add_option("fft_size", fftSize, "Number of FFT bins")->required();
     callback( [this] () {
         runModule(new FftAdpcmEncoder(fftSize));
+    });
+}
+
+LimitCommand::LimitCommand(): Command("limit", "Limit stream values to maximum amplitude") {
+    add_option("max_amplitude", maxAmplitude, "Maximum amplitude", true);
+    callback( [this] () {
+        runModule(new Limit(maxAmplitude));
     });
 }
