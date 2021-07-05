@@ -1,6 +1,7 @@
 #pragma once
 
 #include "reader.hpp"
+#include "writer.hpp"
 
 #include <cstdlib>
 #include <stdexcept>
@@ -14,14 +15,14 @@ namespace Csdr {
     };
 
     template <typename T>
-    class Ringbuffer {
+    class Ringbuffer: public Writer<T> {
         public:
             explicit Ringbuffer<T>(size_t size);
             ~Ringbuffer();
-            size_t writeable();
-            T* getWritePointer();
+            size_t writeable() override;
+            T* getWritePointer() override;
             T* getPointer(size_t pos);
-            void advance(size_t how_much);
+            void advance(size_t how_much) override;
             void advance(size_t& what, size_t how_much);
             size_t available(size_t read_pos);
             size_t getWritePos();
