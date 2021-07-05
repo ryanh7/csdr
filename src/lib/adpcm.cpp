@@ -2,7 +2,6 @@
 
 using namespace Csdr;
 
-
 unsigned char AdpcmCodec::encodeSample(short sample) {
     int diff = sample - previousValue;
     int step = _stepSizeTable[index];
@@ -35,7 +34,7 @@ unsigned char AdpcmCodec::encodeSample(short sample) {
     return deltaCode;
 }
 
-unsigned char AdpcmCodec::decodeSample(unsigned char deltaCode) {
+short AdpcmCodec::decodeSample(unsigned char deltaCode) {
     // Get the current step size
     int step = _stepSizeTable[index];
 
@@ -58,6 +57,20 @@ unsigned char AdpcmCodec::decodeSample(unsigned char deltaCode) {
     else if (index > 88) index = 88;
 
     return previousValue;
+}
+
+unsigned char AdpcmCodec::encodeSample(float input) {
+    /*
+     * TODO: 100 is a magic number here.
+     * It only makes sense since the same constant is used in the OpenWebRX client-side javascript code.
+     * SHRT_MAX does not work in it's place, so this is more than just a simple conversion.
+     */
+    return encodeSample((short) (input * 100));
+}
+
+void AdpcmCodec::reset() {
+    previousValue = 0;
+    index = 0;
 }
 
 AdpcmCoder::AdpcmCoder(): codec(new AdpcmCodec()) {}
@@ -97,4 +110,31 @@ void AdpcmDecoder::process() {
     }
     reader->advance(size);
     writer->advance(size * 2);
+}
+
+FftAdpcmEncoder::FftAdpcmEncoder(unsigned int fftSize): fftSize(fftSize) {}
+
+bool FftAdpcmEncoder::canProcess() {
+    return reader->available() >= fftSize && (COMPRESS_FFT_PAD_N + writer->writeable()) / 2 > fftSize;
+}
+
+void FftAdpcmEncoder::process() {
+    float* input = reader->getReadPointer();
+    unsigned char* output = writer->getWritePointer();
+    // FFT always starts with the codec default values
+    codec->reset();
+    for (int i = 0; i < COMPRESS_FFT_PAD_N / 2; i++) {
+        output[i] =
+                // the cast only serves to help the compiler decide which function to call
+                codec->encodeSample(input[0]) |
+                codec->encodeSample(input[0]) << 4;
+    }
+    output += (COMPRESS_FFT_PAD_N / 2);
+    for (size_t i = 0; i < fftSize / 2; i++) {
+        output[i] =
+                codec->encodeSample(input[i * 2]) |
+                codec->encodeSample(input[i * 2 + 1]) << 4;
+    }
+    reader->advance(fftSize);
+    writer->advance((COMPRESS_FFT_PAD_N + fftSize) / 2);
 }

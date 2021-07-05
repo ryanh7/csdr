@@ -143,4 +143,11 @@ namespace Csdr {
             bool decode = false;
     };
 
+    class FftAdpcmCommand: public Command {
+        public:
+            FftAdpcmCommand();
+        private:
+            unsigned int fftSize;
+    };
+
 }

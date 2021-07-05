@@ -7,7 +7,10 @@ namespace Csdr {
     class AdpcmCodec {
         public:
             unsigned char encodeSample(short sample);
-            unsigned char decodeSample(unsigned char deltaCode);
+            short decodeSample(unsigned char deltaCode);
+            // for FFT use only
+            unsigned char encodeSample(float input);
+            void reset();
         private:
             int index = 0;         // Index into step size table
             int previousValue = 0; // Most recent sample value
@@ -46,6 +49,22 @@ namespace Csdr {
         public:
             bool canProcess() override;
             void process() override;
+    };
+
+//We will pad the FFT at the beginning, with the first value of the input data, COMPRESS_FFT_PAD_N times.
+//No, this is not advanced DSP, just the ADPCM codec produces some gabarge samples at the beginning,
+//so we just add data to become garbage and get skipped.
+//COMPRESS_FFT_PAD_N should be even.
+#define COMPRESS_FFT_PAD_N 10
+
+    // ADPCM encoding for the FFT works a bit different
+    class FftAdpcmEncoder: private AdpcmCoder, public Module<float, unsigned char> {
+        public:
+            explicit FftAdpcmEncoder(unsigned int fftSize);
+            bool canProcess() override;
+            void process() override;
+        private:
+            unsigned int fftSize;
     };
 
 }

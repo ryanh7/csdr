@@ -347,3 +347,10 @@ AdpcmCommand::AdpcmCommand(): Command("adpcm", "ADPCM codec") {
         }
     });
 }
+
+FftAdpcmCommand::FftAdpcmCommand(): Command("fftadpcm", "Specialized ADPCM for FFT") {
+    add_option("fft_size", fftSize, "Number of FFT bins")->required();
+    callback( [this] () {
+        runModule(new FftAdpcmEncoder(fftSize));
+    });
+}
