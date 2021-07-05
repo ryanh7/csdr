@@ -135,4 +135,12 @@ namespace Csdr {
             bool prefilter = false;
     };
 
+    class AdpcmCommand: public Command {
+        public:
+            AdpcmCommand();
+        private:
+            bool encode = false;
+            bool decode = false;
+    };
+
 }

@@ -12,6 +12,7 @@
 #include "firdecimate.hpp"
 #include "benchmark.hpp"
 #include "fractionaldecimator.hpp"
+#include "adpcm.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -329,4 +330,20 @@ void FractionalDecimatorCommand::runDecimator() {
         filter = new LowPassFilter<T>(0.5 / (decimation_rate - transition), transition, w);
     }
     runModule(new FractionalDecimator<T>(decimation_rate, num_poly_points, filter));
+}
+
+AdpcmCommand::AdpcmCommand(): Command("adpcm", "ADPCM codec") {
+    auto decodeFlag = add_flag("-d,--decode", decode, "Decode ADPCM data");
+    auto encodeFlag = add_flag("-e,--encode", encode, "Encode into ADPCM data");
+    // mutually exclusive
+    encodeFlag->excludes(decodeFlag);
+    decodeFlag->excludes(encodeFlag);
+    callback( [this] () {
+        // default is encode
+        if (!decode) {
+            runModule(new AdpcmEncoder());
+        } else {
+            runModule(new AdpcmDecoder());
+        }
+    });
 }

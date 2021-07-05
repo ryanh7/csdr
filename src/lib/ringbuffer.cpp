@@ -125,18 +125,20 @@ void RingbufferReader<T>::advance(size_t how_much) {
     buffer->advance(read_pos, how_much);
 }
 
-// compile templates for all the possible variations
-template class Ringbuffer<char>;
-template class RingbufferReader<char>;
+namespace Csdr {
+    // compile templates for all the possible variations
+    template class Ringbuffer<char>;
+    template class RingbufferReader<char>;
 
-template class Ringbuffer<unsigned char>;
-template class RingbufferReader<unsigned char>;
+    template class Ringbuffer<unsigned char>;
+    template class RingbufferReader<unsigned char>;
 
-template class Ringbuffer<short>;
-template class RingbufferReader<short>;
+    template class Ringbuffer<short>;
+    template class RingbufferReader<short>;
 
-template class Ringbuffer<float>;
-template class RingbufferReader<float>;
+    template class Ringbuffer<float>;
+    template class RingbufferReader<float>;
 
-template class Ringbuffer<complex<float>>;
-template class RingbufferReader<complex<float>>;
+    template class Ringbuffer<complex<float>>;
+    template class RingbufferReader<complex<float>>;
+}

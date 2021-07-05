@@ -53,6 +53,8 @@ namespace Csdr {
     template class Module<short, float>;
     template class Module<float, short>;
     template class Module<complex<float>, complex<float>>;
+    template class Module<short, unsigned char>;
+    template class Module<unsigned char, short>;
 
     template class AnyLengthModule<short, short>;
     template class AnyLengthModule<float, float>;
