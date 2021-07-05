@@ -14,7 +14,7 @@ namespace Csdr {
             void process() override;
         private:
             float where;
-            int num_poly_points; //number of samples that the Lagrange interpolator will use
+            unsigned int num_poly_points; //number of samples that the Lagrange interpolator will use
             float* poly_precalc_denomiator; //while we don't precalculate coefficients here as in a Farrow structure, because it is a fractional interpolator, but we rather precaculate part of the interpolator expression
             //float* last_inputs_circbuf; //circular buffer to store the last (num_poly_points) number of input samples.
             //int last_inputs_startsat; //where the circular buffer starts now

@@ -52,7 +52,7 @@ void FractionalDecimator<T>::process() {
         for (int xi = xifirst; xi <= xilast; xi++) {
             coeffs_buf[id] = 1;
             for (int xj = xifirst; xj <= xilast; xj++) {
-                if (xi != xj) coeffs_buf[id] *= (xwhere-xj);
+                if (xi != xj) coeffs_buf[id] *= (xwhere - xj);
             }
             id++;
         }
