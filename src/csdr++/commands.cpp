@@ -102,8 +102,8 @@ void Command::runModule(Module<T, U>* module) {
     delete module;
 }
 
-void Command::addFifoOption() {
-    add_option("--fifo", fifoName, "Control fifo");
+CLI::Option* Command::addFifoOption() {
+    return add_option("--fifo", fifoName, "Control fifo");
 }
 
 AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
@@ -361,4 +361,58 @@ LimitCommand::LimitCommand(): Command("limit", "Limit stream values to maximum a
     callback( [this] () {
         runModule(new Limit(maxAmplitude));
     });
+}
+
+PowerCommand::PowerCommand(): Command("power", "Measure power") {
+    add_option("-o,--outfifo", outFifoName, "Control fifo")->required();
+    add_option("decimation", decimation, "Decimate data when calcuting power", true);
+    add_option("report_every", reportInterval, "Report interval", true);
+    callback( [this] () {
+        unsigned int reportCounter = 0;
+        FILE* outFifo = fopen(outFifoName.c_str(), "w");
+        if (outFifo == nullptr) {
+            std::cerr << "error opening fifo: " << strerror(errno) << "\n";
+            return;
+        } else {
+            fcntl(fileno(outFifo), F_SETFL, O_NONBLOCK);
+        }
+        runModule(new Power(decimation, [this, &reportCounter, outFifo] (float power) {
+            if (reportCounter-- <= 0) {
+                fprintf(outFifo, "%g\n", power);
+                fflush(outFifo);
+                reportCounter = reportInterval;
+            }
+        }));
+        fclose(outFifo);
+    });
+}
+
+SquelchCommand::SquelchCommand(): Command("squelch", "Measure power and apply squelch") {
+    addFifoOption()->required();
+    add_option("-o,--outfifo", outFifoName, "Control fifo")->required();
+    add_option("decimation", decimation, "Decimate data when calcuting power", true);
+    add_option("report_every", reportInterval, "Report interval", true);
+    callback( [this] () {
+        unsigned int reportCounter = 0;
+        FILE* outFifo = fopen(outFifoName.c_str(), "w");
+        if (outFifo == nullptr) {
+            std::cerr << "error opening fifo: " << strerror(errno) << "\n";
+            return;
+        } else {
+            fcntl(fileno(outFifo), F_SETFL, O_NONBLOCK);
+        }
+        squelch = new Squelch(decimation, [this, &reportCounter, outFifo] (float power) {
+            if (reportCounter-- <= 0) {
+                fprintf(outFifo, "%g\n", power);
+                fflush(outFifo);
+                reportCounter = reportInterval;
+            }
+        });
+        runModule(squelch);
+        fclose(outFifo);
+    });
+}
+
+void SquelchCommand::processFifoData(std::string data) {
+    squelch->setSquelch(std::stof(data));
 }

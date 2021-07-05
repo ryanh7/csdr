@@ -3,6 +3,7 @@
 #include "CLI11.hpp"
 #include "module.hpp"
 #include "shift.hpp"
+#include "power.hpp"
 
 namespace Csdr {
 
@@ -15,7 +16,7 @@ namespace Csdr {
             virtual void processFifoData(std::string data) {}
             virtual size_t bufferSize() { return 10240; }
             std::string fifoName = "";
-            void addFifoOption();
+            CLI::Option* addFifoOption();
     };
 
     class AgcCommand: public Command {
@@ -155,6 +156,27 @@ namespace Csdr {
             LimitCommand();
         private:
             float maxAmplitude = 1.0f;
+    };
+
+    class PowerCommand: public Command {
+        public:
+            PowerCommand();
+        private:
+            std::string outFifoName;
+            unsigned int decimation = 1;
+            unsigned int reportInterval = 1;
+    };
+
+    class SquelchCommand: public Command {
+        public:
+            SquelchCommand();
+        protected:
+            void processFifoData(std::string data) override;
+        private:
+            Squelch* squelch;
+            std::string outFifoName;
+            unsigned int decimation = 1;
+            unsigned int reportInterval = 1;
     };
 
 }
