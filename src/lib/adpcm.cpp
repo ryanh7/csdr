@@ -92,7 +92,7 @@ int16_t AdpcmCodec::getIndex() {
 }
 
 int16_t AdpcmCodec::getPredictor() {
-    return previousValue;
+    return (int16_t) previousValue;
 }
 
 AdpcmCoder::AdpcmCoder(): codec(new AdpcmCodec()) {}
