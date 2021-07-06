@@ -101,6 +101,8 @@ AdpcmCoder::~AdpcmCoder() {
     delete codec;
 }
 
+AdpcmEncoder::AdpcmEncoder(bool sync): sync(sync) {}
+
 bool AdpcmEncoder::canProcess() {
     return reader->available() >= 2 && writer->writeable() > 8;
 }
@@ -111,7 +113,7 @@ void AdpcmEncoder::process() {
     size_t size = std::min(reader->available() / 2, writer->writeable() - 8);
     size_t offset = 0;
     for (int i = 0; i < size; i++) {
-        if (syncCounter-- <= 0) {
+        if (sync && syncCounter-- <= 0) {
             std::memcpy(output + i, "SYNC", 4);
             int16_t* data = (int16_t*) (output + i + 4);
             data[0] = codec->getIndex();

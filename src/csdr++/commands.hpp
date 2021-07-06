@@ -142,13 +142,14 @@ namespace Csdr {
         private:
             bool encode = false;
             bool decode = false;
+            bool sync = false;
     };
 
     class FftAdpcmCommand: public Command {
         public:
             FftAdpcmCommand();
         private:
-            unsigned int fftSize;
+            unsigned int fftSize = 0;
     };
 
     class LimitCommand: public Command {

@@ -43,9 +43,11 @@ namespace Csdr {
 
     class AdpcmEncoder: private AdpcmCoder, public Module<short, unsigned char> {
         public:
+            explicit AdpcmEncoder(bool sync = false);
             bool canProcess() override;
             void process() override;
         private:
+            bool sync;
             int syncCounter = 0;
     };
 

@@ -340,10 +340,11 @@ AdpcmCommand::AdpcmCommand(): Command("adpcm", "ADPCM codec") {
     // mutually exclusive
     encodeFlag->excludes(decodeFlag);
     decodeFlag->excludes(encodeFlag);
+    add_flag("-s,--sync", sync, "Enable embedded sync frames");
     callback( [this] () {
         // default is encode
         if (!decode) {
-            runModule(new AdpcmEncoder());
+            runModule(new AdpcmEncoder(sync));
         } else {
             runModule(new AdpcmDecoder());
         }
