@@ -14,6 +14,7 @@
 #include "fractionaldecimator.hpp"
 #include "adpcm.hpp"
 #include "limit.hpp"
+#include "deemphasis.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -415,4 +416,22 @@ SquelchCommand::SquelchCommand(): Command("squelch", "Measure power and apply sq
 
 void SquelchCommand::processFifoData(std::string data) {
     squelch->setSquelch(std::stof(data));
+}
+
+DeemphasisCommand::DeemphasisCommand(): Command("deemphasis", "Deemphasis for FM applications") {
+    auto wfmFlag = add_flag("-w,--wfm", "Wideband FM");
+    auto nfmFlag = add_flag("-n,--nfm", "Narrowband FM");
+    wfmFlag->excludes(nfmFlag);
+    nfmFlag->excludes(wfmFlag);
+    add_option("sample_rate", sampleRate, "Sample rate")->required();
+    add_option("tau", tau, "Tau", true);
+    callback( [this, wfmFlag] () {
+        // default: nfm
+        if (!(*wfmFlag)) {
+            std::cerr << "NFM deemphasis not implemented yet\n";
+            return;
+        } else {
+            runModule(new WfmDeemphasis(sampleRate, tau));
+        }
+    });
 }

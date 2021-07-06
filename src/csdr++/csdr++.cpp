@@ -40,6 +40,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new LimitCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new PowerCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new SquelchCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new DeemphasisCommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 

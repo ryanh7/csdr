@@ -179,4 +179,12 @@ namespace Csdr {
             unsigned int reportInterval = 1;
     };
 
+    class DeemphasisCommand: public Command {
+        public:
+            DeemphasisCommand();
+        private:
+            unsigned int sampleRate;
+            float tau = 50e-6;
+    };
+
 }
