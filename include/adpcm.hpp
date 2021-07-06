@@ -11,9 +11,11 @@ namespace Csdr {
             // for FFT use only
             unsigned char encodeSample(float input);
             void reset();
+            int16_t getIndex();
+            int16_t getPredictor();
         private:
-            int index = 0;         // Index into step size table
-            int previousValue = 0; // Most recent sample value
+            int16_t index = 0;         // Index into step size table
+            int16_t previousValue = 0; // Most recent sample value
             const int _stepSizeTable[89] = {
                     7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34,
                     37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143,
@@ -43,6 +45,8 @@ namespace Csdr {
         public:
             bool canProcess() override;
             void process() override;
+        private:
+            int syncCounter = 0;
     };
 
     class AdpcmDecoder: private AdpcmCoder, public Module<unsigned char, short> {

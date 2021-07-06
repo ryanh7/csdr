@@ -1,5 +1,7 @@
 #include "adpcm.hpp"
 
+#include <cstring>
+
 using namespace Csdr;
 
 unsigned char AdpcmCodec::encodeSample(short sample) {
@@ -40,11 +42,23 @@ short AdpcmCodec::decodeSample(unsigned char deltaCode) {
 
     // Construct the difference by scaling the current step size
     // This is approximately: difference = (deltaCode+.5)*step/4
-    int difference = step>>3;
-    if ( deltaCode & 1 ) difference += step>>2;
-    if ( deltaCode & 2 ) difference += step>>1;
-    if ( deltaCode & 4 ) difference += step;
-    if ( deltaCode & 8 ) difference = -difference;
+    int difference = step >> 3;
+    if (deltaCode & 1) {
+        difference += step >> 2;
+    }
+
+    if (deltaCode & 2) {
+        difference += step >> 1;
+    }
+
+    if (deltaCode & 4) {
+        difference += step;
+    }
+
+    if (deltaCode & 8) {
+        difference = -difference;
+    }
+
 
     // Build the new sample
     previousValue += difference;
@@ -73,6 +87,14 @@ void AdpcmCodec::reset() {
     index = 0;
 }
 
+int16_t AdpcmCodec::getIndex() {
+    return index;
+}
+
+int16_t AdpcmCodec::getPredictor() {
+    return previousValue;
+}
+
 AdpcmCoder::AdpcmCoder(): codec(new AdpcmCodec()) {}
 
 AdpcmCoder::~AdpcmCoder() {
@@ -80,20 +102,29 @@ AdpcmCoder::~AdpcmCoder() {
 }
 
 bool AdpcmEncoder::canProcess() {
-    return reader->available() >= 2 && writer->writeable() > 0;
+    return reader->available() >= 2 && writer->writeable() > 8;
 }
 
 void AdpcmEncoder::process() {
     short* input = reader->getReadPointer();
     unsigned char* output = writer->getWritePointer();
-    size_t size = std::min(reader->available() / 2, writer->writeable());
-    for(int i = 0; i < size; i++) {
-        output[i] =
+    size_t size = std::min(reader->available() / 2, writer->writeable() - 8);
+    size_t offset = 0;
+    for (int i = 0; i < size; i++) {
+        if (syncCounter-- <= 0) {
+            std::memcpy(output + i, "SYNC", 4);
+            int16_t* data = (int16_t*) (output + i + 4);
+            data[0] = codec->getIndex();
+            data[1] = codec->getPredictor();
+            offset += 8;
+            syncCounter = 1000;
+        }
+        output[i + offset] =
                 codec->encodeSample(input[2 * i]) |
                 codec->encodeSample(input[2 * i + 1]) << 4;
     }
     reader->advance(size * 2);
-    writer->advance(size);
+    writer->advance(size + offset);
 }
 
 bool AdpcmDecoder::canProcess() {
