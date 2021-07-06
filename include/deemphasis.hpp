@@ -1,6 +1,7 @@
 #pragma once
 
 #include "module.hpp"
+#include "fir.hpp"
 
 namespace Csdr {
 
@@ -13,6 +14,13 @@ namespace Csdr {
             float dt;
             float alpha;
             float last_output = 0.0f;
+    };
+
+    class NfmDeephasis: public FirModule<float> {
+        public:
+            NfmDeephasis(unsigned int sampleRate);
+        private:
+            static FirFilter<float>* getFilter(unsigned int sampleRate);
     };
 
 }

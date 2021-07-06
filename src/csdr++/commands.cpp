@@ -428,8 +428,7 @@ DeemphasisCommand::DeemphasisCommand(): Command("deemphasis", "Deemphasis for FM
     callback( [this, wfmFlag] () {
         // default: nfm
         if (!(*wfmFlag)) {
-            std::cerr << "NFM deemphasis not implemented yet\n";
-            return;
+            runModule(new NfmDeephasis(sampleRate));
         } else {
             runModule(new WfmDeemphasis(sampleRate, tau));
         }

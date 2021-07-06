@@ -2,6 +2,7 @@
 
 #include "window.hpp"
 #include "complex.hpp"
+#include "module.hpp"
 
 namespace Csdr {
 
@@ -13,6 +14,7 @@ namespace Csdr {
         public:
             virtual T processSample(T* data, size_t index) = 0;
             SparseView<T> sparse(T* data);
+            void apply(T* input, T* output, size_t size);
     };
 
     template <typename T>
@@ -28,6 +30,7 @@ namespace Csdr {
     template <typename T>
     class FirFilter: public Filter<T> {
         public:
+            FirFilter(float* taps, unsigned int length);
             ~FirFilter();
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
@@ -45,5 +48,15 @@ namespace Csdr {
     class LowPassFilter: public FirFilter<T> {
         public:
             LowPassFilter(float cutoff, float transition, Window* window);
+    };
+
+    template <typename T>
+    class FirModule: public Module<T, T> {
+        public:
+            explicit FirModule(FirFilter<T>* filter);
+            bool canProcess() override;
+            void process() override;
+        private:
+            FirFilter<T>* filter;
     };
 }

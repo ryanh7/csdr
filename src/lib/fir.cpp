@@ -3,12 +3,20 @@
 #include "fmv.h"
 
 #include <cmath>
+#include <cstring>
 
 using namespace Csdr;
 
 template<typename T>
 SparseView<T> Filter<T>::sparse(T* data) {
     return SparseView<T>(data, this);
+}
+
+template <typename T>
+void Filter<T>::apply(T *input, T *output, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        output[i] = processSample(input, i);
+    }
 }
 
 template<typename T>
@@ -25,6 +33,12 @@ T SparseView<T>::operator[](size_t index) {
 template<typename T>
 FirFilter<T>::FirFilter(unsigned int length) {
     allocateTaps(length);
+}
+
+template <typename T>
+FirFilter<T>::FirFilter(float *taps, unsigned int length): FirFilter(length) {
+    // better to copy the taps to our memory since that is aligned
+    std::memcpy(this->taps, taps, sizeof(float) * length);
 }
 
 template<typename T>
@@ -106,6 +120,24 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
     this->normalize();
 }
 
+template <typename T>
+FirModule<T>::FirModule(FirFilter<T> *filter): filter(filter) {}
+
+template <typename T>
+bool FirModule<T>::canProcess() {
+    return this->reader->available() > filter->getLength() && this->writer->writeable() > 0;
+}
+
+template <typename T>
+void FirModule<T>::process() {
+    T* input = this->reader->getReadPointer();
+    T* output = this->writer->getWritePointer();
+    size_t size = std::min(this->reader->available() - filter->getLength(), this->writer->writeable());
+    filter->apply(input, output, size);
+    this->reader->advance(size);
+    this->writer->advance(size);
+}
+
 namespace Csdr {
     template class Filter<complex<float>>;
     template class Filter<float>;
@@ -118,4 +150,7 @@ namespace Csdr {
 
     template class LowPassFilter<complex<float>>;
     template class LowPassFilter<float>;
+
+    template class FirModule<complex<float>>;
+    template class FirModule<float>;
 }
