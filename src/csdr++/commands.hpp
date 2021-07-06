@@ -188,4 +188,11 @@ namespace Csdr {
             float tau = 50e-6;
     };
 
+    class GainCommand: public Command {
+        public:
+            GainCommand();
+        private:
+            float gain = 1.0f;
+    };
+
 }

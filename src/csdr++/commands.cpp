@@ -15,6 +15,7 @@
 #include "adpcm.hpp"
 #include "limit.hpp"
 #include "deemphasis.hpp"
+#include "gain.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -433,5 +434,13 @@ DeemphasisCommand::DeemphasisCommand(): Command("deemphasis", "Deemphasis for FM
         } else {
             runModule(new WfmDeemphasis(sampleRate, tau));
         }
+    });
+}
+
+GainCommand::GainCommand(): Command("gain", "Apply fixed gain") {
+    // there's no technical difference in float and complex gain, so we only implement float here
+    add_option("gain", gain, "Gain factor")->required();
+    callback( [this] () {
+        runModule(new Gain<float>(gain));
     });
 }
