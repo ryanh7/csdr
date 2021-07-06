@@ -11,7 +11,7 @@ void Power::process(complex<float>* input, complex<float>* output) {
     float acc = 0;
     size_t count = 0;
     for (size_t i = 0; i < getLength(); i += decimation){
-        acc += std::abs(input[i]);
+        acc += std::norm(input[i]);
         count++;
     }
     float power = acc / count;
