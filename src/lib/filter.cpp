@@ -4,19 +4,19 @@
 using namespace Csdr;
 
 template<typename T>
-SparseView<T> Filter<T>::sparse(T* data) {
+SparseView<T> SampleFilter<T>::sparse(T* data) {
     return SparseView<T>(data, this);
 }
 
 template <typename T>
-void Filter<T>::apply(T *input, T *output, size_t size) {
+void SampleFilter<T>::apply(T *input, T *output, size_t size) {
     for (size_t i = 0; i < size; i++) {
         output[i] = processSample(input, i);
     }
 }
 
 template<typename T>
-SparseView<T>::SparseView(T *data, Filter<T> *filter):
+SparseView<T>::SparseView(T *data, SampleFilter<T> *filter):
         data(data),
         filter(filter)
 {}
@@ -50,8 +50,8 @@ void FilterModule<T>::process() {
 }
 
 namespace Csdr {
-    template class Filter<complex<float>>;
-    template class Filter<float>;
+    template class SampleFilter<complex<float>>;
+    template class SampleFilter<float>;
 
     template class SparseView<complex<float>>;
     template class SparseView<float>;

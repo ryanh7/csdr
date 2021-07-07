@@ -4,11 +4,12 @@
 #include "complex.hpp"
 #include "module.hpp"
 #include "filter.hpp"
+#include "fftfilter.hpp"
 
 namespace Csdr {
 
     template <typename T>
-    class FirFilter: public Filter<T> {
+    class FirFilter: public SampleFilter<T> {
         public:
             FirFilter(complex<float>* taps, size_t length);
             FirFilter(float* taps, size_t length);
@@ -16,6 +17,7 @@ namespace Csdr {
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
             size_t getLength() override;
+            FftFilter<T>* fftTransform();
         protected:
             explicit FirFilter(size_t length);
             static size_t filterLength(float transition);

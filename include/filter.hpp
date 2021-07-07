@@ -7,25 +7,31 @@
 namespace Csdr {
 
     template <typename T>
+    class Filter {
+        public:
+            virtual void apply(T* input, T* output, size_t size) = 0;
+            virtual size_t getLength() { return 0; };
+    };
+
+    template <typename T>
     class SparseView;
 
     template <typename T>
-    class Filter {
+    class SampleFilter: public Filter<T> {
         public:
-            virtual T processSample(T* data, size_t index) = 0;
             SparseView<T> sparse(T* data);
-            void apply(T* input, T* output, size_t size);
-            virtual size_t getLength() { return 0; };
+            virtual T processSample(T* data, size_t index) = 0;
+            void apply(T* input, T* output, size_t size) override;
     };
 
     template <typename T>
     class SparseView {
         public:
-            SparseView<T>(T* data, Filter<T>* filter);
+            SparseView<T>(T* data, SampleFilter<T>* filter);
             T operator[](size_t index);
         private:
             T* data;
-            Filter<T>* filter;
+            SampleFilter<T>* filter;
     };
 
     template <typename T>

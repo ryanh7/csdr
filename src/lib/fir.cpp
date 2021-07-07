@@ -92,6 +92,11 @@ void FirFilter<T>::normalize() {
     for (int i = 0; i < taps_length; i++) taps[i] = taps[i] / sum;
 }
 
+template <typename T>
+FftFilter<T>* FirFilter<T>::fftTransform() {
+    return FftFilter<T>::fromFirTaps(taps, taps_length);
+}
+
 template<typename T>
 LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window): FirFilter<T>(FirFilter<T>::filterLength(transition)) {
     //Generates symmetric windowed sinc FIR filter real taps
@@ -101,7 +106,7 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
     this->taps[middle] = 2 * M_PI * cutoff * window->kernel(0);
     for (int i = 1; i <= middle; i++)  {
         this->taps[middle - i] = this->taps[middle + i] = {
-                (sin(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle),
+                (sinf(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle),
                 0
         };
     }
