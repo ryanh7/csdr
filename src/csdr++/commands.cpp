@@ -319,7 +319,7 @@ FractionalDecimatorCommand::FractionalDecimatorCommand(): Command("fractionaldec
 
 template <typename T>
 void FractionalDecimatorCommand::runDecimator() {
-    FirFilter<T, float>* filter = nullptr;
+    FirFilter<T>* filter = nullptr;
     if (prefilter) {
         Window* w;
         if (window == "boxcar") {
@@ -334,7 +334,7 @@ void FractionalDecimatorCommand::runDecimator() {
         }
         filter = new LowPassFilter<T>(0.5 / (decimation_rate - transition), transition, w);
     }
-    runModule(new FractionalDecimator<T, float>(decimation_rate, num_poly_points, filter));
+    runModule(new FractionalDecimator<T>(decimation_rate, num_poly_points, filter));
 }
 
 AdpcmCommand::AdpcmCommand(): Command("adpcm", "ADPCM codec") {

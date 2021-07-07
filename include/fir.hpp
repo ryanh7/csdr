@@ -27,10 +27,11 @@ namespace Csdr {
             Filter<T>* filter;
     };
 
-    template <typename T, typename U>
+    template <typename T>
     class FirFilter: public Filter<T> {
         public:
-            FirFilter(U* taps, unsigned int length);
+            FirFilter(complex<float>* taps, unsigned int length);
+            FirFilter(float* taps, unsigned int length);
             ~FirFilter();
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
@@ -40,23 +41,29 @@ namespace Csdr {
             static unsigned int filterLength(float transition);
             void allocateTaps(unsigned int length);
             void normalize();
-            U* taps;
+            complex<float>* taps;
             unsigned int taps_length;
     };
 
     template <typename T>
-    class LowPassFilter: public FirFilter<T, float> {
+    class LowPassFilter: public FirFilter<T> {
         public:
             LowPassFilter(float cutoff, float transition, Window* window);
     };
 
-    template <typename T, typename U>
+    template <typename T>
+    class BandPassFilter: public LowPassFilter<T> {
+        public:
+            BandPassFilter(float lowcut, float highcut, float transition, Window* window);
+    };
+
+    template <typename T>
     class FirModule: public Module<T, T> {
         public:
-            explicit FirModule(FirFilter<T, U>* filter);
+            explicit FirModule(FirFilter<T>* filter);
             bool canProcess() override;
             void process() override;
         private:
-            FirFilter<T, U>* filter;
+            FirFilter<T>* filter;
     };
 }

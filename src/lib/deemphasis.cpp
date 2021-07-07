@@ -21,21 +21,21 @@ void WfmDeemphasis::process(float *input, float *output, size_t size) {
     }
 }
 
-NfmDeephasis::NfmDeephasis(unsigned int sampleRate): FirModule<float, float>(getFilter(sampleRate)) {}
+NfmDeephasis::NfmDeephasis(unsigned int sampleRate): FirModule<float>(getFilter(sampleRate)) {}
 
-FirFilter<float, float>* NfmDeephasis::getFilter(unsigned int sampleRate) {
+FirFilter<float>* NfmDeephasis::getFilter(unsigned int sampleRate) {
     switch (sampleRate) {
         // we only cover selected sample rates. see predefined.h for details.
         case 8000:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_8000, 79);
+            return new FirFilter<float>(deemphasis_nfm_predefined_fir_8000, 79);
         case 11025:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_11025, 79);
+            return new FirFilter<float>(deemphasis_nfm_predefined_fir_11025, 79);
         case 12000:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_44100, 79);
+            return new FirFilter<float>(deemphasis_nfm_predefined_fir_44100, 79);
         case 44100:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_44100, 199);
+            return new FirFilter<float>(deemphasis_nfm_predefined_fir_44100, 199);
         case 48000:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_48000, 199);
+            return new FirFilter<float>(deemphasis_nfm_predefined_fir_48000, 199);
         default:
             throw std::runtime_error("invalid sample rate");
     }
