@@ -465,7 +465,7 @@ BandPassCommand::BandPassCommand(): Command("bandpass", "Bandpass filter") {
             return;
         }
         auto filter = new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj);
-        module = new FirModule<complex<float>>(filter);
+        module = new FilterModule<complex<float>>(filter);
         runModule(module);
     });
 }

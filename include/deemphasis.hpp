@@ -2,6 +2,7 @@
 
 #include "module.hpp"
 #include "fir.hpp"
+#include "filter.hpp"
 
 namespace Csdr {
 
@@ -16,7 +17,7 @@ namespace Csdr {
             float last_output = 0.0f;
     };
 
-    class NfmDeephasis: public FirModule<float> {
+    class NfmDeephasis: public FilterModule<float> {
         public:
             explicit NfmDeephasis(unsigned int sampleRate);
         private:

@@ -3,46 +3,26 @@
 #include "window.hpp"
 #include "complex.hpp"
 #include "module.hpp"
+#include "filter.hpp"
 
 namespace Csdr {
 
     template <typename T>
-    class SparseView;
-
-    template <typename T>
-    class Filter {
-        public:
-            virtual T processSample(T* data, size_t index) = 0;
-            SparseView<T> sparse(T* data);
-            void apply(T* input, T* output, size_t size);
-    };
-
-    template <typename T>
-    class SparseView {
-        public:
-            SparseView<T>(T* data, Filter<T>* filter);
-            T operator[](size_t index);
-        private:
-            T* data;
-            Filter<T>* filter;
-    };
-
-    template <typename T>
     class FirFilter: public Filter<T> {
         public:
-            FirFilter(complex<float>* taps, unsigned int length);
-            FirFilter(float* taps, unsigned int length);
+            FirFilter(complex<float>* taps, size_t length);
+            FirFilter(float* taps, size_t length);
             ~FirFilter();
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
-            unsigned int getLength();
+            size_t getLength() override;
         protected:
-            explicit FirFilter(unsigned int length);
-            static unsigned int filterLength(float transition);
-            void allocateTaps(unsigned int length);
+            explicit FirFilter(size_t length);
+            static size_t filterLength(float transition);
+            void allocateTaps(size_t length);
             void normalize();
             complex<float>* taps;
-            unsigned int taps_length;
+            size_t taps_length;
     };
 
     template <typename T>
@@ -55,16 +35,5 @@ namespace Csdr {
     class BandPassFilter: public LowPassFilter<T> {
         public:
             BandPassFilter(float lowcut, float highcut, float transition, Window* window);
-    };
-
-    template <typename T>
-    class FirModule: public Module<T, T> {
-        public:
-            explicit FirModule(FirFilter<T>* filter);
-            bool canProcess() override;
-            void process() override;
-            void setFilter(FirFilter<T>* filter);
-        private:
-            FirFilter<T>* filter;
     };
 }

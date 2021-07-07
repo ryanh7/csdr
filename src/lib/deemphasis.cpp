@@ -21,7 +21,7 @@ void WfmDeemphasis::process(float *input, float *output, size_t size) {
     }
 }
 
-NfmDeephasis::NfmDeephasis(unsigned int sampleRate): FirModule<float>(getFilter(sampleRate)) {}
+NfmDeephasis::NfmDeephasis(unsigned int sampleRate): FilterModule<float>(getFilter(sampleRate)) {}
 
 FirFilter<float>* NfmDeephasis::getFilter(unsigned int sampleRate) {
     switch (sampleRate) {

@@ -207,7 +207,7 @@ namespace Csdr {
             float transition = 0.0f;
             std::string window = "hamming";
             Window* windowObj;
-            FirModule<complex<float>>* module;
+            FilterModule<complex<float>>* module;
     };
 
 }

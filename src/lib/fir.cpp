@@ -8,42 +8,19 @@
 using namespace Csdr;
 
 template<typename T>
-SparseView<T> Filter<T>::sparse(T* data) {
-    return SparseView<T>(data, this);
-}
-
-template <typename T>
-void Filter<T>::apply(T *input, T *output, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        output[i] = processSample(input, i);
-    }
-}
-
-template<typename T>
-SparseView<T>::SparseView(T *data, Filter<T> *filter):
-    data(data),
-    filter(filter)
-{}
-
-template<typename T>
-T SparseView<T>::operator[](size_t index) {
-    return filter->processSample(data, index);
-}
-
-template<typename T>
-FirFilter<T>::FirFilter(unsigned int length) {
+FirFilter<T>::FirFilter(size_t length) {
     allocateTaps(length);
 }
 
 template <typename T>
-FirFilter<T>::FirFilter(complex<float>* taps, unsigned int length): FirFilter(length) {
+FirFilter<T>::FirFilter(complex<float>* taps, size_t length): FirFilter(length) {
     // better to copy the taps to our memory since that is aligned
     std::memcpy(this->taps, taps, sizeof(complex<float>) * length);
 }
 
 template <typename T>
-FirFilter<T>::FirFilter(float* taps, unsigned int length): FirFilter(length) {
-    for (unsigned int i = 0; i < length; i++) {
+FirFilter<T>::FirFilter(float* taps, size_t length): FirFilter(length) {
+    for (size_t i = 0; i < length; i++) {
         this->taps[i] = {taps[i], 0};
     }
 }
@@ -78,22 +55,22 @@ float FirFilter<float>::processSample_fmv(float *data, size_t index) {
 }
 
 template<typename T>
-unsigned int FirFilter<T>::filterLength(float transition) {
-    unsigned int result = 4.0 / transition;
+size_t FirFilter<T>::filterLength(float transition) {
+    size_t result = 4.0 / transition;
     if (result % 2 == 0) result++; //number of symmetric FIR filter taps should be odd
     return result;
 }
 
 template<typename T>
-unsigned int FirFilter<T>::getLength() {
+size_t FirFilter<T>::getLength() {
     return taps_length;
 }
 
 template<typename T>
-void FirFilter<T>::allocateTaps(unsigned int length) {
+void FirFilter<T>::allocateTaps(size_t length) {
 #ifdef NEON_OPTS
 #define NEON_ALIGNMENT (4 * 4 * 2)
-    unsigned int padded_taps_length = length;
+    size_t padded_taps_length = length;
     padded_taps_length = length + (NEON_ALIGNMENT / 4) -1 - ((length + (NEON_ALIGNMENT / 4) - 1) % (NEON_ALIGNMENT / 4));
 
     taps = (float*) malloc((padded_taps_length + NEON_ALIGNMENT) * sizeof(complex<float>));
@@ -149,36 +126,7 @@ BandPassFilter<T>::BandPassFilter(float lowcut, float highcut, float transition,
     }
 }
 
-template <typename T>
-FirModule<T>::FirModule(FirFilter<T> *filter): filter(filter) {}
-
-template <typename T>
-void FirModule<T>::setFilter(FirFilter<T>* filter) {
-    this->filter = filter;
-}
-
-template <typename T>
-bool FirModule<T>::canProcess() {
-    return this->reader->available() > filter->getLength() && this->writer->writeable() > 0;
-}
-
-template <typename T>
-void FirModule<T>::process() {
-    T* input = this->reader->getReadPointer();
-    T* output = this->writer->getWritePointer();
-    size_t size = std::min(this->reader->available() - filter->getLength(), this->writer->writeable());
-    filter->apply(input, output, size);
-    this->reader->advance(size);
-    this->writer->advance(size);
-}
-
 namespace Csdr {
-    template class Filter<complex<float>>;
-    template class Filter<float>;
-
-    template class SparseView<complex<float>>;
-    template class SparseView<float>;
-
     template class FirFilter<complex<float>>;
     template class FirFilter<float>;
 
@@ -186,7 +134,4 @@ namespace Csdr {
     template class LowPassFilter<float>;
 
     template class BandPassFilter<complex<float>>;
-
-    template class FirModule<complex<float>>;
-    template class FirModule<float>;
 }
