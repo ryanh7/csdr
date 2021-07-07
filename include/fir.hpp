@@ -63,6 +63,7 @@ namespace Csdr {
             explicit FirModule(FirFilter<T>* filter);
             bool canProcess() override;
             void process() override;
+            void setFilter(FirFilter<T>* filter);
         private:
             FirFilter<T>* filter;
     };

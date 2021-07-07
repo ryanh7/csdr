@@ -153,6 +153,11 @@ template <typename T>
 FirModule<T>::FirModule(FirFilter<T> *filter): filter(filter) {}
 
 template <typename T>
+void FirModule<T>::setFilter(FirFilter<T>* filter) {
+    this->filter = filter;
+}
+
+template <typename T>
 bool FirModule<T>::canProcess() {
     return this->reader->available() > filter->getLength() && this->writer->writeable() > 0;
 }

@@ -42,6 +42,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new SquelchCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new DeemphasisCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new GainCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new BandPassCommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 

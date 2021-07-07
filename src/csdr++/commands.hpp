@@ -4,6 +4,7 @@
 #include "module.hpp"
 #include "shift.hpp"
 #include "power.hpp"
+#include "fir.hpp"
 
 namespace Csdr {
 
@@ -193,6 +194,20 @@ namespace Csdr {
             GainCommand();
         private:
             float gain = 1.0f;
+    };
+
+    class BandPassCommand: public Command {
+        public:
+            BandPassCommand();
+        protected:
+            void processFifoData(std::string data) override;
+        private:
+            float lowcut = 0.0f;
+            float highcut = 0.0f;
+            float transition = 0.0f;
+            std::string window = "hamming";
+            Window* windowObj;
+            FirModule<complex<float>>* module;
     };
 
 }

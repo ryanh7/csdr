@@ -446,3 +446,33 @@ GainCommand::GainCommand(): Command("gain", "Apply fixed gain") {
         runModule(new Gain<float>(gain));
     });
 }
+
+BandPassCommand::BandPassCommand(): Command("bandpass", "Bandpass filter") {
+    addFifoOption();
+    add_option("--low", lowcut, "Lower frequency");
+    add_option("--high", highcut, "Higher Frequency");
+    add_option("transition_bw", transition, "Transition bandwidth")->required();
+    add_option("-w,--window", window, "Windowing function", true);
+    callback( [this] () {
+        if (window == "boxcar") {
+            windowObj = new BoxcarWindow();
+        } else if (window == "blackman") {
+            windowObj = new BlackmanWindow();
+        } else if (window == "hamming") {
+            windowObj = new HammingWindow();
+        } else {
+            std::cerr << "window type \"" << window << "\" not available\n";
+            return;
+        }
+        auto filter = new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj);
+        module = new FirModule<complex<float>>(filter);
+        runModule(module);
+    });
+}
+
+void BandPassCommand::processFifoData(std::string data) {
+    std::stringstream ss(data);
+    ss >> lowcut >> highcut;
+    std::cerr << "changing bandpass filter: lowcut = " << lowcut << "; highcut = " << highcut << "\n";
+    module->setFilter(new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj));
+}
