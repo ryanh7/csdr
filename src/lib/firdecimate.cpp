@@ -12,7 +12,7 @@ FirDecimate::~FirDecimate() {
 }
 
 void FirDecimate::process() {
-    size_t samples = std::min((reader->available() - lowpass->getLength()) / decimation, writer->writeable());
+    size_t samples = std::min((reader->available() - lowpass->getOverhead()) / decimation, writer->writeable());
 
     complex<float>* output = writer->getWritePointer();
     SparseView<complex<float>> sparseView = lowpass->sparse(reader->getReadPointer());
@@ -26,6 +26,6 @@ void FirDecimate::process() {
 bool FirDecimate::canProcess() {
     size_t available = reader->available();
     size_t writeable = writer->writeable();
-    size_t lpLen = lowpass->getLength();
+    size_t lpLen = lowpass->getOverhead();
     return available > lpLen && (available - lpLen) / decimation > 0 && writeable > 0;
 }

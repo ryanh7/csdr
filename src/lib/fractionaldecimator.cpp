@@ -28,7 +28,7 @@ FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_po
 template <typename T>
 bool FractionalDecimator<T>::canProcess() {
     size_t size = std::min(this->reader->available(), (size_t) ceilf(this->writer->writeable() / rate));
-    size_t filterLen = filter != nullptr ? filter->getLength() : 0;
+    size_t filterLen = filter != nullptr ? filter->getOverhead() : 0;
     return ceilf(where) + num_poly_points + filterLen < size;
 }
 
@@ -40,7 +40,7 @@ void FractionalDecimator<T>::process() {
     int oi = 0; //output index
     int index_high, index;
     size_t size = std::min(this->reader->available(), (size_t) ceilf(this->writer->writeable() / rate));
-    size_t filterLen = filter != nullptr ? filter->getLength() : 0;
+    size_t filterLen = filter != nullptr ? filter->getOverhead() : 0;
     T* input = this->reader->getReadPointer();
     T* output = this->writer->getWritePointer();
     //we optimize to calculate ceilf(where) only once every iteration, so we do it here:

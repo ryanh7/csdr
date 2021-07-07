@@ -63,7 +63,7 @@ size_t FirFilter<T>::filterLength(float transition) {
 }
 
 template<typename T>
-size_t FirFilter<T>::getLength() {
+size_t FirFilter<T>::getOverhead() {
     return taps_length;
 }
 

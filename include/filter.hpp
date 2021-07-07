@@ -10,7 +10,7 @@ namespace Csdr {
     class Filter {
         public:
             virtual void apply(T* input, T* output, size_t size) = 0;
-            virtual size_t getLength() { return 0; };
+            virtual size_t getOverhead() { return 0; };
     };
 
     template <typename T>

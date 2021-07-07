@@ -36,14 +36,14 @@ void FilterModule<T>::setFilter(Filter<T>* filter) {
 
 template <typename T>
 bool FilterModule<T>::canProcess() {
-    return this->reader->available() > filter->getLength() && this->writer->writeable() > 0;
+    return this->reader->available() > filter->getOverhead() && this->writer->writeable() > 0;
 }
 
 template <typename T>
 void FilterModule<T>::process() {
     T* input = this->reader->getReadPointer();
     T* output = this->writer->getWritePointer();
-    size_t size = std::min(this->reader->available() - filter->getLength(), this->writer->writeable());
+    size_t size = std::min(this->reader->available() - filter->getOverhead(), this->writer->writeable());
     filter->apply(input, output, size);
     this->reader->advance(size);
     this->writer->advance(size);

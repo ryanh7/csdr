@@ -16,7 +16,7 @@ namespace Csdr {
             ~FirFilter();
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
-            size_t getLength() override;
+            size_t getOverhead() override;
             FftFilter<T>* fftTransform();
         protected:
             explicit FirFilter(size_t length);
