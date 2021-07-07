@@ -102,7 +102,7 @@ void FirFilter<T, U>::allocateTaps(unsigned int length) {
 template<typename T, typename U>
 void FirFilter<T, U>::normalize() {
     //Normalize filter kernel
-    float sum = 0.0;
+    U sum = 0.0;
     for (int i = 0; i < taps_length; i++) sum += taps[i];
     for (int i = 0; i < taps_length; i++) taps[i] = taps[i] / sum;
 }
@@ -147,10 +147,12 @@ namespace Csdr {
 
     template class FirFilter<complex<float>, float>;
     template class FirFilter<float, float>;
+    template class FirFilter<complex<float>, complex<float>>;
 
     template class LowPassFilter<complex<float>>;
     template class LowPassFilter<float>;
 
     template class FirModule<complex<float>, float>;
     template class FirModule<float, float>;
+    template class FirModule<complex<float>, complex<float>>;
 }
