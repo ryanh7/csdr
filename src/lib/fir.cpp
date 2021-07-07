@@ -35,21 +35,22 @@ T FirFilter<T>::processSample(T *data, size_t index) {
     return processSample_fmv(data, index);
 }
 
-template<>
+template <>
 CSDR_TARGET_CLONES
-complex<float> FirFilter<complex<float>>::processSample_fmv(complex<float> *data, size_t index) {
-    complex<float> acc = {0, 0};
-    for (int ti = 0; ti < taps_length; ti++) {
-        acc += data[index + ti] * taps[ti];
+float FirFilter<float>::processSample_fmv(float *data, size_t index) {
+    float acc = 0;
+    for (size_t ti = 0; ti < taps_length; ti++) {
+        acc += data[index + ti] * taps[ti].i();
     }
     return acc;
 }
 
-template<>
-float FirFilter<float>::processSample_fmv(float *data, size_t index) {
-    float acc = 0.0f;
-    for (int ti = 0; ti < taps_length; ti++) {
-        acc += data[index + ti] * taps[ti].i();
+template <typename T>
+CSDR_TARGET_CLONES
+T FirFilter<T>::processSample_fmv(T *data, size_t index) {
+    T acc = 0;
+    for (size_t ti = 0; ti < taps_length; ti++) {
+        acc += data[index + ti] * taps[ti];
     }
     return acc;
 }
@@ -99,7 +100,10 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
     int middle = this->taps_length / 2;
     this->taps[middle] = 2 * M_PI * cutoff * window->kernel(0);
     for (int i = 1; i <= middle; i++)  {
-        this->taps[middle - i] = this->taps[middle + i] = (sin(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle);
+        this->taps[middle - i] = this->taps[middle + i] = {
+                (sin(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle),
+                0
+        };
     }
     this->normalize();
 }
@@ -111,18 +115,15 @@ BandPassFilter<T>::BandPassFilter(float lowcut, float highcut, float transition,
     //  2. we shift the filter taps spectrally by multiplying with e^(j*w), so we get complex taps
     //(tnx HA5FT)
 
-    float filter_center=(highcut+lowcut)/2;
-    float phase=0, sinval, cosval;
+    float filter_center = (highcut + lowcut) / 2;
+    float phase = 0, sinval, cosval;
 
     for(int i=0; i < this -> taps_length; i++) {
         sincosf(phase, &sinval, &cosval);
         phase += 2.0f * M_PI * filter_center;
         while (phase > 2 * M_PI) phase -= 2 * M_PI;
         while (phase < 0) phase += 2 * M_PI;
-        this->taps[i] = {
-                cosval * this->taps[i].i(),
-                sinval * this->taps[i].i()
-        };
+        this->taps[i] *= complex<float>(sinval, cosval);
     }
 }
 
