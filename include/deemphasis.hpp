@@ -16,11 +16,11 @@ namespace Csdr {
             float last_output = 0.0f;
     };
 
-    class NfmDeephasis: public FirModule<float> {
+    class NfmDeephasis: public FirModule<float, float> {
         public:
-            NfmDeephasis(unsigned int sampleRate);
+            explicit NfmDeephasis(unsigned int sampleRate);
         private:
-            static FirFilter<float>* getFilter(unsigned int sampleRate);
+            static FirFilter<float, float>* getFilter(unsigned int sampleRate);
     };
 
 }

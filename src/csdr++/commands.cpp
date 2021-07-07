@@ -109,7 +109,7 @@ CLI::Option* Command::addFifoOption() {
 }
 
 AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
-    add_set("-f,--format", format, {"s16", "float"}, "Data format", true);
+    add_set("-f,--format", format, {"s16", "float", "complex"}, "Data format", true);
     add_set("-p,--profile", profile, {"fast", "slow"}, "AGC profile", true);
     add_option("-a,--attack", attack, "AGC attack rate (slow: 0.1; fast: 0.01)");
     add_option("-d,--decay", decay, "AGC decay rate (slow: 0.0001; fast: 0.001)");
@@ -122,6 +122,8 @@ AgcCommand::AgcCommand(): Command("agc", "Automatic gain control") {
             runAgc<float>();
         } else if (format == "s16") {
             runAgc<short>();
+        } else if (format == "complex") {
+            runAgc<complex<float>>();
         } else {
             std::cerr << "invalid format: " << format << "\n";
         }
@@ -317,7 +319,7 @@ FractionalDecimatorCommand::FractionalDecimatorCommand(): Command("fractionaldec
 
 template <typename T>
 void FractionalDecimatorCommand::runDecimator() {
-    FirFilter<T>* filter = nullptr;
+    FirFilter<T, float>* filter = nullptr;
     if (prefilter) {
         Window* w;
         if (window == "boxcar") {
@@ -332,7 +334,7 @@ void FractionalDecimatorCommand::runDecimator() {
         }
         filter = new LowPassFilter<T>(0.5 / (decimation_rate - transition), transition, w);
     }
-    runModule(new FractionalDecimator<T>(decimation_rate, num_poly_points, filter));
+    runModule(new FractionalDecimator<T, float>(decimation_rate, num_poly_points, filter));
 }
 
 AdpcmCommand::AdpcmCommand(): Command("adpcm", "ADPCM codec") {

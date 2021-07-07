@@ -2,8 +2,8 @@
 
 using namespace Csdr;
 
-template <typename T>
-FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T> *filter):
+template <typename T, typename U>
+FractionalDecimator<T, U>::FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T, U> *filter):
     num_poly_points(num_poly_points &~ 1),
     poly_precalc_denomiator((float*) malloc(this->num_poly_points * sizeof(float))),
     xifirst(-(this->num_poly_points / 2) + 1),
@@ -25,15 +25,15 @@ FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_po
     where = -xifirst;
 }
 
-template <typename T>
-bool FractionalDecimator<T>::canProcess() {
+template <typename T, typename U>
+bool FractionalDecimator<T, U>::canProcess() {
     size_t size = std::min(this->reader->available(), (size_t) ceilf(this->writer->writeable() / rate));
     size_t filterLen = filter != nullptr ? filter->getLength() : 0;
     return ceilf(where) + num_poly_points + filterLen < size;
 }
 
-template <typename T>
-void FractionalDecimator<T>::process() {
+template <typename T, typename U>
+void FractionalDecimator<T, U>::process() {
     //This routine can handle floating point decimation rates.
     //It applies polynomial interpolation to samples that are taken into consideration from a pre-filtered input.
     //The pre-filter can be switched off by applying filter = nullptr.
@@ -79,6 +79,6 @@ void FractionalDecimator<T>::process() {
 }
 
 namespace Csdr {
-    template class FractionalDecimator<float>;
-    template class FractionalDecimator<complex<float>>;
+    template class FractionalDecimator<float, float>;
+    template class FractionalDecimator<complex<float>, float>;
 }

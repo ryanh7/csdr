@@ -18,9 +18,9 @@ namespace Csdr {
             void setInitialGain(float initial_gain);
             void setHangTime(unsigned long int hang_time);
         private:
-            T min();
-            T max();
-            T abs(T in);
+            float abs(T in);
+            bool isZero(T in);
+            T scale(T in);
 
             // params
             // fast profile defaults

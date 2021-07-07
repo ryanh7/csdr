@@ -1,6 +1,7 @@
 #include "agc.hpp"
+#include "complex.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <climits>
 #include <algorithm>
 
@@ -8,8 +9,7 @@ using namespace Csdr;
 
 template <typename T>
 void Agc<T>::process(T* input, T* output, size_t work_size) {
-    T reference = this->reference * max();
-	T input_abs;
+	float input_abs;
 	float error, dgain;
 
 	float xk, vk, rk;
@@ -18,7 +18,7 @@ void Agc<T>::process(T* input, T* output, size_t work_size) {
 
     for (int i = 0; i < work_size; i++) {
         //We skip samples containing 0, as the gain would be infinity for those to keep up with the reference.
-        if (input[i] != 0) {
+        if (!isZero(input[i])) {
             //The error is the difference between the required gain at the actual sample, and the previous gain value.
             //We actually use an envelope detector.
             input_abs = this->abs(input[i]);
@@ -48,7 +48,7 @@ void Agc<T>::process(T* input, T* output, size_t work_size) {
                     dgain = 1 + decay_rate; //If the signal level decreases, we increase the gain quite slowly.
                 }
             }
-            gain *= dgain;
+            gain = gain * dgain;
         }
 
         // alpha beta filter
@@ -70,45 +70,64 @@ void Agc<T>::process(T* input, T* output, size_t work_size) {
         if (gain < 0) gain = 0;
 
         // actual sample scaling
-        // limiting
-        if (gain * input[i] > max()) {
-            output[i] = max();
-        } else if (gain * input[i] < min()) {
-            output[i] = min();
-        } else {
-            output[i] = gain * input[i];
-        }
+        output[i] = scale(input[i]);
     }
 }
 
 template <>
-short Agc<short>::max() {
-    return SHRT_MAX;
+float Agc<short>::abs(short in) {
+    return std::abs((float) in) / SHRT_MAX;
 }
 
 template <>
-short Agc<short>::min() {
-    return SHRT_MIN;
+bool Agc<short>::isZero(short in) {
+    return in == 0;
 }
 
 template <>
-short Agc<short>::abs(short in) {
-    return ::abs(in);
-}
-
-template <>
-float Agc<float>::max() {
-    return 1.0f;
-}
-
-template <>
-float Agc<float>::min() {
-    return -1.0f;
+short Agc<short>::scale(short in) {
+    int val = in * gain;
+    if (val > SHRT_MAX) return SHRT_MAX;
+    if (val < SHRT_MIN) return SHRT_MIN;
+    return (short) val;
 }
 
 template <>
 float Agc<float>::abs(float in) {
-    return ::fabs(in);
+    return std::fabs(in);
+}
+
+template <>
+bool Agc<float>::isZero(float in) {
+    return in == 0.0f;
+}
+
+template <>
+float Agc<float>::scale(float in) {
+    float val = in * gain;
+    if (val > 1.0f) return 1.0f;
+    if (val < -1.0f) return -1.0f;
+    return val;
+}
+
+template <>
+float Agc<complex<float>>::abs(complex<float> in) {
+    return std::abs(in);
+}
+
+template <>
+bool Agc<complex<float>>::isZero(complex<float> in) {
+    return in == complex<float>(0, 0);
+}
+
+template <>
+complex<float> Agc<complex<float>>::scale(complex<float> in) {
+    complex<float> val = in * gain;
+    if (val.i() > 1.0f) val.i(1.0f);
+    if (val.q() > 1.0f) val.q(1.0f);
+    if (val.i() < -1.0f) val.i(-1.0f);
+    if (val.q() < -1.0f) val.q(-1.0f);
+    return val;
 }
 
 template <typename T>
@@ -141,5 +160,8 @@ void Agc<T>::setHangTime(unsigned long int hang_time) {
     this->hang_time = hang_time;
 }
 
-template class Agc<short>;
-template class Agc<float>;
+namespace Csdr {
+    template class Agc<short>;
+    template class Agc<float>;
+    template class Agc<complex<float>>;
+}
