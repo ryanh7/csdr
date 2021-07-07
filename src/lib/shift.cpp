@@ -82,13 +82,7 @@ void ShiftMath::process_fmv(complex<float>* input, complex<float>* output, size_
     for (int i = 0; i < size; i++) {
         float phaseval = phase_increment * i + phase;
         sincosf(phaseval, &sinval, &cosval);
-        //we multiply two complex numbers.
-        //how? enter this to maxima (software) for explanation:
-        //   (a+b*%i)*(c+d*%i), rectform;
-        output[i] = {
-            cosval * input[i].i() - sinval * input[i].q(),
-            sinval * input[i].i() + cosval * input[i].q()
-        };
+        output[i] = input[i] * complex<float>(cosval, sinval);
     }
 
     phase = phase_increment * size + phase;
