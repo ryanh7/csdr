@@ -105,10 +105,10 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window* window):
     int middle = this->taps_length / 2;
     this->taps[middle] = 2 * M_PI * cutoff * window->kernel(0);
     for (int i = 1; i <= middle; i++)  {
-        this->taps[middle - i] = this->taps[middle + i] = {
-                (sinf(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle),
-                0
-        };
+        // by definition: assigning a scalar to a complex assigns the real part (our i) only,
+        // with the imaginary part (our q) set to zero
+        this->taps[middle - i] = this->taps[middle + i] =
+                (sinf(2 * M_PI * cutoff * i) / i) * window->kernel((float) i / middle);
     }
     this->normalize();
 }
