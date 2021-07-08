@@ -87,8 +87,8 @@ void FirFilter<T>::allocateTaps(size_t length) {
 template<typename T>
 void FirFilter<T>::normalize() {
     //Normalize filter kernel
-    complex<float> sum = {0, 0};
-    for (int i = 0; i < taps_length; i++) sum += taps[i];
+    float sum = 0;
+    for (int i = 0; i < taps_length; i++) sum += std::abs(taps[i]);
     for (int i = 0; i < taps_length; i++) taps[i] = taps[i] / sum;
 }
 
