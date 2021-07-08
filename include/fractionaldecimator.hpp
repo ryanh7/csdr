@@ -9,7 +9,7 @@ namespace Csdr {
     template <typename T>
     class FractionalDecimator: public Module<T, T> {
         public:
-            FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T>* filter = nullptr);
+            FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T, float>* filter = nullptr);
             bool canProcess() override;
             void process() override;
         private:
@@ -23,7 +23,7 @@ namespace Csdr {
             int xifirst;
             int xilast;
             float rate;
-            FirFilter<T>* filter;
+            FirFilter<T, float>* filter;
     };
 
 }

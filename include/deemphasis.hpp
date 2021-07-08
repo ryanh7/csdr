@@ -21,7 +21,7 @@ namespace Csdr {
         public:
             explicit NfmDeephasis(unsigned int sampleRate);
         private:
-            static FirFilter<float>* getFilter(unsigned int sampleRate);
+            static FirFilter<float, float>* getFilter(unsigned int sampleRate);
     };
 
 }

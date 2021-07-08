@@ -3,7 +3,7 @@
 using namespace Csdr;
 
 template <typename T>
-FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T> *filter):
+FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_points, FirFilter<T, float> *filter):
     num_poly_points(num_poly_points &~ 1),
     poly_precalc_denomiator((float*) malloc(this->num_poly_points * sizeof(float))),
     xifirst(-(this->num_poly_points / 2) + 1),

@@ -319,7 +319,7 @@ FractionalDecimatorCommand::FractionalDecimatorCommand(): Command("fractionaldec
 
 template <typename T>
 void FractionalDecimatorCommand::runDecimator() {
-    FirFilter<T>* filter = nullptr;
+    LowPassFilter<T>* filter = nullptr;
     if (prefilter) {
         Window* w;
         if (window == "boxcar") {

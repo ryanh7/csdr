@@ -8,33 +8,57 @@
 
 namespace Csdr {
 
-    template <typename T>
+    template <typename T, typename U>
     class FirFilter: public SampleFilter<T> {
         public:
-            FirFilter(complex<float>* taps, size_t length);
-            FirFilter(float* taps, size_t length);
+            FirFilter(U* taps, size_t length);
             ~FirFilter();
             T processSample(T* data, size_t index) override;
             T processSample_fmv(T* data, size_t index);
             size_t getOverhead() override;
-            FftFilter<T>* fftTransform();
         protected:
             explicit FirFilter(size_t length);
             static size_t filterLength(float transition);
             void allocateTaps(size_t length);
-            void normalize();
-            complex<float>* taps;
+            U* taps;
             size_t taps_length;
     };
 
     template <typename T>
-    class LowPassFilter: public FirFilter<T> {
+    class TapGenerator {
+        public:
+            TapGenerator(Window* window);
+            virtual T* generateTaps(size_t length) = 0;
+        protected:
+            void normalize(T* taps, size_t length);
+            Window* window;
+    };
+
+    class LowPassTapGenerator: TapGenerator<float> {
+        public:
+            LowPassTapGenerator(float cutoff, Window* window);
+            float* generateTaps(size_t length) override;
+        private:
+            float cutoff;
+    };
+
+    template <typename T>
+    class LowPassFilter: public FirFilter<T, float> {
         public:
             LowPassFilter(float cutoff, float transition, Window* window);
     };
 
+    class BandPassTapGenerator: TapGenerator<complex<float>> {
+        public:
+            BandPassTapGenerator(float lowcut, float highcut, Window* window);
+            complex<float>* generateTaps(size_t length) override;
+        private:
+            float lowcut;
+            float highcut;
+    };
+
     template <typename T>
-    class BandPassFilter: public LowPassFilter<T> {
+    class BandPassFilter: public FirFilter<T, complex<float>> {
         public:
             BandPassFilter(float lowcut, float highcut, float transition, Window* window);
     };
