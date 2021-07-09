@@ -103,7 +103,7 @@ FftBandPassFilter::FftBandPassFilter(float lowcut, float highcut, float transiti
 {
     taps_length = FftBandPassFilter::filterLength(transition);
     auto generator = new BandPassTapGenerator(lowcut, highcut, window);
-    taps = generator->fftTransform(taps_length, fftSize);
+    taps = generator->generateFftTaps(taps_length, fftSize);
     delete generator;
     inputSize = fftSize - taps_length + 1;
 }

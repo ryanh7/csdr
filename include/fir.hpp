@@ -29,7 +29,7 @@ namespace Csdr {
         public:
             TapGenerator(Window* window);
             virtual T* generateTaps(size_t length) = 0;
-            complex<float>* fftTransform(size_t length, size_t fftSize);
+            complex<float>* generateFftTaps(size_t length, size_t fftSize);
         protected:
             void normalize(T* taps, size_t length);
             Window* window;

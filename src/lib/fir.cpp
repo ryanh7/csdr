@@ -74,9 +74,10 @@ template<typename T>
 TapGenerator<T>::TapGenerator(Window *window): window(window) {}
 
 template <>
-complex<float>* TapGenerator<complex<float>>::fftTransform(size_t length, size_t fftSize) {
+complex<float>* TapGenerator<complex<float>>::generateFftTaps(size_t length, size_t fftSize) {
     complex<float>* taps = generateTaps(length);
     for (size_t i = 0; i < length; i++) {
+        // reverse the taps - in FFT, things are upside down
         taps[i] = { taps[i].q(), taps[i].i() };
     }
     taps = (complex<float>*) realloc(taps, sizeof(complex<float>) * fftSize);
@@ -89,7 +90,7 @@ complex<float>* TapGenerator<complex<float>>::fftTransform(size_t length, size_t
 }
 
 template <>
-complex<float>* TapGenerator<float>::fftTransform(size_t length, size_t fftSize) {
+complex<float>* TapGenerator<float>::generateFftTaps(size_t length, size_t fftSize) {
     float* taps = generateTaps(length);
     taps = (float*) realloc(taps, sizeof(float) * fftSize);
     for (size_t i = length; i < fftSize; i++) taps[i] = 0.0f;
