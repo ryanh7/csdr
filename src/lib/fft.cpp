@@ -12,10 +12,8 @@ Fft::Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window): fftS
     delete window;
 }
 
-Fft::Fft(unsigned int fftSize, unsigned int everyNSamples): Fft(fftSize, everyNSamples, new HammingWindow()) {}
-
 Fft::~Fft() {
-    delete window;
+    if (window != nullptr) delete window;
     fftwf_destroy_plan(plan);
 }
 
@@ -24,7 +22,11 @@ bool Fft::canProcess() {
 }
 
 void Fft::process() {
-    window->apply(reader->getReadPointer(), windowed, fftSize);
+    if (window != nullptr) {
+        window->apply(reader->getReadPointer(), windowed, fftSize);
+    } else {
+        memcpy(windowed, reader->getReadPointer(), fftSize);
+    }
     fftwf_execute(plan);
     std::memcpy(writer->getWritePointer(), output_buffer, sizeof(complex<float>) * fftSize);
     this->reader->advance(everyNSamples);

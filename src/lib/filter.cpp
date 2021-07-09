@@ -9,10 +9,11 @@ SparseView<T> SampleFilter<T>::sparse(T* data) {
 }
 
 template <typename T>
-void SampleFilter<T>::apply(T *input, T *output, size_t size) {
+size_t SampleFilter<T>::apply(T *input, T *output, size_t size) {
     for (size_t i = 0; i < size; i++) {
         output[i] = processSample(input, i);
     }
+    return size;
 }
 
 template<typename T>
@@ -36,7 +37,7 @@ void FilterModule<T>::setFilter(Filter<T>* filter) {
 
 template <typename T>
 bool FilterModule<T>::canProcess() {
-    return this->reader->available() > filter->getOverhead() && this->writer->writeable() > 0;
+    return this->reader->available() > filter->getMinProcessingSize() + filter->getOverhead() && this->writer->writeable() > filter->getMinProcessingSize();
 }
 
 template <typename T>
@@ -44,7 +45,7 @@ void FilterModule<T>::process() {
     T* input = this->reader->getReadPointer();
     T* output = this->writer->getWritePointer();
     size_t size = std::min(this->reader->available() - filter->getOverhead(), this->writer->writeable());
-    filter->apply(input, output, size);
+    size = filter->apply(input, output, size);
     this->reader->advance(size);
     this->writer->advance(size);
 }

@@ -9,7 +9,8 @@ namespace Csdr {
     template <typename T>
     class Filter {
         public:
-            virtual void apply(T* input, T* output, size_t size) = 0;
+            virtual size_t apply(T* input, T* output, size_t size) = 0;
+            virtual size_t getMinProcessingSize() { return 0; }
             virtual size_t getOverhead() { return 0; };
     };
 
@@ -21,7 +22,7 @@ namespace Csdr {
         public:
             SparseView<T> sparse(T* data);
             virtual T processSample(T* data, size_t index) = 0;
-            void apply(T* input, T* output, size_t size) override;
+            size_t apply(T* input, T* output, size_t size) override;
     };
 
     template <typename T>

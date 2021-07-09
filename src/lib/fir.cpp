@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <fftw3.h>
 
 #include <iostream>
 
@@ -71,6 +72,33 @@ void FirFilter<T, U>::allocateTaps(size_t length) {
 
 template<typename T>
 TapGenerator<T>::TapGenerator(Window *window): window(window) {}
+
+template <>
+complex<float>* TapGenerator<complex<float>>::fftTransform(size_t length, size_t fftSize) {
+    complex<float>* taps = generateTaps(length);
+    for (size_t i = 0; i < length; i++) {
+        taps[i] = { taps[i].q(), taps[i].i() };
+    }
+    taps = (complex<float>*) realloc(taps, sizeof(complex<float>) * fftSize);
+    for (size_t i = length; i < fftSize; i++) taps[i] = 0.0f;
+    fftwf_complex* output_buffer = fftwf_alloc_complex(fftSize);
+    fftwf_plan plan = fftwf_plan_dft_1d(fftSize, (fftwf_complex*) taps, output_buffer, FFTW_FORWARD, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+    return (complex<float>*) output_buffer;
+}
+
+template <>
+complex<float>* TapGenerator<float>::fftTransform(size_t length, size_t fftSize) {
+    float* taps = generateTaps(length);
+    taps = (float*) realloc(taps, sizeof(float) * fftSize);
+    for (size_t i = length; i < fftSize; i++) taps[i] = 0.0f;
+    fftwf_complex* output_buffer = fftwf_alloc_complex(fftSize);
+    fftwf_plan plan = fftwf_plan_dft_r2c_1d(fftSize, taps, output_buffer, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+    return (complex<float>*) output_buffer;
+}
 
 template<>
 void TapGenerator<float>::normalize(float* taps, size_t length) {

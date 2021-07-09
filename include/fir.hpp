@@ -29,12 +29,13 @@ namespace Csdr {
         public:
             TapGenerator(Window* window);
             virtual T* generateTaps(size_t length) = 0;
+            complex<float>* fftTransform(size_t length, size_t fftSize);
         protected:
             void normalize(T* taps, size_t length);
             Window* window;
     };
 
-    class LowPassTapGenerator: TapGenerator<float> {
+    class LowPassTapGenerator: public TapGenerator<float> {
         public:
             LowPassTapGenerator(float cutoff, Window* window);
             float* generateTaps(size_t length) override;
@@ -48,7 +49,7 @@ namespace Csdr {
             LowPassFilter(float cutoff, float transition, Window* window);
     };
 
-    class BandPassTapGenerator: TapGenerator<complex<float>> {
+    class BandPassTapGenerator: public TapGenerator<complex<float>> {
         public:
             BandPassTapGenerator(float lowcut, float highcut, Window* window);
             complex<float>* generateTaps(size_t length) override;

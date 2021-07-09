@@ -453,6 +453,7 @@ BandPassCommand::BandPassCommand(): Command("bandpass", "Bandpass filter") {
     add_option("--high", highcut, "Higher Frequency");
     add_option("transition_bw", transition, "Transition bandwidth")->required();
     add_option("-w,--window", window, "Windowing function", true);
+    add_flag("-f,--fft", use_fft, "Use FFT transformation filter");
     callback( [this] () {
         if (window == "boxcar") {
             windowObj = new BoxcarWindow();
@@ -464,8 +465,13 @@ BandPassCommand::BandPassCommand(): Command("bandpass", "Bandpass filter") {
             std::cerr << "window type \"" << window << "\" not available\n";
             return;
         }
-        auto filter = new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj);
-        module = new FilterModule<complex<float>>(filter);
+        if (use_fft) {
+            auto filter = new FftBandPassFilter(lowcut, highcut, transition, windowObj);
+            module = new FilterModule<complex<float>>(filter);
+        } else {
+            auto filter = new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj);
+            module = new FilterModule<complex<float>>(filter);
+        }
         runModule(module);
     });
 }
@@ -473,6 +479,9 @@ BandPassCommand::BandPassCommand(): Command("bandpass", "Bandpass filter") {
 void BandPassCommand::processFifoData(std::string data) {
     std::stringstream ss(data);
     ss >> lowcut >> highcut;
-    std::cerr << "changing bandpass filter: lowcut = " << lowcut << "; highcut = " << highcut << "\n";
-    module->setFilter(new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj));
+    if (use_fft) {
+        module->setFilter(new FftBandPassFilter(lowcut, highcut, transition, windowObj));
+    } else {
+        module->setFilter(new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj));
+    }
 }

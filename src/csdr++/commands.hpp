@@ -205,6 +205,7 @@ namespace Csdr {
             float lowcut = 0.0f;
             float highcut = 0.0f;
             float transition = 0.0f;
+            bool use_fft = 0;
             std::string window = "hamming";
             Window* windowObj;
             FilterModule<complex<float>>* module;

@@ -10,8 +10,7 @@ namespace Csdr {
 
     class Fft: public Module<complex<float>, complex<float>> {
         public:
-            Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window);
-            Fft(unsigned int fftSize, unsigned int everyNSamples);
+            Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window = nullptr);
             ~Fft() override;
             bool canProcess() override;
             void process() override;
