@@ -211,9 +211,14 @@ namespace Csdr {
             FilterModule<complex<float>>* module;
     };
 
-    class DBPskDecodercommand: public Command {
+    class DBPskDecoderCommand: public Command {
         public:
-            DBPskDecodercommand();
+            DBPskDecoderCommand();
+    };
+
+    class VaricodeDecoderCommand: public Command {
+        public:
+            VaricodeDecoderCommand();
     };
 
 }

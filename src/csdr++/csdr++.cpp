@@ -43,7 +43,8 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new DeemphasisCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new GainCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new BandPassCommand()));
-    app.add_subcommand(std::shared_ptr<CLI::App>(new DBPskDecodercommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new DBPskDecoderCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new VaricodeDecoderCommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 

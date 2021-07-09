@@ -17,6 +17,7 @@
 #include "deemphasis.hpp"
 #include "gain.hpp"
 #include "dbpsk.hpp"
+#include "varicode.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -487,8 +488,14 @@ void BandPassCommand::processFifoData(std::string data) {
     }
 }
 
-DBPskDecodercommand::DBPskDecodercommand(): Command("dbpskdecode", "Differential BPSK decoder") {
+DBPskDecoderCommand::DBPskDecoderCommand(): Command("dbpskdecode", "Differential BPSK decoder") {
     callback( [this] () {
         runModule(new DBPskDecoder());
+    });
+}
+
+VaricodeDecoderCommand::VaricodeDecoderCommand(): Command("varicodedecode", "Decode PSK31 varicode") {
+    callback( [this] () {
+        runModule(new VaricodeDecoder());
     });
 }
