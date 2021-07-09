@@ -16,6 +16,7 @@
 #include "limit.hpp"
 #include "deemphasis.hpp"
 #include "gain.hpp"
+#include "dbpsk.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -484,4 +485,10 @@ void BandPassCommand::processFifoData(std::string data) {
     } else {
         module->setFilter(new BandPassFilter<complex<float>>(lowcut, highcut, transition, windowObj));
     }
+}
+
+DBPskDecodercommand::DBPskDecodercommand(): Command("dbpskdecode", "Differential BPSK decoder") {
+    callback( [this] () {
+        runModule(new DBPskDecoder());
+    });
 }
