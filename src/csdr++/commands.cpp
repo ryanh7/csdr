@@ -18,6 +18,7 @@
 #include "gain.hpp"
 #include "dbpsk.hpp"
 #include "varicode.hpp"
+#include "timingrecovery.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -497,5 +498,22 @@ DBPskDecoderCommand::DBPskDecoderCommand(): Command("dbpskdecode", "Differential
 VaricodeDecoderCommand::VaricodeDecoderCommand(): Command("varicodedecode", "Decode PSK31 varicode") {
     callback( [this] () {
         runModule(new VaricodeDecoder());
+    });
+}
+
+TimingRecoveryCommand::TimingRecoveryCommand(): Command("timingrecovery", "Timing recovery") {
+    add_set("-a,--algorithm", algorithm, {"gardner", "earlylate"}, "Algorithm to be used", true);
+    add_option("decimation", decimation, "Decimation (samples per symbol)")->required();
+    add_option("loop_gain", loop_gain, "Loop gain", true);
+    add_option("max_error", max_error, "Max allowed error", true);
+    add_flag("-q,--add_q", use_q, "Also use the Q component");
+    callback( [this] () {
+        if (algorithm == "gardner") {
+            runModule(new GardnerTimingRecovery(decimation, loop_gain, max_error, use_q));
+        } else if (algorithm == "earlylate") {
+            runModule(new EarlyLateTimingRecovery(decimation, loop_gain, max_error, use_q));
+        } else {
+            std::cerr << "Invalid algorithm: \"" << algorithm << "\"\n";
+        }
     });
 }
