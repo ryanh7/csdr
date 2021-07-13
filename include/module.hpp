@@ -9,16 +9,11 @@
 namespace Csdr {
 
     template <typename T, typename U>
-    class Module {
+    class Module: public Sink<T>, public Source<U> {
         public:
             virtual ~Module() = default;
-            void setReader(Reader<T>* reader);
-            void setWriter(Writer<U>* writer);
             virtual bool canProcess() = 0;
             virtual void process() = 0;
-        protected:
-            Reader<T>* reader;
-            Writer<U>* writer;
     };
 
     template <typename T, typename U>

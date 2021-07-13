@@ -1,6 +1,17 @@
 #include "reader.hpp"
+#include "complex.hpp"
 
 using namespace Csdr;
+
+template <typename T>
+void Sink<T>::setReader(Reader<T>* reader) {
+    this->reader = reader;
+}
+
+template <typename T>
+Reader<T>* Sink<T>::getReader() {
+    return reader;
+}
 
 template <typename T>
 MemoryReader<T>::MemoryReader(T *data, size_t size): data(data), size(size) {}
@@ -21,10 +32,20 @@ void MemoryReader<T>::advance(size_t how_much) {
 }
 
 template <typename T>
+void MemoryReader<T>::wait() {
+    // not implemented. the data should be in memory already.
+}
+
+template <typename T>
 void MemoryReader<T>::rewind() {
     read_pos = 0;
 }
 
 namespace Csdr {
+    template class Sink<short>;
+    template class Sink<float>;
+    template class Sink<complex<float>>;
+    template class Sink<unsigned char>;
+
     template class MemoryReader<complex<float>>;
 }

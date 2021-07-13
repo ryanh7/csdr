@@ -1,4 +1,6 @@
 #include "commands.hpp"
+#include "async.hpp"
+
 #include "agc.hpp"
 #include "fmdemod.hpp"
 #include "amdemod.hpp"
@@ -24,19 +26,23 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
+#include <cstdio>
 
 using namespace Csdr;
 
 template <typename T, typename U>
 void Command::runModule(Module<T, U>* module) {
-    Ringbuffer<T>* buffer = new Ringbuffer<T>(bufferSize());
+    auto buffer = new Ringbuffer<T>(bufferSize());
     module->setReader(new RingbufferReader<T>(buffer));
-    module->setWriter(new StdoutWriter<U>());
+    auto writer = new StdoutWriter<U>();
+    module->setWriter(writer);
+
+    auto runner = new AsyncRunner<T, U>(module);
 
     fd_set read_fds;
     struct timeval tv = { .tv_sec = 10, .tv_usec = 0};
     int rc;
-    size_t read;
+    size_t bytes_read;
     size_t read_over = 0;
     int nfds = fileno(stdin) + 1;
 
@@ -64,32 +70,29 @@ void Command::runModule(Module<T, U>* module) {
         rc = select(nfds, &read_fds, NULL, NULL, &tv);
         if (rc == -1) {
             std::cerr << "select() error: " << strerror(errno) << "\n";
-            run = false;
+            break;
         } else if (rc) {
-            if (FD_ISSET(fileno(stdin), &read_fds)) {
-                // clamp so we don't overwrite the whole buffer in one go
-                size_t writeable = std::min((size_t) 1024, buffer->writeable());
-                writeable = (writeable * sizeof(T)) - read_over;
-                read = std::cin.readsome(((char*) buffer->getWritePointer()) + read_over, writeable);
-                if (read == 0) {
-                    run = false;
-                    break;
-                }
-                buffer->advance((read + read_over) / sizeof(T));
-                read_over = (read + read_over) % sizeof(T);
-                while (module->canProcess()) module->process();
-            }
             if (fifo && FD_ISSET(fileno(fifo), &read_fds)) {
                 if (fgets(fifo_input, 1024, fifo) != NULL) {
                     processFifoData(std::string(fifo_input, strlen(fifo_input) - 1));
+                } else {
+                    std::cerr << "WARNING: fifo returned from select(), but no data.\n";
                 }
+            }
+            if (FD_ISSET(fileno(stdin), &read_fds)) {
+                // clamp so we don't overwrite the whole buffer in one go
+                size_t writeable = std::min((size_t) 1024, buffer->writeable());
+                // compensate for byte to element alignment
+                writeable = (writeable * sizeof(T)) - read_over;
+                bytes_read = read(fileno(stdin), ((char *) buffer->getWritePointer()) + read_over, writeable);
+                if (bytes_read == 0) break;
+
+                // advance but don't go into partially read elements
+                buffer->advance((bytes_read + read_over) / sizeof(T));
+                read_over = (bytes_read + read_over) % sizeof(T);
             }
         //} else {
             // no data, just timeout.
-        }
-
-        if (std::cin.eof()) {
-            run = false;
         }
 
         if (fifo && feof(fifo)) {
@@ -103,8 +106,9 @@ void Command::runModule(Module<T, U>* module) {
         fclose(fifo);
         free(fifo_input);
     }
+
     delete buffer;
-    delete module;
+    delete runner;
 }
 
 CLI::Option* Command::addFifoOption() {

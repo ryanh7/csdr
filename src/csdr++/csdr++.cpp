@@ -11,8 +11,6 @@
 using namespace Csdr;
 
 int main (int argc, char** argv) {
-    std::cin.sync_with_stdio(false);
-
     Cli server;
     return server.main(argc, argv);
 }

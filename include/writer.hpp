@@ -3,6 +3,7 @@
 #include "complex.hpp"
 
 #include <cstdlib>
+#include <mutex>
 
 namespace Csdr {
 
@@ -12,6 +13,15 @@ namespace Csdr {
             virtual size_t writeable() = 0;
             virtual T* getWritePointer()  = 0;
             virtual void advance(size_t how_much) = 0;
+    };
+
+    template <typename T>
+    class Source {
+        public:
+            virtual void setWriter(Writer<T>* writer);
+            virtual Writer<T>* getWriter();
+        protected:
+            Writer<T>* writer;
     };
 
     template <typename T>

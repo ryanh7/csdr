@@ -12,6 +12,16 @@ namespace Csdr {
             virtual size_t available() = 0;
             virtual T* getReadPointer() = 0;
             virtual void advance(size_t how_much) = 0;
+            virtual void wait() = 0;
+    };
+
+    template <typename T>
+    class Sink {
+        public:
+            virtual void setReader(Reader<T>* reader);
+            virtual Reader<T>* getReader();
+        protected:
+            Reader<T>* reader;
     };
 
     template <typename T>
@@ -21,6 +31,7 @@ namespace Csdr {
             size_t available() override;
             T* getReadPointer() override;
             void advance(size_t how_much) override;
+            void wait() override;
             void rewind();
         private:
             T* data;

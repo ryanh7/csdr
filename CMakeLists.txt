@@ -26,6 +26,8 @@ pkg_check_modules(FFTW3 REQUIRED fftw3f)
 
 include(cmake/DetectIfunc.cmake)
 
+find_package(Threads REQUIRED)
+
 if(NOT DEFINED CSDR_GPL)
     set(CSDR_GPL true)
 endif()

@@ -1,13 +1,25 @@
 #include "writer.hpp"
+#include "complex.hpp"
 
-#include <iostream>
+#include <unistd.h>
 
 using namespace Csdr;
 
 template <typename T>
-StdoutWriter<T>::StdoutWriter(size_t buffer_size): buffer_size(buffer_size) {
-    buffer = (T*) malloc(sizeof(T) * buffer_size);
+void Source<T>::setWriter(Writer<T>* writer) {
+    this->writer = writer;
 }
+
+template <typename T>
+Writer<T>* Source<T>::getWriter() {
+    return writer;
+}
+
+template <typename T>
+StdoutWriter<T>::StdoutWriter(size_t buffer_size):
+    buffer_size(buffer_size),
+    buffer((T*) malloc(sizeof(T) * buffer_size))
+{}
 
 template <typename T>
 StdoutWriter<T>::StdoutWriter(): StdoutWriter(10240) {}
@@ -29,8 +41,7 @@ T* StdoutWriter<T>::getWritePointer() {
 
 template <typename T>
 void StdoutWriter<T>::advance(size_t how_much) {
-    std::cout.write((const char*) buffer, sizeof(T) * how_much);
-    std::cout.flush();
+    write(fileno(stdout), (const char*) buffer, sizeof(T) * how_much);
 }
 
 template<typename T>
@@ -58,6 +69,11 @@ T* VoidWriter<T>::getWritePointer() {
 }
 
 namespace Csdr {
+    template class Source<float>;
+    template class Source<short>;
+    template class Source<complex<float>>;
+    template class Source<unsigned char>;
+
     template class StdoutWriter<char>;
     template class StdoutWriter<unsigned char>;
     template class StdoutWriter<short>;

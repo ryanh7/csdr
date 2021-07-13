@@ -5,16 +5,6 @@
 using namespace Csdr;
 
 template <typename T, typename U>
-void Module<T, U>::setReader(Reader<T>* reader) {
-    this->reader = reader;
-}
-
-template <typename T, typename U>
-void Module<T, U>::setWriter(Writer<U>* writer) {
-    this->writer = writer;
-}
-
-template <typename T, typename U>
 bool AnyLengthModule<T, U>::canProcess() {
     return getWorkSize() > 0;
 }
@@ -34,8 +24,8 @@ void AnyLengthModule<T, U>::process() {
 
 template <typename T, typename U>
 bool FixedLengthModule<T, U>::canProcess() {
-    size_t available = std::min(this->reader->available(), this->writer->writeable());
-    return available > getLength();
+    size_t length = getLength();
+    return (this->reader->available() > length && this->writer->writeable() > length);
 }
 
 template <typename T, typename U>

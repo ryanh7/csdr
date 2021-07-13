@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <unistd.h>
+#include <mutex>
+#include <condition_variable>
 
 namespace Csdr {
 
@@ -26,20 +28,24 @@ namespace Csdr {
             void advance(size_t& what, size_t how_much);
             size_t available(size_t read_pos);
             size_t getWritePos();
+            void wait();
         private:
             T* allocate_mirrored(size_t size);
-            T* data;
+            T* data = nullptr;
             size_t size;
             size_t write_pos = 0;
+            std::mutex mutex;
+            std::condition_variable condition;
     };
 
     template <typename T>
     class RingbufferReader: public Reader<T> {
         public:
             explicit RingbufferReader<T>(Ringbuffer<T>* buffer);
-            size_t available();
-            T* getReadPointer();
-            void advance(size_t how_much);
+            size_t available() override;
+            T* getReadPointer() override;
+            void advance(size_t how_much) override;
+            void wait() override;
         private:
             Ringbuffer<T>* buffer;
             size_t read_pos;
