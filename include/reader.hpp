@@ -9,19 +9,11 @@ namespace Csdr {
     template <typename T>
     class Reader {
         public:
+            virtual ~Reader() = default;
             virtual size_t available() = 0;
             virtual T* getReadPointer() = 0;
             virtual void advance(size_t how_much) = 0;
             virtual void wait() = 0;
-    };
-
-    template <typename T>
-    class Sink {
-        public:
-            virtual void setReader(Reader<T>* reader);
-            virtual Reader<T>* getReader();
-        protected:
-            Reader<T>* reader;
     };
 
     template <typename T>

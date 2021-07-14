@@ -20,7 +20,7 @@ namespace Csdr {
     class Ringbuffer: public Writer<T> {
         public:
             explicit Ringbuffer<T>(size_t size);
-            ~Ringbuffer();
+            ~Ringbuffer() override;
             size_t writeable() override;
             T* getWritePointer() override;
             T* getPointer(size_t pos);

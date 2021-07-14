@@ -6,16 +6,6 @@
 using namespace Csdr;
 
 template <typename T>
-void Source<T>::setWriter(Writer<T>* writer) {
-    this->writer = writer;
-}
-
-template <typename T>
-Writer<T>* Source<T>::getWriter() {
-    return writer;
-}
-
-template <typename T>
 StdoutWriter<T>::StdoutWriter(size_t buffer_size):
     buffer_size(buffer_size),
     buffer((T*) malloc(sizeof(T) * buffer_size))
@@ -69,11 +59,6 @@ T* VoidWriter<T>::getWritePointer() {
 }
 
 namespace Csdr {
-    template class Source<float>;
-    template class Source<short>;
-    template class Source<complex<float>>;
-    template class Source<unsigned char>;
-
     template class StdoutWriter<char>;
     template class StdoutWriter<unsigned char>;
     template class StdoutWriter<short>;
