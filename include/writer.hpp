@@ -7,13 +7,18 @@
 
 namespace Csdr {
 
-    template <typename T>
-    class Writer {
+    // container class for template-agnostic storage
+    class UntypedWriter {
         public:
-            virtual ~Writer() = default;
+            virtual ~UntypedWriter() = default;
             virtual size_t writeable() = 0;
-            virtual T* getWritePointer()  = 0;
             virtual void advance(size_t how_much) = 0;
+    };
+
+    template <typename T>
+    class Writer: public UntypedWriter {
+        public:
+            virtual T* getWritePointer() = 0;
     };
 
     template <typename T>

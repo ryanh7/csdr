@@ -6,14 +6,19 @@
 
 namespace Csdr {
 
-    template <typename T>
-    class Reader {
+    // container class for template-agnostic storage
+    class UntypedReader {
         public:
-            virtual ~Reader() = default;
+            virtual ~UntypedReader() = default;
             virtual size_t available() = 0;
-            virtual T* getReadPointer() = 0;
             virtual void advance(size_t how_much) = 0;
             virtual void wait() = 0;
+    };
+
+    template <typename T>
+    class Reader: public UntypedReader {
+        public:
+            virtual T* getReadPointer() = 0;
     };
 
     template <typename T>
