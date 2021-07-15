@@ -4,7 +4,7 @@
 
 using namespace Csdr;
 
-LogAveragePower::LogAveragePower(unsigned int fftSize, unsigned int avgNumber, float add_db): fftSize(fftSize), avgNumber(avgNumber), add_db(add_db - 10.0 * log10(avgNumber)) {
+LogAveragePower::LogAveragePower(unsigned int fftSize, unsigned int avgNumber, float add_db): fftSize(fftSize), avgNumber(avgNumber), add_db(add_db) {
     collector = (float*) malloc(sizeof(float) * fftSize);
     std::memset(collector, 0, sizeof(float) * fftSize);
 }
@@ -13,6 +13,10 @@ LogAveragePower::LogAveragePower(unsigned int fftSize, unsigned int avgNumber): 
 
 LogAveragePower::~LogAveragePower() {
     free(collector);
+}
+
+void LogAveragePower::setAvgNumber(unsigned int avgNumber) {
+    this->avgNumber = avgNumber;
 }
 
 bool LogAveragePower::canProcess() {
@@ -27,13 +31,14 @@ void LogAveragePower::process() {
     reader->advance(fftSize);
     if (++collected == avgNumber) {
         float* output = writer->getWritePointer();
+        float correction = add_db - 10.0 * log10(avgNumber);
 
         for (int i = 0; i < fftSize; i++) {
             output[i] = log10(collector[i]);
         }
 
         for (int i = 0; i < fftSize; i++) {
-            output[i] = 10 * output[i] + add_db;
+            output[i] = 10 * output[i] + correction;
         }
 
         writer->advance(fftSize);

@@ -12,6 +12,7 @@ namespace Csdr {
             ~LogAveragePower() override;
             bool canProcess() override;
             void process() override;
+            void setAvgNumber(unsigned int avgNumber);
         private:
             float* collector;
             unsigned int collected = 0;
