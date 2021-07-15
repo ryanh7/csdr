@@ -10,8 +10,9 @@ namespace Csdr {
             virtual ~Sink() = default;
             virtual void setReader(Reader<T>* reader);
             virtual Reader<T>* getReader();
+            virtual bool hasReader();
         protected:
-            Reader<T>* reader;
+            Reader<T>* reader = nullptr;
     };
 
 

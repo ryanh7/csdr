@@ -14,8 +14,9 @@ namespace Csdr {
             virtual ~Source() = default;
             virtual void setWriter(Writer<T>* writer);
             virtual Writer<T>* getWriter();
+            virtual bool hasWriter();
         protected:
-            Writer<T>* writer;
+            Writer<T>* writer = nullptr;
     };
 
     class NetworkException: public std::runtime_error {

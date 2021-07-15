@@ -16,6 +16,11 @@ Writer<T>* Source<T>::getWriter() {
 }
 
 template<typename T>
+bool Source<T>::hasWriter() {
+    return writer != nullptr;
+}
+
+template<typename T>
 TcpSource<T>::~TcpSource() {
     ::close(sock);
 }

@@ -12,6 +12,11 @@ Reader<T>* Sink<T>::getReader() {
     return reader;
 }
 
+template<typename T>
+bool Sink<T>::hasReader() {
+    return reader != nullptr;
+}
+
 namespace Csdr {
     template class Sink<short>;
     template class Sink<float>;
