@@ -13,7 +13,7 @@ Fft::Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window): fftS
 }
 
 Fft::~Fft() {
-    if (window != nullptr) delete window;
+    delete window;
     fftwf_destroy_plan(plan);
 }
 
@@ -31,4 +31,8 @@ void Fft::process() {
     std::memcpy(writer->getWritePointer(), output_buffer, sizeof(complex<float>) * fftSize);
     this->reader->advance(everyNSamples);
     this->writer->advance(fftSize);
+}
+
+void Fft::setEveryNSamples(unsigned int everyNSamples) {
+    this->everyNSamples = everyNSamples;
 }

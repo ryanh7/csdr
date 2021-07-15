@@ -14,6 +14,7 @@ namespace Csdr {
             ~Fft() override;
             bool canProcess() override;
             void process() override;
+            void setEveryNSamples(unsigned int everyNSamples);
         private:
             unsigned int fftSize;
             unsigned int everyNSamples;
