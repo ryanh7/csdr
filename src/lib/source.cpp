@@ -60,8 +60,8 @@ void TcpSource<T>::loop() {
     int offset = 0;
 
     while (run) {
-        available = std::min(this->writer->writeable(), (size_t) 1024);
-        read_bytes = recv(sock, this->writer->getWritePointer() + offset, available * sizeof(T) - offset, 0);
+        available = std::min(this->writer->writeable(), (size_t) 1024) * sizeof(T) - offset;
+        read_bytes = recv(sock, ((char*) this->writer->getWritePointer()) + offset, available, 0);
         if (read_bytes <= 0) {
             run = false;
         } else {
