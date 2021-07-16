@@ -68,7 +68,7 @@ Ringbuffer<T>::~Ringbuffer() {
         ::munmap(addr + bytes, bytes);
         data = nullptr;
     }
-    condition.notify_all();
+    unblock();
 }
 
 template <typename T>
@@ -94,9 +94,7 @@ void Ringbuffer<T>::advance(size_t& what, size_t how_much) {
 template <typename T>
 void Ringbuffer<T>::advance(size_t how_much) {
     advance(write_pos, how_much);
-
-    std::lock_guard<std::mutex> lk(mutex);
-    condition.notify_all();
+    unblock();
 }
 
 template <typename T>
@@ -111,11 +109,17 @@ size_t Ringbuffer<T>::getWritePos() {
 
 template <typename T>
 void Ringbuffer<T>::wait() {
-    std::unique_lock<std::mutex> lk(mutex);
     if (data == nullptr) {
         throw BufferError("Buffer is not initialized or shutting down, cannot wait()");
     }
+    std::unique_lock<std::mutex> lk(mutex);
     condition.wait(lk);
+}
+
+template <typename T>
+void Ringbuffer<T>::unblock() {
+    std::lock_guard<std::mutex> lk(mutex);
+    condition.notify_all();
 }
 
 template <typename T>
@@ -142,6 +146,11 @@ void RingbufferReader<T>::advance(size_t how_much) {
 template <typename T>
 void RingbufferReader<T>::wait() {
     buffer->wait();
+}
+
+template <typename T>
+void RingbufferReader<T>::unblock() {
+    buffer->unblock();
 }
 
 namespace Csdr {

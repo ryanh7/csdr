@@ -13,6 +13,7 @@ namespace Csdr {
             virtual size_t available() = 0;
             virtual void advance(size_t how_much) = 0;
             virtual void wait() = 0;
+            virtual void unblock() = 0;
     };
 
     template <typename T>
@@ -29,6 +30,7 @@ namespace Csdr {
             T* getReadPointer() override;
             void advance(size_t how_much) override;
             void wait() override;
+            void unblock() override {}
             void rewind();
         private:
             T* data;

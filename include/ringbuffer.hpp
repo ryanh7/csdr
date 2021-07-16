@@ -29,6 +29,7 @@ namespace Csdr {
             size_t available(size_t read_pos);
             size_t getWritePos();
             void wait();
+            void unblock();
         private:
             T* allocate_mirrored(size_t size);
             T* data = nullptr;
@@ -46,6 +47,7 @@ namespace Csdr {
             T* getReadPointer() override;
             void advance(size_t how_much) override;
             void wait() override;
+            void unblock() override;
         private:
             Ringbuffer<T>* buffer;
             size_t read_pos;
