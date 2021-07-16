@@ -12,7 +12,7 @@ AsyncRunner<T, U>::AsyncRunner(Module<T, U> *module):
 
 template<typename T, typename U>
 AsyncRunner<T, U>::~AsyncRunner() {
-    run = false;
+    stop();
     thread.join();
     delete module;
 }
@@ -20,6 +20,9 @@ AsyncRunner<T, U>::~AsyncRunner() {
 template<typename T, typename U>
 void AsyncRunner<T, U>::stop() {
     run = false;
+    if (module->hasReader()) {
+        module->getReader()->unblock();
+    }
 }
 
 template<typename T, typename U>
