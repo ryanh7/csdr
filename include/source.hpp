@@ -8,13 +8,18 @@
 
 namespace Csdr {
 
-    template <typename T>
-    class Source {
+    class UntypedSource {
         public:
-            virtual ~Source() = default;
+            virtual ~UntypedSource() = default;
+            virtual bool hasWriter() = 0;
+    };
+
+    template <typename T>
+    class Source: public UntypedSource {
+        public:
             virtual void setWriter(Writer<T>* writer);
             virtual Writer<T>* getWriter();
-            virtual bool hasWriter();
+            bool hasWriter() override;
         protected:
             Writer<T>* writer = nullptr;
     };

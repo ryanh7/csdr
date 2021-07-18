@@ -4,13 +4,18 @@
 
 namespace Csdr {
 
-    template <typename T>
-    class Sink {
+    class UntypedSink {
         public:
-            virtual ~Sink() = default;
+            virtual ~UntypedSink() = default;
+            virtual bool hasReader() = 0;
+    };
+
+    template <typename T>
+    class Sink: public UntypedSink {
+        public:
             virtual void setReader(Reader<T>* reader);
             virtual Reader<T>* getReader();
-            virtual bool hasReader();
+            bool hasReader() override;
         protected:
             Reader<T>* reader = nullptr;
     };

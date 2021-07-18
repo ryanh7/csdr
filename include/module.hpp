@@ -8,13 +8,15 @@
 
 namespace Csdr {
 
-    template <typename T, typename U>
-    class Module: public Sink<T>, public Source<U> {
+    class UntypedModule {
         public:
-            virtual ~Module() = default;
+            virtual ~UntypedModule() = default;
             virtual bool canProcess() = 0;
             virtual void process() = 0;
     };
+
+    template <typename T, typename U>
+    class Module: public UntypedModule, public Sink<T>, public Source<U> {};
 
     template <typename T, typename U>
     class AnyLengthModule: public Module<T, U> {
