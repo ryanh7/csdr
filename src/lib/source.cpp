@@ -65,8 +65,8 @@ void TcpSource<T>::loop() {
         if (read_bytes <= 0) {
             run = false;
         } else {
-            offset = (offset + read_bytes) % sizeof(T);
             this->writer->advance((offset + read_bytes) / sizeof(T));
+            offset = (offset + read_bytes) % sizeof(T);
         }
     }
 }
