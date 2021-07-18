@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <mutex>
 #include <condition_variable>
+#include <set>
 
 namespace Csdr {
 
@@ -15,6 +16,9 @@ namespace Csdr {
         public:
             explicit BufferError(const std::string& err): std::runtime_error(err) {}
     };
+
+    template <typename T>
+    class RingbufferReader;
 
     template <typename T>
     class Ringbuffer: public Writer<T> {
@@ -30,6 +34,8 @@ namespace Csdr {
             size_t getWritePos();
             void wait();
             void unblock();
+            void addReader(RingbufferReader<T>* reader);
+            void removeReader(RingbufferReader<T>* reader);
         private:
             T* allocate_mirrored(size_t size);
             T* data = nullptr;
@@ -37,17 +43,20 @@ namespace Csdr {
             size_t write_pos = 0;
             std::mutex mutex;
             std::condition_variable condition;
+            std::set<RingbufferReader<T>*> readers = {};
     };
 
     template <typename T>
     class RingbufferReader: public Reader<T> {
         public:
             explicit RingbufferReader<T>(Ringbuffer<T>* buffer);
+            ~RingbufferReader();
             size_t available() override;
             T* getReadPointer() override;
             void advance(size_t how_much) override;
             void wait() override;
             void unblock() override;
+            void onBufferDelete();
         private:
             Ringbuffer<T>* buffer;
             size_t read_pos;

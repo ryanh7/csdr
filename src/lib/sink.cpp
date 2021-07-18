@@ -4,7 +4,12 @@ using namespace Csdr;
 
 template <typename T>
 void Sink<T>::setReader(Reader<T>* reader) {
+    if (reader == this->reader) return;
+    auto oldReader = this->reader;
     this->reader = reader;
+    // if we had a reader before, there's a chance we're still wait()ing on it in a thread.
+    // this makes sure we start reading on the new reader immediately.
+    if (oldReader != nullptr) oldReader->unblock();
 }
 
 template <typename T>

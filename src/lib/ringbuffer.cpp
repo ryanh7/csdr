@@ -30,7 +30,7 @@ T* Ringbuffer<T>::allocate_mirrored(size_t size) {
 
     int counter = 10;
     while (counter-- > 0) {
-        unsigned char* addr = static_cast<unsigned char*>(::mmap(NULL, 2 * bytes, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0));
+        auto addr = static_cast<unsigned char*>(::mmap(NULL, 2 * bytes, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0));
 
         if (addr == MAP_FAILED) {
             continue;
@@ -41,7 +41,7 @@ T* Ringbuffer<T>::allocate_mirrored(size_t size) {
             continue;
         }
 
-        unsigned char* addr2 = static_cast<unsigned char*>(::mremap(addr, 0, bytes, MREMAP_FIXED | MREMAP_MAYMOVE, addr + bytes));
+        auto addr2 = static_cast<unsigned char*>(::mremap(addr, 0, bytes, MREMAP_FIXED | MREMAP_MAYMOVE, addr + bytes));
         if (addr2 == MAP_FAILED) {
             ::munmap(addr, bytes);
             continue;
@@ -61,8 +61,11 @@ T* Ringbuffer<T>::allocate_mirrored(size_t size) {
 
 template <typename T>
 Ringbuffer<T>::~Ringbuffer() {
+    for (RingbufferReader<T>* reader : readers) {
+        reader->onBufferDelete();
+    }
     if (data != nullptr) {
-        unsigned char* addr = (unsigned char*) data;
+        auto addr = (unsigned char*) data;
         size_t bytes = this->size * sizeof(T);
         ::munmap(addr, bytes);
         ::munmap(addr + bytes, bytes);
@@ -123,34 +126,82 @@ void Ringbuffer<T>::unblock() {
 }
 
 template <typename T>
+void Ringbuffer<T>::addReader(RingbufferReader<T> *reader) {
+    if (readers.find(reader) != readers.end()) {
+        // already in set
+        return;
+    }
+    readers.insert(reader);
+}
+
+template <typename T>
+void Ringbuffer<T>::removeReader(RingbufferReader<T> *reader) {
+    auto position = readers.find(reader);
+    if (position == readers.end()) {
+        // not in set
+        return;
+    }
+    readers.erase(position);
+}
+
+template <typename T>
 RingbufferReader<T>::RingbufferReader(Ringbuffer<T>* buffer):
     buffer(buffer),
     read_pos(buffer->getWritePos())
-{}
+{
+    buffer->addReader(this);
+}
+
+template<typename T>
+RingbufferReader<T>::~RingbufferReader() {
+    if (buffer != nullptr) {
+        buffer->removeReader(this);
+    }
+}
 
 template <typename T>
 size_t RingbufferReader<T>::available() {
+    if (buffer == nullptr) {
+        throw BufferError("Buffer no longer available");
+    }
     return buffer->available(read_pos);
 }
 
 template <typename T>
 T* RingbufferReader<T>::getReadPointer() {
+    if (buffer == nullptr) {
+        throw BufferError("Buffer no longer available");
+    }
     return buffer->getPointer(read_pos);
 }
 
 template <typename T>
 void RingbufferReader<T>::advance(size_t how_much) {
+    if (buffer == nullptr) {
+        throw BufferError("Buffer no longer available");
+    }
     buffer->advance(read_pos, how_much);
 }
 
 template <typename T>
 void RingbufferReader<T>::wait() {
+    if (buffer == nullptr) {
+        throw BufferError("Buffer no longer available");
+    }
     buffer->wait();
 }
 
 template <typename T>
 void RingbufferReader<T>::unblock() {
+    if (buffer == nullptr) {
+        throw BufferError("Buffer no longer available");
+    }
     buffer->unblock();
+}
+
+template <typename T>
+void RingbufferReader<T>::onBufferDelete() {
+    buffer = nullptr;
 }
 
 namespace Csdr {
