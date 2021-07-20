@@ -26,6 +26,12 @@ FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_po
 }
 
 template <typename T>
+FractionalDecimator<T>::~FractionalDecimator() {
+    delete poly_precalc_denomiator;
+    delete coeffs_buf;
+}
+
+template <typename T>
 bool FractionalDecimator<T>::canProcess() {
     size_t size = std::min(this->reader->available(), (size_t) ceilf(this->writer->writeable() / rate));
     size_t filterLen = filter != nullptr ? filter->getOverhead() : 0;
