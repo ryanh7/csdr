@@ -147,6 +147,7 @@ LowPassFilter<T>::LowPassFilter(float cutoff, float transition, Window *window):
     float* taps = generator->generateTaps(this->taps_length);
     memcpy(this->taps, taps, sizeof(float) * this->taps_length);
     free(taps);
+    delete generator;
 }
 
 BandPassTapGenerator::BandPassTapGenerator(float lowcut, float highcut, Window *window):
