@@ -27,8 +27,8 @@ FractionalDecimator<T>::FractionalDecimator(float rate, unsigned int num_poly_po
 
 template <typename T>
 FractionalDecimator<T>::~FractionalDecimator() {
-    delete poly_precalc_denomiator;
-    delete coeffs_buf;
+    free(poly_precalc_denomiator);
+    free(coeffs_buf);
 }
 
 template <typename T>
