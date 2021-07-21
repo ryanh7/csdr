@@ -191,6 +191,7 @@ BandPassFilter<T>::BandPassFilter(float lowcut, float highcut, float transition,
     auto generator = new BandPassTapGenerator(lowcut, highcut, window);
     complex<float>* taps = generator->generateTaps(this->taps_length);
     memcpy(this->taps, taps, sizeof(complex<float>) * this->taps_length);
+    delete generator;
     free(taps);
 }
 
