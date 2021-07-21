@@ -9,10 +9,11 @@ Fft::Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window): fftS
     output_buffer = (complex<float>*) malloc(sizeof(complex<float>) * fftSize);
     plan = fftwf_plan_dft_1d(fftSize, (fftwf_complex*) windowed, (fftwf_complex*) output_buffer, FFTW_FORWARD, FFTW_ESTIMATE);
     this->window = window->precalculate(fftSize);
-    delete window;
 }
 
 Fft::~Fft() {
+    free(windowed);
+    free(output_buffer);
     delete window;
     fftwf_destroy_plan(plan);
 }
