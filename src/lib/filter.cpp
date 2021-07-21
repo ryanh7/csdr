@@ -18,8 +18,8 @@ size_t SampleFilter<T>::apply(T *input, T *output, size_t size) {
 
 template<typename T>
 SparseView<T>::SparseView(T *data, SampleFilter<T> *filter):
-        data(data),
-        filter(filter)
+    data(data),
+    filter(filter)
 {}
 
 template<typename T>
@@ -31,7 +31,13 @@ template <typename T>
 FilterModule<T>::FilterModule(Filter<T> *filter): filter(filter) {}
 
 template <typename T>
+FilterModule<T>::~FilterModule() {
+    delete this->filter;
+}
+
+template <typename T>
 void FilterModule<T>::setFilter(Filter<T>* filter) {
+    delete this->filter;
     this->filter = filter;
 }
 

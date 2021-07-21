@@ -9,6 +9,7 @@ namespace Csdr {
     template <typename T>
     class Filter {
         public:
+            virtual ~Filter() = default;
             virtual size_t apply(T* input, T* output, size_t size) = 0;
             virtual size_t getMinProcessingSize() { return 0; }
             virtual size_t getOverhead() { return 0; };
@@ -39,6 +40,7 @@ namespace Csdr {
     class FilterModule: public Module<T, T> {
         public:
             explicit FilterModule(Filter<T>* filter);
+            ~FilterModule() override;
             bool canProcess() override;
             void process() override;
             void setFilter(Filter<T>* filter);
