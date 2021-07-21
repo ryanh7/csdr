@@ -74,7 +74,7 @@ size_t FftFilter<T>::apply(T *input, T *output, size_t size) {
         result[i] = result[i] + overlap[i];
     }
 
-    std::memcpy(overlap, result + inputSize, sizeof(complex<float>) * taps_length);
+    std::memcpy(overlap, result + inputSize, sizeof(complex<float>) * (taps_length - 1));
 
     // copy input but only partially fill fft input
     std::memcpy(output, result, sizeof(T) * inputSize);
