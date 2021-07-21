@@ -86,6 +86,7 @@ complex<float>* TapGenerator<complex<float>>::generateFftTaps(size_t length, siz
     fftwf_plan plan = fftwf_plan_dft_1d(fftSize, (fftwf_complex*) taps, output_buffer, FFTW_FORWARD, FFTW_ESTIMATE);
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
+    free(taps);
     return (complex<float>*) output_buffer;
 }
 
@@ -98,6 +99,7 @@ complex<float>* TapGenerator<float>::generateFftTaps(size_t length, size_t fftSi
     fftwf_plan plan = fftwf_plan_dft_r2c_1d(fftSize, taps, output_buffer, FFTW_ESTIMATE);
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
+    free(taps);
     return (complex<float>*) output_buffer;
 }
 
@@ -164,6 +166,7 @@ complex<float> * BandPassTapGenerator::generateTaps(size_t length) {
 
     auto lowpassGenerator = new LowPassTapGenerator((highcut - lowcut) / 2, window);
     float* realTaps = lowpassGenerator->generateTaps(length);
+    delete lowpassGenerator;
 
     auto taps = (complex<float>*) malloc(sizeof(complex<float>) * length);
     float filter_center = (highcut + lowcut) / 2;
