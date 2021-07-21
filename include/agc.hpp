@@ -8,6 +8,7 @@ namespace Csdr {
 
     class UntypedAgc {
         public:
+            virtual ~UntypedAgc() = default;
             virtual void setReference(float reference) = 0;
             virtual void setAttack(float attack_rate) = 0;
             virtual void setDecay(float decay_rate) = 0;
