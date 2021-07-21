@@ -66,4 +66,7 @@ namespace Csdr {
     template class StdoutWriter<complex<float>>;
 
     template class VoidWriter<complex<float>>;
+    template class VoidWriter<float>;
+    template class VoidWriter<short>;
+    template class VoidWriter<unsigned char>;
 }

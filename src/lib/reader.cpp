@@ -33,4 +33,6 @@ void MemoryReader<T>::rewind() {
 
 namespace Csdr {
     template class MemoryReader<complex<float>>;
+    template class MemoryReader<float>;
+    template class MemoryReader<short>;
 }
