@@ -37,7 +37,7 @@ void Command::runModule(Module<T, U>* module) {
     auto writer = new StdoutWriter<U>();
     module->setWriter(writer);
 
-    auto runner = new AsyncRunner<T, U>(module);
+    auto runner = new AsyncRunner(module);
 
     fd_set read_fds;
     struct timeval tv = { .tv_sec = 10, .tv_usec = 0};

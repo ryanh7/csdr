@@ -11,16 +11,15 @@ namespace Csdr {
             virtual void stop() = 0;
     };
 
-    template <typename T, typename U>
     class AsyncRunner: public UntypedRunner {
         public:
-            explicit AsyncRunner(Module<T, U>* module);
+            explicit AsyncRunner(UntypedModule* module);
             ~AsyncRunner() override;
             void stop() override;
         private:
             void loop();
             bool run = true;
-            Module<T, U>*  module;
+            UntypedModule*  module;
             std::thread thread;
     };
 

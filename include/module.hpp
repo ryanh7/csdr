@@ -13,10 +13,16 @@ namespace Csdr {
             virtual ~UntypedModule() = default;
             virtual bool canProcess() = 0;
             virtual void process() = 0;
+            virtual void wait() = 0;
+            virtual void unblock() = 0;
     };
 
     template <typename T, typename U>
-    class Module: public UntypedModule, public Sink<T>, public Source<U> {};
+    class Module: public UntypedModule, public Sink<T>, public Source<U> {
+        public:
+            void wait() override;
+            void unblock() override;
+    };
 
     template <typename T, typename U>
     class AnyLengthModule: public Module<T, U> {

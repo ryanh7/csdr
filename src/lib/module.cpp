@@ -5,6 +5,18 @@
 using namespace Csdr;
 
 template <typename T, typename U>
+void Module<T, U>::wait() {
+    this->getReader()->wait();
+}
+
+template <typename T, typename U>
+void Module<T, U>::unblock() {
+    if (this->hasReader()) {
+        this->getReader()->unblock();
+    }
+}
+
+template <typename T, typename U>
 bool AnyLengthModule<T, U>::canProcess() {
     return getWorkSize() > 0;
 }
