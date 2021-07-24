@@ -5,15 +5,21 @@
 
 using namespace Csdr;
 
+#if defined __arm__ || __aarch64__
+#define CSDR_FFTW_FLAGS (FFTW_DESTROY_INPUT | FFTW_ESTIMATE)
+#else
+#define CSDR_FFTW_FLAGS (FFTW_DESTROY_INPUT | FFTW_MEASURE)
+#endif
+
 template <typename T>
 FftFilter<T>::FftFilter(size_t fftSize):
     fftSize(fftSize),
     forwardInput(fftwf_alloc_complex(fftSize)),
     forwardOutput(fftwf_alloc_complex(fftSize)),
-    forwardPlan(fftwf_plan_dft_1d(fftSize, forwardInput, forwardOutput, FFTW_FORWARD, FFTW_DESTROY_INPUT)),
+    forwardPlan(fftwf_plan_dft_1d(fftSize, forwardInput, forwardOutput, FFTW_FORWARD, CSDR_FFTW_FLAGS)),
     inverseInput(fftwf_alloc_complex(fftSize)),
     inverseOutput(fftwf_alloc_complex(fftSize)),
-    inversePlan(fftwf_plan_dft_1d(fftSize, inverseInput, inverseOutput, FFTW_BACKWARD, FFTW_DESTROY_INPUT)),
+    inversePlan(fftwf_plan_dft_1d(fftSize, inverseInput, inverseOutput, FFTW_BACKWARD, CSDR_FFTW_FLAGS)),
     overlap((T*) calloc(sizeof(T), fftSize))
 {
     // fill with zeros so that the padding works
