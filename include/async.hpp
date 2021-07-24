@@ -5,17 +5,11 @@
 
 namespace Csdr {
 
-    class UntypedRunner {
-        public:
-            virtual ~UntypedRunner() = default;
-            virtual void stop() = 0;
-    };
-
-    class AsyncRunner: public UntypedRunner {
+    class AsyncRunner {
         public:
             explicit AsyncRunner(UntypedModule* module);
-            ~AsyncRunner() override;
-            void stop() override;
+            ~AsyncRunner();
+            void stop();
         private:
             void loop();
             bool run = true;
