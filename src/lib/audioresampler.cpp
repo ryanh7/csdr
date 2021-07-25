@@ -31,9 +31,9 @@ void AudioResampler::process() {
         .src_ratio = rate
     };
 
-    reader->advance(data.input_frames_used);
-    reader->advance(data.output_frames_gen);
-
     src_process(srcState, &data);
+
+    reader->advance(data.input_frames_used);
+    writer->advance(data.output_frames_gen);
 }
 
