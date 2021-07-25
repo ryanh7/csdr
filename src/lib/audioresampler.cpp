@@ -10,7 +10,7 @@ AudioResampler::AudioResampler(double rate):
 }
 
 AudioResampler::AudioResampler(unsigned int inputRate, unsigned int outputRate):
-    rate((double) outputRate / inputRate)
+    AudioResampler((double) outputRate / inputRate)
 {}
 
 AudioResampler::~AudioResampler() {
