@@ -2,9 +2,13 @@
 
 using namespace Csdr;
 
-FirDecimate::FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window):
+FirDecimate::FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window, float cutoff):
     decimation(decimation),
-    lowpass(new LowPassFilter<complex<float>>(0.5f / (float) decimation, transitionBandwidth, window))
+    lowpass(new LowPassFilter<complex<float>>(cutoff / (float) decimation, transitionBandwidth, window))
+{}
+
+FirDecimate::FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window):
+    FirDecimate(decimation, transitionBandwidth, window, 0.5f)
 {}
 
 FirDecimate::~FirDecimate() {

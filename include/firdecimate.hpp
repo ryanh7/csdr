@@ -9,6 +9,7 @@ namespace Csdr {
 
     class FirDecimate: public Module<complex<float>, complex<float>> {
         public:
+            FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window, float cutoff);
             FirDecimate(unsigned int decimation, float transitionBandwidth, Window* window);
             ~FirDecimate() override;
             bool canProcess() override;
