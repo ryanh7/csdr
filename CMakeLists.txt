@@ -26,7 +26,7 @@ pkg_check_modules(FFTW3 REQUIRED fftw3f)
 
 include(cmake/DetectIfunc.cmake)
 
-find_package(SampleRate REQUIRED)
+pkg_check_modules(SAMPLERATE REQUIRED samplerate)
 
 if(NOT DEFINED CSDR_GPL)
     set(CSDR_GPL true)
