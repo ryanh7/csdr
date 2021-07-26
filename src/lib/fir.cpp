@@ -55,19 +55,8 @@ size_t FirFilter<T, U>::getOverhead() {
 
 template<typename T, typename U>
 void FirFilter<T, U>::allocateTaps(size_t length) {
-#ifdef NEON_OPTS
-#define NEON_ALIGNMENT (4 * 4 * 2)
-    size_t padded_taps_length = length;
-    padded_taps_length = length + (NEON_ALIGNMENT / 4) -1 - ((length + (NEON_ALIGNMENT / 4) - 1) % (NEON_ALIGNMENT / 4));
-
-    taps = (U*) malloc((padded_taps_length + NEON_ALIGNMENT) * sizeof(U));
-    taps = (U*) ((((size_t) taps) + NEON_ALIGNMENT - 1) & ~(NEON_ALIGNMENT - 1));
-    for (int i = 0; i < padded_taps_length - length; i++) taps[taps_length + i] = 0;
-    taps_length = padded_taps_length;
-#else
     taps = (U*) malloc(length * sizeof(U));
     taps_length = length;
-#endif
 }
 
 template<typename T>
