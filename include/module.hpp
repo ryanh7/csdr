@@ -22,6 +22,8 @@ namespace Csdr {
         public:
             void wait() override;
             void unblock() override;
+        private:
+            Reader<T>* waitingReader = nullptr;
     };
 
     template <typename T, typename U>

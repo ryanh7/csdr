@@ -6,13 +6,15 @@ using namespace Csdr;
 
 template <typename T, typename U>
 void Module<T, U>::wait() {
-    this->getReader()->wait();
+    this->waitingReader = this->getReader();
+    this->waitingReader->wait();
+    this->waitingReader = nullptr;
 }
 
 template <typename T, typename U>
 void Module<T, U>::unblock() {
-    if (this->hasReader()) {
-        this->getReader()->unblock();
+    if (this->waitingReader != nullptr) {
+        this->waitingReader->unblock();
     }
 }
 
