@@ -76,7 +76,7 @@ void Agc<T>::process(T* input, T* output, size_t work_size) {
 
 template <>
 float Agc<short>::abs(short in) {
-    return std::abs((float) in) / SHRT_MAX;
+    return std::fabs((float) in) / SHRT_MAX;
 }
 
 template <>
@@ -86,9 +86,9 @@ bool Agc<short>::isZero(short in) {
 
 template <>
 short Agc<short>::scale(short in) {
-    int val = in * gain;
-    if (val > SHRT_MAX) return SHRT_MAX;
-    if (val < SHRT_MIN) return SHRT_MIN;
+    float val = gain * in;
+    if (val >= SHRT_MAX) return SHRT_MAX;
+    if (val <= SHRT_MIN) return SHRT_MIN;
     return (short) val;
 }
 
