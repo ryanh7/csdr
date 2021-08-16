@@ -22,14 +22,14 @@ void AsyncRunner::stop() {
 
 void AsyncRunner::loop() {
     while (run) {
-        if (module->canProcess()) {
-            module->process();
-        } else {
-            try {
+        try {
+            if (module->canProcess()) {
+                module->process();
+            } else {
                 module->wait();
-            } catch (const BufferError&) {
-                break;
             }
+        } catch (const BufferError&) {
+            break;
         }
     }
 }
