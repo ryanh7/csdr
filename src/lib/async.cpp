@@ -14,10 +14,15 @@ AsyncRunner::~AsyncRunner() {
 }
 
 void AsyncRunner::stop() {
-    if (!run) return;
-    run = false;
-    module->unblock();
+    if (run) {
+        run = false;
+        module->unblock();
+    }
     if (thread.joinable()) thread.join();
+}
+
+bool AsyncRunner::isRunning() const {
+    return run;
 }
 
 void AsyncRunner::loop() {
@@ -29,6 +34,7 @@ void AsyncRunner::loop() {
                 module->wait();
             }
         } catch (const BufferError&) {
+            run = false;
             break;
         }
     }

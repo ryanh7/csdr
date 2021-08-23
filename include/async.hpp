@@ -10,6 +10,7 @@ namespace Csdr {
             explicit AsyncRunner(UntypedModule* module);
             ~AsyncRunner();
             void stop();
+            bool isRunning() const;
         private:
             void loop();
             bool run = true;
