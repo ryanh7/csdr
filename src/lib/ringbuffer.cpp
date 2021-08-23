@@ -193,9 +193,7 @@ void RingbufferReader<T>::wait() {
 
 template <typename T>
 void RingbufferReader<T>::unblock() {
-    if (buffer == nullptr) {
-        throw BufferError("Buffer no longer available");
-    }
+    if (buffer == nullptr) return;
     buffer->unblock();
 }
 
