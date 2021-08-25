@@ -5,6 +5,7 @@
 #include "complex.hpp"
 
 #include <cstdint>
+#include <mutex>
 
 namespace Csdr {
 
@@ -22,6 +23,10 @@ namespace Csdr {
         public:
             void wait() override;
             void unblock() override;
+            void setWriter(Writer<U>* writer) override;
+            void setReader(Reader<T>* reader) override;
+        protected:
+            std::mutex processMutex;
         private:
             Reader<T>* waitingReader = nullptr;
     };

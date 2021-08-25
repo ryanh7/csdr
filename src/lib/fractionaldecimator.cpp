@@ -33,6 +33,7 @@ FractionalDecimator<T>::~FractionalDecimator() {
 
 template <typename T>
 bool FractionalDecimator<T>::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     size_t size = std::min(this->reader->available(), (size_t) ceilf(this->writer->writeable() / rate));
     size_t filterLen = filter != nullptr ? filter->getOverhead() : 0;
     return ceilf(where) + num_poly_points + filterLen < size;
@@ -40,6 +41,7 @@ bool FractionalDecimator<T>::canProcess() {
 
 template <typename T>
 void FractionalDecimator<T>::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     //This routine can handle floating point decimation rates.
     //It applies polynomial interpolation to samples that are taken into consideration from a pre-filtered input.
     //The pre-filter can be switched off by applying filter = nullptr.

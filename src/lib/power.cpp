@@ -8,11 +8,13 @@ using namespace Csdr;
 Power::Power(unsigned int decimation, std::function<void(float)> callback): decimation(decimation), callback(std::move(callback)) {}
 
 bool Power::canProcess() {
+    std::lock_guard<std::mutex> lock(processMutex);
     size_t length = getLength();
-    return (this->reader->available() > length && this->writer->writeable() > length);
+    return (reader->available() > length && writer->writeable() > length);
 }
 
 void Power::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     complex<float>* input = reader->getReadPointer();
     size_t length = getLength();
 

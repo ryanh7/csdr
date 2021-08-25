@@ -18,10 +18,12 @@ AudioResampler::~AudioResampler() {
 }
 
 bool AudioResampler::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > 0 && writer->writeable() > 0;
 }
 
 void AudioResampler::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     SRC_DATA data = {
         .data_in = reader->getReadPointer(),
         .data_out = writer->getWritePointer(),

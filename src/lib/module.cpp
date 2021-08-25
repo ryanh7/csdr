@@ -13,13 +13,27 @@ void Module<T, U>::wait() {
 
 template <typename T, typename U>
 void Module<T, U>::unblock() {
-    if (this->waitingReader != nullptr) {
-        this->waitingReader->unblock();
+    auto r = this->waitingReader;
+    if (r != nullptr) {
+        r->unblock();
     }
 }
 
 template <typename T, typename U>
+void Module<T, U>::setWriter(Writer<U> *writer) {
+    std::lock_guard<std::mutex> lock(processMutex);
+    Source<U>::setWriter(writer);
+}
+
+template <typename T, typename U>
+void Module<T, U>::setReader(Reader<T> *reader) {
+    std::lock_guard<std::mutex> lock(processMutex);
+    Sink<T>::setReader(reader);
+}
+
+template <typename T, typename U>
 bool AnyLengthModule<T, U>::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return getWorkSize() > 0;
 }
 
@@ -30,6 +44,7 @@ size_t AnyLengthModule<T, U>::getWorkSize() {
 
 template <typename T, typename U>
 void AnyLengthModule<T, U>::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     size_t available = getWorkSize();
     process(this->reader->getReadPointer(), this->writer->getWritePointer(), available);
     this->reader->advance(available);
@@ -38,12 +53,14 @@ void AnyLengthModule<T, U>::process() {
 
 template <typename T, typename U>
 bool FixedLengthModule<T, U>::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     size_t length = getLength();
     return (this->reader->available() > length && this->writer->writeable() > length);
 }
 
 template <typename T, typename U>
 void FixedLengthModule<T, U>::process () {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     size_t length = getLength();
     process(this->reader->getReadPointer(), this->writer->getWritePointer());
     this->reader->advance(length);

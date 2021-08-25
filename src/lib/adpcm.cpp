@@ -105,10 +105,12 @@ AdpcmCoder::~AdpcmCoder() {
 AdpcmEncoder::AdpcmEncoder(bool sync): sync(sync) {}
 
 bool AdpcmEncoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() >= 2 && writer->writeable() > 8;
 }
 
 void AdpcmEncoder::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     short* input = reader->getReadPointer();
     unsigned char* output = writer->getWritePointer();
     // clamp to 1000 samples since canProces() only covers one sync frame for us
@@ -132,10 +134,12 @@ void AdpcmEncoder::process() {
 }
 
 bool AdpcmDecoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > 0 && writer->writeable() >= 10;
 }
 
 void AdpcmDecoder::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     unsigned char* input = reader->getReadPointer();
     short* output = writer->getWritePointer();
     size_t size = std::min(reader->available(), writer->writeable() / 2);
@@ -150,10 +154,12 @@ void AdpcmDecoder::process() {
 FftAdpcmEncoder::FftAdpcmEncoder(unsigned int fftSize): fftSize(fftSize) {}
 
 bool FftAdpcmEncoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() >= fftSize && (COMPRESS_FFT_PAD_N + writer->writeable()) / 2 > fftSize;
 }
 
 void FftAdpcmEncoder::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     float* input = reader->getReadPointer();
     unsigned char* output = writer->getWritePointer();
     // FFT always starts with the codec default values

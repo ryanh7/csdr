@@ -19,10 +19,12 @@ Fft::~Fft() {
 }
 
 bool Fft::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return std::min(reader->available(), writer->writeable()) > std::max(fftSize, everyNSamples);
 }
 
 void Fft::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     if (window != nullptr) {
         window->apply(reader->getReadPointer(), windowed, fftSize);
     } else {

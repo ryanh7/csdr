@@ -16,6 +16,7 @@ FirDecimate::~FirDecimate() {
 }
 
 void FirDecimate::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     size_t samples = std::min((reader->available() - lowpass->getOverhead()) / decimation, writer->writeable());
 
     complex<float>* output = writer->getWritePointer();
@@ -28,6 +29,7 @@ void FirDecimate::process() {
 }
 
 bool FirDecimate::canProcess() {
+    std::lock_guard<std::mutex> lock(processMutex);
     size_t available = reader->available();
     size_t writeable = writer->writeable();
     size_t lpLen = lowpass->getOverhead();

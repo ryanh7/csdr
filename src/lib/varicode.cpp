@@ -5,10 +5,12 @@ using namespace Csdr;
 constexpr varicode_item VaricodeDecoder::varicode_items[];
 
 bool VaricodeDecoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > 0 && writer->writeable() > 0;
 }
 
 void VaricodeDecoder::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     unsigned char symbol = *(reader->getReadPointer());
     reader->advance(1);
 

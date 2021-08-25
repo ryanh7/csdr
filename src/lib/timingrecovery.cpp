@@ -10,10 +10,12 @@ TimingRecovery::TimingRecovery(unsigned int decimation, float loop_gain, float m
 {}
 
 bool TimingRecovery::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > (decimation / 2) * 3 && writer->writeable() > 0;
 }
 
 void TimingRecovery::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     //We always assume that the input starts at center of the first symbol cross before the first symbol.
     //Last time we consumed that much from the input samples that it is there.
     unsigned int num_samples_bit = decimation;

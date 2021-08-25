@@ -32,22 +32,25 @@ FilterModule<T>::FilterModule(Filter<T> *filter): filter(filter) {}
 
 template <typename T>
 FilterModule<T>::~FilterModule() {
-    delete this->filter;
+    delete filter;
 }
 
 template <typename T>
 void FilterModule<T>::setFilter(Filter<T>* filter) {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     delete this->filter;
     this->filter = filter;
 }
 
 template <typename T>
 bool FilterModule<T>::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return this->reader->available() > filter->getMinProcessingSize() + filter->getOverhead() && this->writer->writeable() > filter->getMinProcessingSize();
 }
 
 template <typename T>
 void FilterModule<T>::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     T* input = this->reader->getReadPointer();
     T* output = this->writer->getWritePointer();
     size_t size = std::min(this->reader->available() - filter->getOverhead(), this->writer->writeable());

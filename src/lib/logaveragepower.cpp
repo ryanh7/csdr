@@ -20,10 +20,12 @@ void LogAveragePower::setAvgNumber(unsigned int avgNumber) {
 }
 
 bool LogAveragePower::canProcess() {
+    std::lock_guard<std::mutex> lock(processMutex);
     return reader->available() > fftSize && writer->writeable() > fftSize;
 }
 
 void LogAveragePower::process() {
+    std::lock_guard<std::mutex> lock(processMutex);
     complex<float>* input = reader->getReadPointer();
     for (int i = 0; i < fftSize; i++) {
         collector[i] += std::norm(input[i]);
