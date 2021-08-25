@@ -12,11 +12,11 @@ namespace Csdr {
     class FftFilter: public Filter<T> {
         public:
             FftFilter(size_t fftSize, complex<float>* taps, size_t taps_length);
-            ~FftFilter();
+            ~FftFilter() override;
             size_t apply(T* input, T* output, size_t size) override;
             size_t getMinProcessingSize() override { return inputSize; }
         protected:
-            FftFilter(size_t fftSize);
+            explicit FftFilter(size_t fftSize);
             static size_t filterLength(float transition);
             static size_t getFftSize(size_t taps_length);
             complex<float>* taps;
