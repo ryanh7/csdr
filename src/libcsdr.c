@@ -864,14 +864,14 @@ void rational_resampler_get_lowpass_f(float* output, int output_size, int interp
     firdes_lowpass_f(output, output_size, cutoff/2, window);
 }
 
-float inline fir_one_pass_ff(float* input, float* taps, int taps_length)
+static inline float fir_one_pass_ff(float* input, float* taps, int taps_length)
 {
     float acc=0;
     for(int i=0;i<taps_length;i++) acc+=taps[i]*input[i]; //@fir_one_pass_ff
     return acc;
 }
 
-complexf inline fir_one_pass_cc(complexf* input, float* taps, int taps_length)
+static inline complexf fir_one_pass_cc(complexf* input, float* taps, int taps_length)
 {
     complexf acc = {0, 0};
     for(int i=0;i<taps_length;i++) {

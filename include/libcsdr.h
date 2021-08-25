@@ -100,9 +100,6 @@ void amdemod_cf(complexf* input, float *output, int input_size);
 void amdemod_estimator_cf(complexf* input, float *output, int input_size, float alpha, float beta);
 void limit_ff(float* input, float* output, int input_size, float max_amplitude);
 
-//filters, decimators, resamplers, shift, etc.
-float fir_one_pass_ff(float* input, float* taps, int taps_length);
-
 typedef struct fir_decimate_s {
     int decimation;
     float transition_bw;
