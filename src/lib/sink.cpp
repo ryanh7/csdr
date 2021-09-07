@@ -25,6 +25,7 @@ bool Sink<T>::hasReader() {
 namespace Csdr {
     template class Sink<short>;
     template class Sink<float>;
+    template class Sink<complex<short>>;
     template class Sink<complex<float>>;
     template class Sink<unsigned char>;
 }

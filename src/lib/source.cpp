@@ -83,11 +83,13 @@ void TcpSource<T>::stop() {
 namespace Csdr {
     template class Source<float>;
     template class Source<short>;
+    template class Source<complex<short>>;
     template class Source<complex<float>>;
     template class Source<unsigned char>;
 
     template class TcpSource<unsigned char>;
     template class TcpSource<short>;
     template class TcpSource<float>;
+    template class TcpSource<complex<short>>;
     template class TcpSource<complex<float>>;
 }
