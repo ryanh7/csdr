@@ -6,14 +6,14 @@ using namespace Csdr;
 
 template <typename T, typename U>
 void Module<T, U>::wait() {
-    this->waitingReader = this->getReader();
-    this->waitingReader->wait();
-    this->waitingReader = nullptr;
+    waitingReader = this->getReader();
+    waitingReader->wait();
+    waitingReader = nullptr;
 }
 
 template <typename T, typename U>
 void Module<T, U>::unblock() {
-    auto r = this->waitingReader;
+    auto r = waitingReader;
     if (r != nullptr) {
         r->unblock();
     }
@@ -29,6 +29,7 @@ template <typename T, typename U>
 void Module<T, U>::setReader(Reader<T> *reader) {
     std::lock_guard<std::mutex> lock(processMutex);
     Sink<T>::setReader(reader);
+    if (reader != waitingReader) waitingReader = nullptr;
 }
 
 template <typename T, typename U>
