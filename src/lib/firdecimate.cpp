@@ -17,7 +17,15 @@ FirDecimate::~FirDecimate() {
 
 void FirDecimate::process() {
     std::lock_guard<std::mutex> lock(processMutex);
-    size_t samples = std::min((reader->available() - lowpass->getOverhead()) / decimation, writer->writeable());
+    size_t available = reader->available();
+    size_t writeable = writer->writeable();
+    size_t lpLen = lowpass->getOverhead();
+
+    // sanity check
+    // if this condition is not met, the calculation below produces impossible results due to negative numbers
+    if (available < lpLen) return;
+
+    size_t samples = std::min((available - lpLen) / decimation, writeable);
 
     complex<float>* output = writer->getWritePointer();
     SparseView<complex<float>> sparseView = lowpass->sparse(reader->getReadPointer());
