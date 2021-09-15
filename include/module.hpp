@@ -21,6 +21,7 @@ namespace Csdr {
     template <typename T, typename U>
     class Module: public UntypedModule, public Sink<T>, public Source<U> {
         public:
+            ~Module();
             void wait() override;
             void unblock() override;
             void setWriter(Writer<U>* writer) override;

@@ -5,6 +5,11 @@
 using namespace Csdr;
 
 template <typename T, typename U>
+Module<T, U>::~Module() {
+    std::lock_guard<std::mutex> lock(processMutex);
+}
+
+template <typename T, typename U>
 void Module<T, U>::wait() {
     waitingReader = this->getReader();
     waitingReader->wait();
