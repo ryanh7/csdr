@@ -51,9 +51,18 @@ bool FilterModule<T>::canProcess() {
 template <typename T>
 void FilterModule<T>::process() {
     std::lock_guard<std::mutex> lock(this->processMutex);
+    size_t available = this->reader->available();
+    size_t writeable = this->writer->writeable();
+    size_t filterOverhead = filter->getOverhead();
+
+    // sanity check
+    // if this condition is not met, the calculation below produces impossible results due to negative numbers
+    if (available < filterOverhead) return;
+
+    size_t size = std::min(available - filterOverhead, writeable);
+
     T* input = this->reader->getReadPointer();
     T* output = this->writer->getWritePointer();
-    size_t size = std::min(this->reader->available() - filter->getOverhead(), this->writer->writeable());
     size = filter->apply(input, output, size);
     this->reader->advance(size);
     this->writer->advance(size);
