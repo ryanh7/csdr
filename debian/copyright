@@ -1,5 +1,5 @@
 Copyright (c) 2014-2019 András Retzler
-Copyright (c) 2019 Jakob Ketterl
+Copyright (c) 2019-2021 Jakob Ketterl
 
 Most of the code of libcsdr is under BSD license.
 However, before the implementation of some algoritms, GPL-licensed code from

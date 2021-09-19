@@ -3,6 +3,7 @@ This file is part of libcsdr.
 
 	Copyright (c) Andras Retzler, HA7ILM <randras@sdr.hu>
 	Copyright (c) Warren Pratt, NR0V <warren@wpratt.com>
+    Copyright (c) Jakob Ketterl, DD5JFK <jakob.ketterl@gmx.de>
 	Copyright 2006,2010,2012 Free Software Foundation, Inc.
 
     libcsdr is free software: you can redistribute it and/or modify
