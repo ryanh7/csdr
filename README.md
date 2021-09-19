@@ -1523,8 +1523,4 @@ The repo also contains a command line tool called `nmux`, which is a TCP stream 
 
 ## [Licensing](#licensing)
 
-Most of the code of `libcsdr` is under BSD license.  
-However, before the implementation of some algoritms, GPL-licensed code from other applications have been reviewed.
-In order to eliminate any licesing issues, these parts are placed under a different file.
-However, the library is still fully functional with BSD-only code, altough having only less-optimized versions of some algorithms.  
-It should also be noted that if you compile with `-DUSE_FFTW` and `-DLIBCSDR_GPL` (as default), the GPL license would apply on the whole result.
+The code in this library is under mixed license, with parts being provided under BSD and other parts under GPL license. Please see the individual files for details.
