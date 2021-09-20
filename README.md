@@ -31,6 +31,7 @@ cd build
 cmake ..
 make
 sudo make install
+sudo ldconfig
 ```
 
 The project was only tested on Linux. It has the following dependencies: `libfftw3-dev`, `libsamplerate-dev`
