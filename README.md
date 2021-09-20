@@ -33,7 +33,7 @@ make
 sudo make install
 ```
 
-The project was only tested on Linux. It has the following dependencies: `libfftw3-dev`
+The project was only tested on Linux. It has the following dependencies: `libfftw3-dev`, `libsamplerate-dev`
 
 To run the examples, you will also need <a href="http://sdr.osmocom.org/trac/wiki/rtl-sdr">rtl_sdr</a> from Osmocom, and the following packages (at least on Debian): `mplayer octave gnuplot gnuplot-x11`
 
