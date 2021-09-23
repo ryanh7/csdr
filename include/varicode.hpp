@@ -177,7 +177,6 @@ namespace Csdr {
                 { .code = 0b1011010111, .bitcount=10,   .ascii=0x7e }, //~
                 { .code = 0b1110110101, .bitcount=10,   .ascii=0x7f }, //DEL
             };
-            static constexpr size_t varicode_item_count = sizeof(varicode_items) / sizeof(varicode_item);
     };
 
 }
