@@ -21,8 +21,6 @@ along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#include <iostream>
-
 using namespace Csdr;
 
 Fft::Fft(unsigned int fftSize, unsigned int everyNSamples, Window* window): fftSize(fftSize), everyNSamples(everyNSamples) {
@@ -78,6 +76,5 @@ void Fft::process() {
 }
 
 void Fft::setEveryNSamples(unsigned int everyNSamples) {
-    std::cerr << "Fft::setEveryNSamples(" << everyNSamples << ")\n";
     this->everyNSamples = everyNSamples;
 }
