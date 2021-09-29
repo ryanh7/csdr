@@ -20,6 +20,7 @@ Description: development dependencies includes for libcsdr
 Package: csdr
 Architecture: any
 Depends: libcsdr0 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Recommends: nmux (=${binary:Version})
 Description: command-line sdr
  A simple DSP command-line tool for Software Defined Radio.
 
