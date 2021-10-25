@@ -62,7 +62,7 @@ FirFilter<float, float>* NfmDeephasis::getFilter(unsigned int sampleRate) {
         case 11025:
             return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_11025, 79);
         case 12000:
-            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_44100, 79);
+            return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_12000, 79);
         case 44100:
             return new FirFilter<float, float>(deemphasis_nfm_predefined_fir_44100, 199);
         case 48000:
