@@ -235,6 +235,9 @@ namespace Csdr {
     template class Ringbuffer<float>;
     template class RingbufferReader<float>;
 
+    template class Ringbuffer<complex<unsigned char>>;
+    template class RingbufferReader<complex<unsigned char>>;
+
     template class Ringbuffer<complex<short>>;
     template class RingbufferReader<complex<short>>;
 
