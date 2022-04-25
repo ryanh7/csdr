@@ -29,9 +29,14 @@ Module<T, U>::~Module() {
 }
 
 template <typename T, typename U>
-void Module<T, U>::wait() {
+void Module<T, U>::wait(std::unique_lock<std::mutex>& lock) {
     waitingReader = this->getReader();
+
+    // we are in a consistent state, so we can unlock during the blocking op
+    lock.unlock();
     waitingReader->wait();
+    lock.lock();
+
     waitingReader = nullptr;
 }
 

@@ -21,6 +21,7 @@ along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "module.hpp"
 #include <thread>
+#include <mutex>
 
 namespace Csdr {
 
@@ -34,6 +35,10 @@ namespace Csdr {
             void loop();
             bool run = true;
             UntypedModule*  module;
+            std::mutex stateMutex;
+            // any members that will be used by the thread must come above the thread itself in the member list here
+            // C++ initializes the member variables in this order, so this ensures that members are available as soon
+            // as the thread starts working
             std::thread thread;
     };
 

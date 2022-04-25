@@ -32,11 +32,18 @@ AsyncRunner::~AsyncRunner() {
 }
 
 void AsyncRunner::stop() {
-    if (run) {
-        run = false;
-        module->unblock();
+    {
+        std::lock_guard<std::mutex> lock(stateMutex);
+        if (run) {
+            run = false;
+            module->unblock();
+        }
     }
-    if (thread.joinable()) thread.join();
+    try {
+        thread.join();
+    } catch (std::system_error&) {
+        // NOOP - thread is not joinable
+    }
 }
 
 bool AsyncRunner::isRunning() const {
@@ -44,12 +51,20 @@ bool AsyncRunner::isRunning() const {
 }
 
 void AsyncRunner::loop() {
-    while (run) {
+    // can't use run as a loop condition due to the locking system
+    while (true) {
+
+        // the lock must be obtained before checking the condition, but it must be released before looping to be able to stop
+        std::unique_lock<std::mutex> lock(stateMutex);
+
+        if (!run) return;
+
         try {
             if (module->canProcess()) {
                 module->process();
             } else {
-                module->wait();
+                // lock will be released and re-locked during blocking operation by the wait() method
+                module->wait(lock);
             }
         } catch (const BufferError&) {
             run = false;

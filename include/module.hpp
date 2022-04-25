@@ -33,7 +33,7 @@ namespace Csdr {
             virtual ~UntypedModule() = default;
             virtual bool canProcess() = 0;
             virtual void process() = 0;
-            virtual void wait() = 0;
+            virtual void wait(std::unique_lock<std::mutex>& lock) = 0;
             virtual void unblock() = 0;
     };
 
@@ -41,7 +41,7 @@ namespace Csdr {
     class Module: public UntypedModule, public Sink<T>, public Source<U> {
         public:
             ~Module();
-            void wait() override;
+            void wait(std::unique_lock<std::mutex>& lock) override;
             void unblock() override;
             void setWriter(Writer<U>* writer) override;
             void setReader(Reader<T>* reader) override;
