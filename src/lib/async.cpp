@@ -61,6 +61,9 @@ void AsyncRunner::loop() {
 
         try {
             if (module->canProcess()) {
+                // don't hold the lock during the actual processing since that may cause deadlocks
+                // we should be safe during this period as far as state is concerned
+                lock.unlock();
                 module->process();
             } else {
                 // lock will be released and re-locked during blocking operation by the wait() method
