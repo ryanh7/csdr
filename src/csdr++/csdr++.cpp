@@ -38,6 +38,7 @@ int Cli::main(int argc, char** argv) {
     CLI::App app;
 
     CLI::Option* version_flag = app.add_flag("-v,--version", "Display version information");
+    app.add_flag("-a,--async", "run asynchronously");
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new AgcCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new FmdemodCommand()));

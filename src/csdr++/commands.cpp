@@ -56,7 +56,10 @@ void Command::runModule(Module<T, U>* module) {
     auto writer = new StdoutWriter<U>();
     module->setWriter(writer);
 
-    auto runner = new AsyncRunner(module);
+    AsyncRunner* runner = nullptr;
+    if (*get_parent()->get_option("--async")) {
+        runner = new AsyncRunner(module);
+    }
 
     fd_set read_fds;
     struct timeval tv = { .tv_sec = 10, .tv_usec = 0};
@@ -109,6 +112,11 @@ void Command::runModule(Module<T, U>* module) {
                 // advance but don't go into partially read elements
                 buffer->advance((bytes_read + read_over) / sizeof(T));
                 read_over = (bytes_read + read_over) % sizeof(T);
+
+                // synchronous processing if we are not in async mode
+                if (runner == nullptr) {
+                    while (module->canProcess()) module->process();
+                }
             }
         //} else {
             // no data, just timeout.
