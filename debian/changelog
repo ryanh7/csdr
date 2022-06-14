@@ -1,4 +1,4 @@
-csdr (0.18.0) UNRELEASED; urgency=low
+csdr (0.18.0) bullseye jammy; urgency=low
 
   * Complete architectural overhaul to introduce a common interface for the
     individual modules
