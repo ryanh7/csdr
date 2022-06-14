@@ -25,13 +25,13 @@ Files: CMakeLists.txt
  include/writer.hpp
  src/CMakeLists.txt
  src/Config.cmake.in
- src/csdr.pc.in
- src/fmv.h
  src/csdr++/CMakeLists.txt
  src/csdr++/commands.cpp
  src/csdr++/commands.hpp
  src/csdr++/csdr++.cpp
  src/csdr++/csdr++.hpp
+ src/csdr.pc.in
+ src/fmv.h
  src/lib/CMakeLists.txt
  src/lib/amdemod.cpp
  src/lib/async.cpp
@@ -53,8 +53,12 @@ Files: CMakeLists.txt
  src/lib/source.cpp
  src/lib/version.cpp
  src/lib/writer.cpp
-Copyright: 2021, Jakob Ketterl <jakob.ketterl@gmx.de>
-License: GPL-3+
+ src/nmux/CMakeLists.txt
+Copyright: 2020-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2021, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2021-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
+ License: GPL-3+
+
 
 Files: include/benchmark.hpp
  include/dbpsk.hpp
@@ -88,7 +92,6 @@ Files: include/benchmark.hpp
  src/lib/varicode.cpp
  src/lib/window.cpp
  src/libcsdr.c
- src/nmux/CMakeLists.txt
 Copyright: 2014, Andras Retzler <randras@sdr.hu>
   2014-2015, Andras Retzler <randras@sdr.hu>
   2019-2021, Jakob Ketterl <jakob.ketterl@gmx.de>
