@@ -4,7 +4,7 @@ csdr (0.18.0) bullseye jammy; urgency=low
     individual modules
   * New command-line tool "csdr++" for use with the new module interface
 
- -- Jakob Ketterl <jakob.ketterl@gmx.de>  Sun, 11 Oct 2020 21:00:00 +0000
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Tue, 14 Jun 2022 19:24:00 +0000
 
 csdr (0.17.1) hirsute; urgency=low
 
