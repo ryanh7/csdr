@@ -57,7 +57,7 @@ Files: CMakeLists.txt
 Copyright: 2020-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
   2021, Jakob Ketterl <jakob.ketterl@gmx.de>
   2021-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
- License: GPL-3+
+License: GPL-3+
 
 
 Files: include/benchmark.hpp
