@@ -59,7 +59,6 @@ Copyright: 2020-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
   2021-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: GPL-3+
 
-
 Files: include/benchmark.hpp
  include/dbpsk.hpp
  include/dcblock.hpp
