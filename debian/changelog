@@ -1,3 +1,7 @@
+csdr (0.19.0) UNRELEASED; urgency=low
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Thu, 16 Jun 2022 17:33:00 +0000
+
 csdr (0.18.0) bullseye jammy; urgency=low
 
   * Complete architectural overhaul to introduce a common interface for the
