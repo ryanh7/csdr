@@ -1,3 +1,9 @@
+csdr (0.18.1) bullseye jammy; urgency=low
+
+  * Fix a potential race condition on Csdr::TcpSource shutdown
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Tue, 20 Sep 2022 15:15:00 +0000
+
 csdr (0.18.0) bullseye jammy; urgency=low
 
   * Complete architectural overhaul to introduce a common interface for the
