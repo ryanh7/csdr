@@ -436,6 +436,6 @@ The repo also contains a command line tool called `nmux`, which is a TCP stream 
 
 `nmux` was originally written for use in OpenWebRX.
 
-## [Licensing](#licensing)
+## Licensing
 
 The code in this library is under mixed license, with parts being provided under BSD and other parts under GPL license. Please see the individual files for details.
