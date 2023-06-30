@@ -26,13 +26,13 @@ Files: CMakeLists.txt
  include/writer.hpp
  src/CMakeLists.txt
  src/Config.cmake.in
- src/csdr++/CMakeLists.txt
- src/csdr++/commands.cpp
- src/csdr++/commands.hpp
- src/csdr++/csdr++.cpp
- src/csdr++/csdr++.hpp
+ src/apps/CMakeLists.txt
+ src/apps/csdr/CMakeLists.txt
+ src/apps/csdr/commands.cpp
+ src/apps/csdr/commands.hpp
+ src/apps/csdr/csdr.cpp
+ src/apps/csdr/csdr.hpp
  src/csdr.pc.in
- src/fmv.h
  src/lib/CMakeLists.txt
  src/lib/amdemod.cpp
  src/lib/async.cpp
@@ -55,11 +55,11 @@ Files: CMakeLists.txt
  src/lib/source.cpp
  src/lib/version.cpp
  src/lib/writer.cpp
- src/nmux/CMakeLists.txt
-Copyright: 2020-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
-  2021, Jakob Ketterl <jakob.ketterl@gmx.de>
-  2021-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
+ src/apps/nmux/CMakeLists.txt
+Copyright: 2020-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2021-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
   2019-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2023, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: GPL-3+
 
 Files: include/benchmark.hpp
@@ -94,27 +94,19 @@ Files: include/benchmark.hpp
  src/libcsdr.c
 Copyright: 2014, Andras Retzler <randras@sdr.hu>
   2014-2015, Andras Retzler <randras@sdr.hu>
-  2019-2021, Jakob Ketterl <jakob.ketterl@gmx.de>
-  2021, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2019-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2021-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: BSD-3-clause
 
-Files: src/fastddc.h
- src/fft_fftw.c
- src/fft_fftw.h
- src/nmux/nmux.h
- src/nmux/tsmpool.cpp
- src/nmux/tsmpool.h
- src/shims.h
+Files: src/apps/nmux/nmux.h
+ src/apps/nmux/tsmpool.cpp
+ src/apps/nmux/tsmpool.h
+ src/apps/nmux/shims.h
 Copyright: UNKNOWN
 License: UNKNOWN
 
-Files: src/benchmark.c
- src/benchmark.h
- src/csdr.c
- src/fastddc.c
- src/lib/predefined.h
- src/nmux/nmux.cpp
- src/predefined.h
+Files: src/lib/predefined.h
+ src/apps/nmux/nmux.cpp
 Copyright: 2014, Andras Retzler <randras@sdr.hu>
   2014-2015, Andras Retzler <randras@sdr.hu>
 License: BSD-3-clause
@@ -137,7 +129,7 @@ Copyright: 1992, Stichting Mathematisch Centrum, Amsterdam, The
   2021, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: BSD-3-clause and/or BSD-4-clause
 
-Files: src/csdr++/CLI11.hpp
+Files: src/csdr/CLI11.hpp
 Copyright: 2017-2019, University of Cincinnati, developed by Henry
 License: BSD-3-clause
 
