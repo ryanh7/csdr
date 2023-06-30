@@ -2,6 +2,7 @@ Source: csdr
 Maintainer: Jakob Ketterl <jakob.ketterl@gmx.de>
 Section: hamradio
 Priority: optional
+Rules-Requires-Root: no
 Standards-Version: 4.3.0
 Build-Depends: debhelper (>= 10), libfftw3-dev (>= 3.3), libsamplerate0-dev (>= 0.1.8)
 
