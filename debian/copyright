@@ -70,7 +70,6 @@ Files: include/benchmark.hpp
  include/fir.hpp
  include/fmdemod.hpp
  include/fractionaldecimator.hpp
- include/libcsdr.h
  include/logaveragepower.hpp
  include/logpower.hpp
  include/shift.hpp
@@ -91,7 +90,6 @@ Files: include/benchmark.hpp
  src/lib/timingrecovery.cpp
  src/lib/varicode.cpp
  src/lib/window.cpp
- src/libcsdr.c
 Copyright: 2014, Andras Retzler <randras@sdr.hu>
   2014-2015, Andras Retzler <randras@sdr.hu>
   2019-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
@@ -113,8 +111,6 @@ License: BSD-3-clause
 
 Files: include/agc.hpp
  src/lib/agc.cpp
- src/libcsdr_gpl.c
- src/libcsdr_gpl.h
 Copyright: 2006, 2010, 2012, Free Software Foundation, Inc.
   Andras Retzler, HA7ILM <randras@sdr.hu>
   Jakob Ketterl, DD5JFK <jakob.ketterl@gmx.de>
@@ -129,15 +125,9 @@ Copyright: 1992, Stichting Mathematisch Centrum, Amsterdam, The
   2021, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: BSD-3-clause and/or BSD-4-clause
 
-Files: src/csdr/CLI11.hpp
+Files: src/apps/csdr/CLI11.hpp
 Copyright: 2017-2019, University of Cincinnati, developed by Henry
 License: BSD-3-clause
-
-Files: src/ima_adpcm.c
-Copyright: 1992, Stichting Mathematisch Centrum, Amsterdam, The
-  1997, Tim Kientzle.
-  2015, Andras Retzler <randras@sdr.hu>
-License: BSD-3-clause and/or BSD-4-clause
 
 Files: LICENSE-GPL
 Copyright: 2007, Free Software Foundation, Inc. <https:fsf.org/>
