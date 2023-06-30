@@ -8,6 +8,7 @@ Files: CMakeLists.txt
  include/audioresampler.hpp
  include/complex.hpp
  include/converter.hpp
+ include/dcblock.hpp
  include/downmix.hpp
  include/fft.hpp
  include/filter.hpp
@@ -37,6 +38,7 @@ Files: CMakeLists.txt
  src/lib/async.cpp
  src/lib/audioresampler.cpp
  src/lib/converter.cpp
+ src/lib/dcblock.cpp
  src/lib/downmix.cpp
  src/lib/fft.cpp
  src/lib/filter.cpp
@@ -57,11 +59,11 @@ Files: CMakeLists.txt
 Copyright: 2020-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
   2021, Jakob Ketterl <jakob.ketterl@gmx.de>
   2021-2022, Jakob Ketterl <jakob.ketterl@gmx.de>
+  2019-2023, Jakob Ketterl <jakob.ketterl@gmx.de>
 License: GPL-3+
 
 Files: include/benchmark.hpp
  include/dbpsk.hpp
- include/dcblock.hpp
  include/deemphasis.hpp
  include/fftexchangesides.hpp
  include/fftfilter.hpp
@@ -77,7 +79,6 @@ Files: include/benchmark.hpp
  include/window.hpp
  src/lib/benchmark.cpp
  src/lib/dbpsk.cpp
- src/lib/dcblock.cpp
  src/lib/deemphasis.cpp
  src/lib/fftexchangesides.cpp
  src/lib/fftfilter.cpp
