@@ -14,7 +14,7 @@ Description: simple library for software defined radio
 
 Package: libcsdr-dev
 Architecture: any
-Depends: libcsdr0 (=${binary:Version}), libfftw3-dev (>= 3.3), libsamplerate0-dev (>= 0.1.8), ${shlibs:Depends}, ${misc:Depends}
+Depends: libcsdr0 (=${binary:Version}), libfftw3-dev (>= 3.3), libsamplerate0-dev (>= 0.1.8), ${misc:Depends}
 Description: development dependencies includes for libcsdr
  A simple DSP library for Software Defined Radio.
 
