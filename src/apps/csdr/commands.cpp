@@ -205,8 +205,8 @@ DcBlockCommand::DcBlockCommand(): Command("dcblock", "DC block") {
 }
 
 ConvertCommand::ConvertCommand(): Command("convert", "Convert between stream formats") {
-    add_set("-i,--informat", inFormat, {"s16", "float"}, "Input data format", true);
-    add_set("-o,--outformat", outFormat, {"s16", "float"}, "Output data format", true);
+    add_set("-i,--informat", inFormat, {"s16", "float", "char"}, "Input data format", true);
+    add_set("-o,--outformat", outFormat, {"s16", "float", "char"}, "Output data format", true);
     callback( [this] () {
         if (inFormat == outFormat) {
             std::cerr << "input and output format are identical, cannot convert\n";
@@ -221,6 +221,14 @@ ConvertCommand::ConvertCommand(): Command("convert", "Convert between stream for
         } else if (inFormat == "float") {
             if (outFormat == "s16") {
                 runModule(new Converter<float, short>());
+            } else if (outFormat == "char") {
+                runModule(new Converter<float, unsigned char>());
+            } else {
+                std::cerr << "unable to handle output format \"" << outFormat << "\"\n";
+            }
+        } else if (inFormat == "char") {
+            if (outFormat == "float") {
+                runModule(new Converter<unsigned char, float>());
             } else {
                 std::cerr << "unable to handle output format \"" << outFormat << "\"\n";
             }
