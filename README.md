@@ -58,7 +58,7 @@ Usage by example
     rtl_sdr -s 240000 -f 89500000 -g 20 - | csdr convert -i char -o float | csdr fmdemod | csdr fractionaldecimator 5 | csdr deemphasis --wfm 48000 50e-6 | csdr convert -i float -o s16 | mplayer -cache 1024 -quiet -rawaudio samplesize=2:channels=1:rate=48000 -demuxer rawaudio -
 
 - Baseband I/Q signal is coming from an RTL-SDR USB dongle, with a center frequency of `-f 104300000` Hz, a sampling rate of `-s 240000` samples per second.
-- The `rtl_sdr` tool outputs an unsigned 8-bit I/Q signal (one byte of I sample and one byte of Q coming after each other), but `libcsdr` DSP routines internally use floating point data type, so we convert the data stream of `unsigned char` to `float` by `csdr convert_u8_f`.
+- The `rtl_sdr` tool outputs an unsigned 8-bit I/Q signal (one byte of I sample and one byte of Q coming after each other), but `libcsdr` DSP routines internally use floating point data type, so we convert the data stream of `unsigned char` to `float` by `csdr convert`.
 - We want to listen one radio station at the frequency `-f 89500000` Hz (89.5 MHz).
 - No other radio station is within the sampled bandwidth, so we send the signal directly to the demodulator. (This is an easy, but not perfect solution as the anti-aliasing filter at RTL-SDR DDC is too short.)
 - After FM demodulation we decimate the signal by a factor of 5 to match the rate of the audio card (240000 / 5 = 48000).
@@ -301,7 +301,7 @@ It performs an FFT on the first `fft_size` samples out of `every_n_samples`, thu
 
 ----
 
-### logpower_cf
+### logpower
 
 Syntax: 
 
@@ -317,7 +317,7 @@ Syntax:
 
     csdr adpcm <--encode|--decode> [--sync]
 
-Encodes or decodes an ADPCM audio stream, which decreases the size to 25% of the original.
+Encodes or decodes an ADPCM audio stream. An ADPCM audio stream uses only 25% of the bandwidth compared to the original.
 
 Can optionally embed proprietary synchronization frames with `--sync` (used in OpenWebRX).
 
