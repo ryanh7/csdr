@@ -19,7 +19,7 @@ along with libcsdr.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <csdr/module.hpp>
+#include "module.hpp"
 
 namespace Csdr {
 
