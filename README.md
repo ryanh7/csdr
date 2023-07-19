@@ -22,8 +22,13 @@ This animation shows the Gardner timing recovery algorithm in `csdr` locking on 
 
 (The symbol is sampled at the left red dot. The algorithm moves the middle dot as close to the symbol transition center, as possible.)
 
-How to compile
---------------
+Installation
+------------
+
+The OpenWebRX project is hosting csdr packages in their repositories. Please click the respective link for [Debian](https://www.openwebrx.de/download/debian.php) or [Ubuntu](https://www.openwebrx.de/download/ubuntu.php).
+
+How to compile from source
+--------------------------
 
 ```
 mkdir build
