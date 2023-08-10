@@ -16,6 +16,7 @@ Files: CMakeLists.txt
  include/gain.hpp
  include/limit.hpp
  include/module.hpp
+ include/phasedemod.hpp
  include/power.hpp
  include/reader.hpp
  include/realpart.hpp
@@ -47,6 +48,7 @@ Files: CMakeLists.txt
  src/lib/gain.cpp
  src/lib/limit.cpp
  src/lib/module.cpp
+ src/lib/phasedemod.cpp
  src/lib/power.cpp
  src/lib/reader.cpp
  src/lib/realpart.cpp

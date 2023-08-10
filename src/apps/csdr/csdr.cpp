@@ -65,6 +65,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new VaricodeDecoderCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new TimingRecoveryCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new NoiseCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new Phasedemodcommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 

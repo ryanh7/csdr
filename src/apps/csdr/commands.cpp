@@ -41,6 +41,7 @@ along with csdr.  If not, see <https://www.gnu.org/licenses/>.
 #include "varicode.hpp"
 #include "timingrecovery.hpp"
 #include "noise.hpp"
+#include "phasedemod.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -585,5 +586,11 @@ TimingRecoveryCommand::TimingRecoveryCommand(): Command("timingrecovery", "Timin
 NoiseCommand::NoiseCommand(): Command("noise", "Noise generator") {
     callback([this] () {
         runSource(new NoiseSource<complex<float>>());
+    });
+}
+
+Phasedemodcommand::Phasedemodcommand(): Command("phasedemod", "Phase demodulation") {
+    callback([this] () {
+        runModule(new PhaseDemod());
     });
 }

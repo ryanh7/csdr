@@ -259,4 +259,9 @@ namespace Csdr {
             NoiseCommand();
     };
 
+    class Phasedemodcommand: public Command {
+        public:
+            Phasedemodcommand();
+    };
+
 }
