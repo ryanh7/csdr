@@ -3,7 +3,7 @@ This software is part of libcsdr, a set of simple DSP routines for
 Software Defined Radio.
 
 Copyright (c) 2014, Andras Retzler <randras@sdr.hu>
-Copyright (c) 2019-2021 Jakob Ketterl <jakob.ketterl@gmx.de>
+Copyright (c) 2019-2023 Jakob Ketterl <jakob.ketterl@gmx.de>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace Csdr {
 
-    class TimingRecovery: public Module<complex<float>, complex<float>> {
+    template <typename T>
+    class TimingRecovery: public Module<T, T> {
         public:
-            explicit TimingRecovery(unsigned int decimation, float loop_gain = 0.5f, float max_error = 2.0f, bool use_q = false);
+            explicit TimingRecovery(unsigned int decimation, float loop_gain = 0.5f, float max_error = 2.0f);
             void process() override;
             bool canProcess() override;
         protected:
@@ -50,20 +51,21 @@ namespace Csdr {
         private:
             float loop_gain;
             float max_error;
-            bool use_q;
     };
 
-    class GardnerTimingRecovery: public TimingRecovery {
+    template <typename T>
+    class GardnerTimingRecovery: public TimingRecovery<T> {
         public:
-            using TimingRecovery::TimingRecovery;
+            using TimingRecovery<T>::TimingRecovery;
         protected:
             float getError() override;
             int getErrorSign() override { return -1; }
     };
 
-    class EarlyLateTimingRecovery: public TimingRecovery {
+    template <typename T>
+    class EarlyLateTimingRecovery: public TimingRecovery<T> {
         public:
-            using TimingRecovery::TimingRecovery;
+            using TimingRecovery<T>::TimingRecovery;
         protected:
             float getError() override;
             int getErrorSign() override { return 1; }

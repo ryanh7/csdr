@@ -554,16 +554,28 @@ VaricodeDecoderCommand::VaricodeDecoderCommand(): Command("varicodedecode", "Dec
 }
 
 TimingRecoveryCommand::TimingRecoveryCommand(): Command("timingrecovery", "Timing recovery") {
+    add_set("-f,--format", format, {"float", "complex"}, "Data format", true);
     add_set("-a,--algorithm", algorithm, {"gardner", "earlylate"}, "Algorithm to be used", true);
     add_option("decimation", decimation, "Decimation (samples per symbol)")->required();
     add_option("loop_gain", loop_gain, "Loop gain", true);
     add_option("max_error", max_error, "Max allowed error", true);
-    add_flag("-q,--add_q", use_q, "Also use the Q component");
     callback( [this] () {
         if (algorithm == "gardner") {
-            runModule(new GardnerTimingRecovery(decimation, loop_gain, max_error, use_q));
+            if (format == "float") {
+                runModule(new GardnerTimingRecovery<float>(decimation, loop_gain, max_error));
+            } else if (format == "complex") {
+                runModule(new GardnerTimingRecovery<complex<float>>(decimation, loop_gain, max_error));
+            } else {
+                std::cerr << "Invalid format: \"" << format << "\"\n";
+            }
         } else if (algorithm == "earlylate") {
-            runModule(new EarlyLateTimingRecovery(decimation, loop_gain, max_error, use_q));
+            if (format == "float") {
+                runModule(new EarlyLateTimingRecovery<float>(decimation, loop_gain, max_error));
+            } else if (format == "complex") {
+                runModule(new EarlyLateTimingRecovery<complex<float>>(decimation, loop_gain, max_error));
+            } else {
+                std::cerr << "Invalid format: \"" << format << "\"\n";
+            }
         } else {
             std::cerr << "Invalid algorithm: \"" << algorithm << "\"\n";
         }

@@ -247,10 +247,10 @@ namespace Csdr {
         public:
             TimingRecoveryCommand();
         private:
+            std::string format = "float";
             unsigned int decimation = 0;
             float loop_gain = 0.5f;
             float max_error = 2.0f;
-            bool use_q = false;
             std::string algorithm = "gardner";
     };
 
