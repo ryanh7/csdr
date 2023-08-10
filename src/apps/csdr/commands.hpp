@@ -33,6 +33,8 @@ namespace Csdr {
         protected:
             template <typename T, typename U>
             void runModule(Module<T, U>* module);
+            template <typename T>
+            void runSource(Source<T>* source);
             virtual void processFifoData(std::string data) {}
             virtual size_t bufferSize() { return 10485760; }
             std::string fifoName = "";
@@ -249,6 +251,11 @@ namespace Csdr {
             float max_error = 2.0f;
             bool use_q = false;
             std::string algorithm = "gardner";
+    };
+
+    class NoiseCommand: public Command {
+        public:
+            NoiseCommand();
     };
 
 }

@@ -40,6 +40,7 @@ along with csdr.  If not, see <https://www.gnu.org/licenses/>.
 #include "dbpsk.hpp"
 #include "varicode.hpp"
 #include "timingrecovery.hpp"
+#include "noise.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -136,6 +137,17 @@ void Command::runModule(Module<T, U>* module) {
 
     delete buffer;
     delete runner;
+}
+
+template<typename T>
+void Command::runSource(Source<T>* source) {
+    auto writer = new StdoutWriter<T>();
+    source->setWriter(writer);
+
+    bool run = true;
+    while (run) {
+        sleep(1);
+    }
 }
 
 CLI::Option* Command::addFifoOption() {
@@ -554,5 +566,11 @@ TimingRecoveryCommand::TimingRecoveryCommand(): Command("timingrecovery", "Timin
         } else {
             std::cerr << "Invalid algorithm: \"" << algorithm << "\"\n";
         }
+    });
+}
+
+NoiseCommand::NoiseCommand(): Command("noise", "Noise generator") {
+    callback([this] () {
+        runSource(new NoiseSource<complex<float>>());
     });
 }

@@ -72,6 +72,7 @@ Files: include/benchmark.hpp
  include/fractionaldecimator.hpp
  include/logaveragepower.hpp
  include/logpower.hpp
+ include/noise.hpp
  include/shift.hpp
  include/timingrecovery.hpp
  include/varicode.hpp
@@ -86,6 +87,7 @@ Files: include/benchmark.hpp
  src/lib/fractionaldecimator.cpp
  src/lib/logaveragepower.cpp
  src/lib/logpower.cpp
+ src/lib/noise.cpp
  src/lib/shift.cpp
  src/lib/timingrecovery.cpp
  src/lib/varicode.cpp
