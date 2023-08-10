@@ -136,6 +136,7 @@ namespace Csdr {
         private:
             unsigned int decimationFactor = 1;
             float transitionBandwidth = 0.05;
+            float cutoffRate = 0.5;
             std::string window = "hamming";
     };
 

@@ -330,6 +330,7 @@ void ShiftCommand::processFifoData(std::string data) {
 FirDecimateCommand::FirDecimateCommand(): Command("firdecimate", "Decimate and filter") {
     add_option("decimation_factor", decimationFactor, "Decimation factor")->required();
     add_option("transition_bw", transitionBandwidth, "Transition bandwidth", true);
+    add_option("-c,--cutoff", cutoffRate, "Cutoff rate", true);
     add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function", true);
     callback( [this] () {
         Window* w;
@@ -343,7 +344,7 @@ FirDecimateCommand::FirDecimateCommand(): Command("firdecimate", "Decimate and f
             std::cerr << "window type \"" << window << "\" not available\n";
             return;
         }
-        runModule(new FirDecimate(decimationFactor, transitionBandwidth, w));
+        runModule(new FirDecimate(decimationFactor, transitionBandwidth, w, cutoffRate));
     });
 }
 
