@@ -6,6 +6,7 @@ Files: CMakeLists.txt
  include/amdemod.hpp
  include/async.hpp
  include/audioresampler.hpp
+ include/baudot.hpp
  include/complex.hpp
  include/converter.hpp
  include/dcblock.hpp
@@ -21,6 +22,7 @@ Files: CMakeLists.txt
  include/reader.hpp
  include/realpart.hpp
  include/ringbuffer.hpp
+ include/rtty.hpp
  include/sink.hpp
  include/source.hpp
  include/version.hpp
@@ -38,6 +40,7 @@ Files: CMakeLists.txt
  src/lib/amdemod.cpp
  src/lib/async.cpp
  src/lib/audioresampler.cpp
+ src/lib/baudot.cpp
  src/lib/converter.cpp
  src/lib/dcblock.cpp
  src/lib/downmix.cpp
@@ -53,6 +56,7 @@ Files: CMakeLists.txt
  src/lib/reader.cpp
  src/lib/realpart.cpp
  src/lib/ringbuffer.cpp
+ src/lib/rtty.cpp
  src/lib/sink.cpp
  src/lib/source.cpp
  src/lib/version.cpp
