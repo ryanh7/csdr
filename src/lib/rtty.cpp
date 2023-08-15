@@ -31,10 +31,12 @@ RttyDecoder::RttyDecoder():
 {}
 
 bool RttyDecoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > 8;
 }
 
 void RttyDecoder::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     float* data = reader->getReadPointer();
     if (!toBit(data[0]) && toBit(data[6])) {
         unsigned char output = 0;

@@ -22,10 +22,12 @@ along with libcsdr.  If not, see <https://www.gnu.org/licenses/>.
 using namespace Csdr;
 
 bool BaudotDecoder::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return reader->available() > 0;
 }
 
 void BaudotDecoder::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     unsigned char* input = reader->getReadPointer();
     size_t length = reader->available();
     for (size_t i = 0; i < length; i++) {
