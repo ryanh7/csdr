@@ -609,3 +609,30 @@ BaudotDecodeCommand::BaudotDecodeCommand(): Command("baudotdecode", "Baudot deco
         runModule(new BaudotDecoder());
     });
 }
+
+LowpassCommand::LowpassCommand(): Command("lowpass", "Lowpass FIR filter") {
+    add_set("-f,--format", format, {"float", "complex"}, "Data format", true);
+    add_option("cutoff", cutoffRate, "Cutoff rate")->required();
+    add_option("transition_bw", transitionBandwidth, "Transition bandwidth", true);
+    add_set("-w,--window", window, {"boxcar", "blackman", "hamming"}, "Window function", true);
+    callback([this] () {
+        Window* w;
+        if (window == "boxcar") {
+            w = new BoxcarWindow();
+        } else if (window == "blackman") {
+            w = new BlackmanWindow();
+        } else if (window == "hamming") {
+            w = new HammingWindow();
+        } else {
+            std::cerr << "window type \"" << window << "\" not available\n";
+            return;
+        }
+        if (format == "float") {
+            runModule(new FilterModule<float>(new LowPassFilter<float>(cutoffRate, transitionBandwidth, w)));
+        } else if (format == "complex") {
+            runModule(new FilterModule<complex<float>>(new LowPassFilter<complex<float>>(cutoffRate, transitionBandwidth, w)));
+        } else {
+            std::cerr << "invalid format: " << format << "\n";
+        }
+    });
+}

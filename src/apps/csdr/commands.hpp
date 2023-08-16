@@ -276,4 +276,14 @@ namespace Csdr {
             BaudotDecodeCommand();
     };
 
+    class LowpassCommand: public Command {
+        public:
+            LowpassCommand();
+        private:
+            std::string format = "complex";
+            float transitionBandwidth = 0.05;
+            float cutoffRate = 0.5;
+            std::string window = "hamming";
+    };
+
 }

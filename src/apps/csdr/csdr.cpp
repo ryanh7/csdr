@@ -68,6 +68,7 @@ int Cli::main(int argc, char** argv) {
     app.add_subcommand(std::shared_ptr<CLI::App>(new Phasedemodcommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new RttyDecodeCommand()));
     app.add_subcommand(std::shared_ptr<CLI::App>(new BaudotDecodeCommand()));
+    app.add_subcommand(std::shared_ptr<CLI::App>(new LowpassCommand()));
 
     app.add_subcommand(std::shared_ptr<CLI::App>(new BenchmarkCommand()));
 
