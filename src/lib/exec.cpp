@@ -104,5 +104,7 @@ void ExecModule<T, U>::process() {
 }
 
 namespace Csdr {
+    template class ExecModule<complex<short>, short>;
     template class ExecModule<short, short>;
+    template class ExecModule<short, unsigned char>;
 }
