@@ -19,8 +19,8 @@ namespace Csdr {
             void readLoop();
             std::vector<std::string> args;
             pid_t child_pid = 0;
-            int readPipe;
-            int writePipe;
+            int readPipe = -1;
+            int writePipe = -1;
             std::thread* readThread = nullptr;
             bool run = true;
     };

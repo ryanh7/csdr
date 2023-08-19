@@ -27,6 +27,8 @@ ExecModule<T, U>::~ExecModule<T, U>() {
         delete readThread;
         readThread = nullptr;
     }
+    close(this->readPipe);
+    close(this->writePipe);
 }
 
 template <typename T, typename U>
@@ -39,10 +41,10 @@ void ExecModule<T, U>::startChild() {
     }
     c_args[s] = NULL;
 
-    int readPipe[2];
-    pipe(readPipe);
-    int writePipe[2];
-    pipe(writePipe);
+    int readPipes[2];
+    pipe(readPipes);
+    int writePipes[2];
+    pipe(writePipes);
 
     child_pid = fork();
     int r;
@@ -50,13 +52,15 @@ void ExecModule<T, U>::startChild() {
         case -1:
             throw std::runtime_error("could not fork");
         case 0:
-            close(readPipe[0]);
-            dup2(readPipe[1], STDOUT_FILENO);
-            close(readPipe[1]);
+            // we are the child.
+            // set up pipes and exec()
+            close(readPipes[0]);
+            dup2(readPipes[1], STDOUT_FILENO);
+            close(readPipes[1]);
 
-            close(writePipe[1]);
-            dup2(writePipe[0], STDIN_FILENO);
-            close(writePipe[0]);
+            close(writePipes[1]);
+            dup2(writePipes[0], STDIN_FILENO);
+            close(writePipes[0]);
 
             r = execvp(file, c_args);
             if (r != 0) {
@@ -64,11 +68,12 @@ void ExecModule<T, U>::startChild() {
             }
             break;
         default:
-            // we are the parent, and pid is the child PID
-            close(readPipe[1]);
-            this->readPipe = readPipe[0];
-            close(writePipe[0]);
-            this->writePipe = writePipe[1];
+            // we are the parent; pid is the child's PID
+            // set up pipes and reader thread
+            close(readPipes[1]);
+            this->readPipe = readPipes[0];
+            close(writePipes[0]);
+            this->writePipe = writePipes[1];
             readThread = new std::thread([this] { readLoop(); });
             break;
     }
@@ -88,12 +93,12 @@ void ExecModule<T, U>::readLoop() {
 template <typename T, typename U>
 void ExecModule<T, U>::setWriter(Writer<U> *writer) {
     Module<T, U>::setWriter(writer);
-    if (writer != nullptr) startChild();
+    if (writer != nullptr && child_pid == 0) startChild();
 }
 
 template <typename T, typename U>
 bool ExecModule<T, U>::canProcess() {
-    return this->reader->available() > 0;
+    return this->writePipe != -1 && this->reader->available() > 0;
 }
 
 template <typename T, typename U>
