@@ -6,16 +6,25 @@
 
 namespace Csdr {
 
+    class UntypedExecModule {
+        public:
+            virtual void reload() = 0;
+            virtual void restart() = 0;
+    };
+
     template<typename T, typename U>
-    class ExecModule: public Module<T, U> {
+    class ExecModule: public UntypedExecModule, public Module<T, U> {
         public:
             explicit ExecModule(std::vector<std::string> args);
             ~ExecModule();
             bool canProcess() override;
             void process() override;
             void setWriter(Writer<U>* writer) override;
+            void reload() override;
+            void restart() override;
         private:
             void startChild();
+            void stopChild();
             void readLoop();
             std::vector<std::string> args;
             pid_t child_pid = 0;

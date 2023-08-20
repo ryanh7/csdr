@@ -19,18 +19,7 @@ ExecModule<T, U>::ExecModule(std::vector<std::string> args):
 
 template <typename T, typename U>
 ExecModule<T, U>::~ExecModule<T, U>() {
-    run = false;
-    if (child_pid != 0) {
-        kill(child_pid, SIGTERM);
-        waitpid(child_pid, NULL, 0);
-    }
-    if (readThread != nullptr) {
-        readThread->join();
-        delete readThread;
-        readThread = nullptr;
-    }
-    close(this->readPipe);
-    close(this->writePipe);
+    stopChild();
 }
 
 template <typename T, typename U>
@@ -75,12 +64,33 @@ void ExecModule<T, U>::startChild() {
             this->readPipe = readPipes[0];
             close(writePipes[0]);
             this->writePipe = writePipes[1];
+            if (this->writer != nullptr) {
+                run = true;
+                readThread = new std::thread([this] { readLoop(); });
+            }
             break;
     }
 }
 
 template <typename T, typename U>
+void ExecModule<T, U>::stopChild() {
+    run = false;
+    if (child_pid != 0) {
+        kill(child_pid, SIGTERM);
+        close(this->readPipe);
+        close(this->writePipe);
+        waitpid(child_pid, NULL, 0);
+    }
+    if (readThread != nullptr) {
+        readThread->join();
+        delete readThread;
+        readThread = nullptr;
+    }
+}
+
+template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
+    std::cerr << "read lopp starting\n";
     size_t available;
     size_t read_bytes;
     while (run) {
@@ -100,6 +110,7 @@ template <typename T, typename U>
 void ExecModule<T, U>::setWriter(Writer<U> *writer) {
     Module<T, U>::setWriter(writer);
     if (writer != nullptr && readThread == nullptr) {
+        run = true;
         readThread = new std::thread([this] { readLoop(); });
     }
 }
@@ -114,6 +125,19 @@ void ExecModule<T, U>::process() {
     size_t size = std::min(this->reader->available(), (size_t) 1024);
     write(this->writePipe, this->reader->getReadPointer(), size * sizeof(T));
     this->reader->advance(size);
+}
+
+template <typename T, typename U>
+void ExecModule<T, U>::reload() {
+    if (this->child_pid != 0) {
+        kill(this->child_pid, SIGHUP);
+    }
+}
+
+template <typename T, typename U>
+void ExecModule<T, U>::restart() {
+    stopChild();
+    startChild();
 }
 
 namespace Csdr {
