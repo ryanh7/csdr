@@ -13,7 +13,9 @@ template <typename T, typename U>
 ExecModule<T, U>::ExecModule(std::vector<std::string> args):
     Module<T, U>(),
     args(std::move(args))
-{}
+{
+    startChild();
+}
 
 template <typename T, typename U>
 ExecModule<T, U>::~ExecModule<T, U>() {
@@ -34,7 +36,6 @@ ExecModule<T, U>::~ExecModule<T, U>() {
 template <typename T, typename U>
 void ExecModule<T, U>::startChild() {
     size_t s = args.size();
-    const char* file = args[0].c_str();
     char* c_args[s];
     for (size_t i = 0; i < s; i++) {
         c_args[i] = (char*) args[i].c_str();
@@ -62,7 +63,7 @@ void ExecModule<T, U>::startChild() {
             dup2(writePipes[0], STDIN_FILENO);
             close(writePipes[0]);
 
-            r = execvp(file, c_args);
+            r = execvp(c_args[0], c_args);
             if (r != 0) {
                 throw std::runtime_error("could not exec");
             }
@@ -74,26 +75,33 @@ void ExecModule<T, U>::startChild() {
             this->readPipe = readPipes[0];
             close(writePipes[0]);
             this->writePipe = writePipes[1];
-            readThread = new std::thread([this] { readLoop(); });
             break;
     }
 }
 
 template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
-    size_t length;
-    while(run && (length = read(this->readPipe, this->writer->getWritePointer(), 1024)) != 0) {
-        std::cerr << "read " << length << " bytes from child\n";
-        this->writer->advance(length / sizeof(U));
+    size_t available;
+    size_t read_bytes;
+    while (run) {
+        available = std::min(this->writer->writeable(), (size_t) 1024) * sizeof(U) - offset;
+        read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + offset, available);
+        if (read_bytes <= 0) {
+            run = false;
+        } else {
+            this->writer->advance((offset + read_bytes) / sizeof(U));
+            offset = (offset + read_bytes) % sizeof(U);
+        }
     }
     std::cerr << "read loop ending\n";
-    close(this->readPipe);
 }
 
 template <typename T, typename U>
 void ExecModule<T, U>::setWriter(Writer<U> *writer) {
     Module<T, U>::setWriter(writer);
-    if (writer != nullptr && child_pid == 0) startChild();
+    if (writer != nullptr && readThread == nullptr) {
+        readThread = new std::thread([this] { readLoop(); });
+    }
 }
 
 template <typename T, typename U>

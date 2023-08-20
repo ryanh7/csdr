@@ -23,6 +23,7 @@ namespace Csdr {
             int writePipe = -1;
             std::thread* readThread = nullptr;
             bool run = true;
+            int offset = 0;
     };
 
 }
