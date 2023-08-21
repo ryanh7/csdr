@@ -2,7 +2,6 @@
 
 #include <unistd.h>
 #include <sys/wait.h>
-#include <csignal>
 #include <thread>
 #include <utility>
 #include <iostream>
@@ -24,6 +23,7 @@ ExecModule<T, U>::~ExecModule<T, U>() {
 
 template <typename T, typename U>
 void ExecModule<T, U>::startChild() {
+    std::lock_guard<std::mutex> lock(this->childMutex);
     size_t s = args.size();
     char* c_args[s];
     for (size_t i = 0; i < s; i++) {
@@ -74,6 +74,7 @@ void ExecModule<T, U>::startChild() {
 
 template <typename T, typename U>
 void ExecModule<T, U>::stopChild() {
+    std::lock_guard<std::mutex> lock(this->childMutex);
     run = false;
     if (child_pid != 0) {
         kill(child_pid, SIGTERM);
@@ -90,7 +91,7 @@ void ExecModule<T, U>::stopChild() {
 
 template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
-    std::cerr << "read lopp starting\n";
+    std::cerr << "read loop starting\n";
     size_t available;
     size_t read_bytes;
     while (run) {
@@ -110,6 +111,7 @@ template <typename T, typename U>
 void ExecModule<T, U>::setWriter(Writer<U> *writer) {
     Module<T, U>::setWriter(writer);
     if (writer != nullptr && readThread == nullptr) {
+        std::lock_guard<std::mutex> lock(this->childMutex);
         run = true;
         readThread = new std::thread([this] { readLoop(); });
     }
@@ -117,11 +119,13 @@ void ExecModule<T, U>::setWriter(Writer<U> *writer) {
 
 template <typename T, typename U>
 bool ExecModule<T, U>::canProcess() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     return this->writePipe != -1 && this->reader->available() > 0;
 }
 
 template <typename T, typename U>
 void ExecModule<T, U>::process() {
+    std::lock_guard<std::mutex> lock(this->processMutex);
     size_t size = std::min(this->reader->available(), (size_t) 1024);
     write(this->writePipe, this->reader->getReadPointer(), size * sizeof(T));
     this->reader->advance(size);

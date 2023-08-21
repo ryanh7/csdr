@@ -27,6 +27,7 @@ namespace Csdr {
             void stopChild();
             void readLoop();
             std::vector<std::string> args;
+            std::mutex childMutex;
             pid_t child_pid = 0;
             int readPipe = -1;
             int writePipe = -1;
