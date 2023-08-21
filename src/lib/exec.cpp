@@ -5,6 +5,7 @@
 #include <thread>
 #include <utility>
 #include <iostream>
+#include <cstring>
 
 using namespace Csdr;
 
@@ -53,10 +54,14 @@ void ExecModule<T, U>::startChild() {
             close(writePipes[0]);
 
             r = execvp(c_args[0], c_args);
-            if (r != 0) {
-                throw std::runtime_error("could not exec");
+            // if we're still here, that means we encountered an error.
+            if (r == -1) {
+                std::cerr << "could not exec(): " << strerror(errno) << "\n";
+            } else {
+                std::cerr << "exec() failed for unknown reason (r = " << r << ")\n";
             }
-            break;
+            // gotta get out somehow since we fork()ed
+            exit(-1);
         default:
             // we are the parent; pid is the child's PID
             // set up pipes and reader thread
@@ -74,13 +79,14 @@ void ExecModule<T, U>::startChild() {
 
 template <typename T, typename U>
 void ExecModule<T, U>::stopChild() {
-    std::lock_guard<std::mutex> lock(this->childMutex);
-    run = false;
-    if (child_pid != 0) {
-        kill(child_pid, SIGTERM);
-        close(this->readPipe);
-        close(this->writePipe);
-        waitpid(child_pid, NULL, 0);
+    {
+        std::lock_guard<std::mutex> lock(this->childMutex);
+        run = false;
+        if (child_pid != 0) {
+            kill(child_pid, SIGTERM);
+            // this should unblock any read calls in the reader thread, too
+            closePipes();
+        }
     }
     if (readThread != nullptr) {
         readThread->join();
@@ -91,7 +97,6 @@ void ExecModule<T, U>::stopChild() {
 
 template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
-    std::cerr << "read loop starting\n";
     size_t available;
     size_t read_bytes;
     while (run) {
@@ -104,7 +109,30 @@ void ExecModule<T, U>::readLoop() {
             offset = (offset + read_bytes) % sizeof(U);
         }
     }
-    std::cerr << "read loop ending\n";
+    {
+        std::lock_guard<std::mutex> lock(this->childMutex);
+        if (child_pid != 0) {
+            closePipes();
+            pid_t rc = 0;
+            waitpid(child_pid, &rc, 0);
+            if (rc != 0) {
+                std::cerr << "child exited with rc = " << rc << "\n";
+            }
+            child_pid = 0;
+        }
+    }
+}
+
+template <typename T, typename U>
+void ExecModule<T, U>::closePipes() {
+    if (this->readPipe != -1) {
+        close(this->readPipe);
+        this->readPipe = -1;
+    }
+    if (this->writePipe != -1) {
+        close(this->writePipe);
+        this->writePipe = -1;
+    }
 }
 
 template <typename T, typename U>
