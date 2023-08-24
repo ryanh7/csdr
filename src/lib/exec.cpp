@@ -10,12 +10,18 @@
 using namespace Csdr;
 
 template <typename T, typename U>
-ExecModule<T, U>::ExecModule(std::vector<std::string> args):
+ExecModule<T, U>::ExecModule(std::vector<std::string> args, size_t flushSize):
     Module<T, U>(),
-    args(std::move(args))
+    args(std::move(args)),
+    flushSize(flushSize)
 {
     startChild();
 }
+
+template <typename T, typename U>
+ExecModule<T, U>::ExecModule(std::vector<std::string> args):
+    ExecModule(std::move(args), 0)
+{}
 
 template <typename T, typename U>
 ExecModule<T, U>::~ExecModule<T, U>() {
@@ -84,6 +90,10 @@ void ExecModule<T, U>::stopChild() {
         run = false;
         if (child_pid != 0) {
             kill(child_pid, SIGTERM);
+            if (flushSize > 0) {
+                T toflush[flushSize] = {0};
+                write(this->writePipe, &toflush, sizeof(T) * flushSize);
+            }
             // this should unblock any read calls in the reader thread, too
             closePipes();
         }
