@@ -94,8 +94,34 @@ void ExecModule<T, U>::stopChild() {
                 T toflush[flushSize] = {0};
                 write(this->writePipe, &toflush, sizeof(T) * flushSize);
             }
-            // this should unblock any read calls in the reader thread, too
+            // this probably has no effect
             closePipes();
+
+            pid_t rc = 0, r = 0;
+
+            // 50 retries with a 100ms delay ~= 5 second timeout
+            int retries = 50;
+            while (retries--) {
+                r = waitpid(child_pid, &rc, WNOHANG);
+                if (r == 0) {
+                    // 100ms delay
+                    struct timespec delay = {0, 100000000}, remaining = {0, 0};
+                    nanosleep(&delay, &remaining);
+                } else {
+                    break;
+                }
+            }
+            if (r == -1) {
+                std::cerr << "waitpid failed: " << strerror(errno) << "\n";
+            } else if (r == 0) {
+                std::cerr << "child failed to terminate within 5 seconds, sending SIGKILL...\n";
+                kill(child_pid, SIGKILL);
+                r = waitpid(child_pid, &rc, 0);
+            }
+            if (rc != 0) {
+                std::cerr << "child exited with rc = " << rc << "\n";
+            }
+            child_pid = 0;
         }
     }
     if (readThread != nullptr) {
@@ -119,18 +145,7 @@ void ExecModule<T, U>::readLoop() {
             offset = (offset + read_bytes) % sizeof(U);
         }
     }
-    {
-        std::lock_guard<std::mutex> lock(this->childMutex);
-        if (child_pid != 0) {
-            closePipes();
-            pid_t rc = 0;
-            waitpid(child_pid, &rc, 0);
-            if (rc != 0) {
-                std::cerr << "child exited with rc = " << rc << "\n";
-            }
-            child_pid = 0;
-        }
-    }
+    closePipes();
 }
 
 template <typename T, typename U>
