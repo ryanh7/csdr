@@ -4,7 +4,7 @@ Section: hamradio
 Priority: optional
 Rules-Requires-Root: no
 Standards-Version: 4.3.0
-Build-Depends: debhelper (>= 10), libfftw3-dev (>= 3.3), libsamplerate0-dev (>= 0.1.8)
+Build-Depends: debhelper (>= 10), cmake, libfftw3-dev (>= 3.3), libsamplerate0-dev (>= 0.1.8)
 
 Package: libcsdr0
 Architecture: any
