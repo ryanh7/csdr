@@ -1,5 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
+Files: debian/*
+Copyright: 2019-2023 Jakob Ketterl <jakob.ketterl@gmx.de>
+License: GPL-3+
+
 Files: CMakeLists.txt
  cmake/DetectIfunc.cmake
  cmake/ifunc_test.c
@@ -11,6 +15,7 @@ Files: CMakeLists.txt
  include/converter.hpp
  include/dcblock.hpp
  include/downmix.hpp
+ include/exec.hpp
  include/fft.hpp
  include/filter.hpp
  include/firdecimate.hpp
@@ -44,6 +49,7 @@ Files: CMakeLists.txt
  src/lib/converter.cpp
  src/lib/dcblock.cpp
  src/lib/downmix.cpp
+ src/lib/exec.cpp
  src/lib/fft.cpp
  src/lib/filter.cpp
  src/lib/firdecimate.cpp
