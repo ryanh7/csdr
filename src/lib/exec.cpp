@@ -169,13 +169,19 @@ void ExecModule<T, U>::readLoop() {
     size_t available;
     ssize_t read_bytes;
     while (run) {
-        available = std::min(this->writer->writeable(), (size_t) 1024) * sizeof(U) - readOffset;
-        read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + readOffset, available);
-        if (read_bytes <= 0) {
+        available = this->writer->writeable();
+        if (available == 0) {
+            std::cerr << "ExecModule writer cannot accept data. Stopping readLoop";
             run = false;
         } else {
-            this->writer->advance((readOffset + read_bytes) / sizeof(U));
-            readOffset = (readOffset + read_bytes) % sizeof(U);
+            available = std::min(available, (size_t) 1024) * sizeof(U) - readOffset;
+            read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + readOffset, available);
+            if (read_bytes <= 0) {
+                run = false;
+            } else {
+                this->writer->advance((readOffset + read_bytes) / sizeof(U));
+                readOffset = (readOffset + read_bytes) % sizeof(U);
+            }
         }
     }
     closePipes();
