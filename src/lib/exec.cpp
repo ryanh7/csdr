@@ -221,6 +221,8 @@ void ExecModule<T, U>::process() {
     size_t size = std::min(this->reader->available(), (size_t) 1024) * sizeof(T) - writeOffset;
     ssize_t written = write(this->writePipe, ((char*) this->reader->getReadPointer()) + writeOffset, size);
     if (written == -1) {
+        // EAGAIN may happen since writePipe is non-blocking.
+        if (errno == EAGAIN) return;
         std::cerr << "error writing data to child pipe: " << strerror(errno) << "\n";
         return;
     }
