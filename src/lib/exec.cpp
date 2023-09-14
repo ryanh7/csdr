@@ -51,6 +51,11 @@ ExecModule<T, U>::~ExecModule<T, U>() {
 template <typename T, typename U>
 void ExecModule<T, U>::startChild() {
     std::lock_guard<std::mutex> lock(this->childMutex);
+
+    if (child_pid != 0) {
+        throw std::runtime_error("ExecModule child is already running");
+    }
+
     size_t s = args.size();
     char* c_args[s];
     for (size_t i = 0; i < s; i++) {
@@ -100,6 +105,9 @@ void ExecModule<T, U>::startChild() {
             }
             this->writePipe = writePipes[1];
             if (this->writer != nullptr) {
+                if (readThread != nullptr) {
+                    throw std::runtime_error("ExecModule reader thread  is already running");
+                }
                 run = true;
                 readThread = new std::thread([this] { readLoop(); });
             }
