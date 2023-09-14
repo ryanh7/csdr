@@ -167,7 +167,7 @@ void ExecModule<T, U>::stopChild() {
 template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
     size_t available;
-    size_t read_bytes;
+    ssize_t read_bytes;
     while (run) {
         available = std::min(this->writer->writeable(), (size_t) 1024) * sizeof(U) - readOffset;
         read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + readOffset, available);
@@ -213,7 +213,7 @@ template <typename T, typename U>
 void ExecModule<T, U>::process() {
     std::lock_guard<std::mutex> lock(this->processMutex);
     size_t size = std::min(this->reader->available(), (size_t) 1024) * sizeof(T) - writeOffset;
-    size_t written = write(this->writePipe, ((char*) this->reader->getReadPointer()) + writeOffset, size);
+    ssize_t written = write(this->writePipe, ((char*) this->reader->getReadPointer()) + writeOffset, size);
     if (written == -1) {
         std::cerr << "error writing data to child pipe: " << strerror(errno) << "\n";
         return;
