@@ -218,7 +218,11 @@ bool ExecModule<T, U>::canProcess() {
 template <typename T, typename U>
 void ExecModule<T, U>::process() {
     std::lock_guard<std::mutex> lock(this->processMutex);
-    size_t size = std::min(this->reader->available(), (size_t) 1024) * sizeof(T) - writeOffset;
+
+    size_t available = this->reader->available();
+    if (available == 0) return;
+
+    size_t size = std::min(available, (size_t) 1024) * sizeof(T) - writeOffset;
     ssize_t written = write(this->writePipe, ((char*) this->reader->getReadPointer()) + writeOffset, size);
     if (written == -1) {
         // EAGAIN may happen since writePipe is non-blocking.
