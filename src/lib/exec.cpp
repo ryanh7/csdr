@@ -97,13 +97,19 @@ void ExecModule<T, U>::startChild() {
             // we are the parent; pid is the child's PID
             // set up pipes and reader thread
             close(readPipes[1]);
+            r = fcntl(readPipes[0], F_SETFL, fcntl(readPipes[0], F_GETFL) | O_NONBLOCK);
+            if (r == -1) {
+                std::cerr << "failed to set pipe to non-blocking: " << strerror(errno) << "\n";
+            }
             this->readPipe = readPipes[0];
+
             close(writePipes[0]);
             r = fcntl(writePipes[1], F_SETFL, fcntl(writePipes[1], F_GETFL) | O_NONBLOCK);
             if (r == -1) {
                 std::cerr << "failed to set pipe to non-blocking: " << strerror(errno) << "\n";
             }
             this->writePipe = writePipes[1];
+
             if (this->writer != nullptr) {
                 if (readThread != nullptr) {
                     throw std::runtime_error("ExecModule reader thread  is already running");
@@ -168,19 +174,38 @@ template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
     size_t available;
     ssize_t read_bytes;
+    fd_set fds;
+
     while (run) {
-        available = this->writer->writeable();
-        if (available == 0) {
-            std::cerr << "ExecModule writer cannot accept data. Stopping readLoop";
-            run = false;
-        } else {
-            available = std::min(available, (size_t) 1024) * sizeof(U) - readOffset;
-            read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + readOffset, available);
-            if (read_bytes <= 0) {
+        FD_ZERO(&fds);
+        FD_SET(this->readPipe, &fds);
+        struct timeval tv = {
+            .tv_sec = 10,
+            .tv_usec = 0
+        };
+        int nfds = this->readPipe + 1;
+        int rc = select(nfds, &fds, NULL, NULL, &tv);
+        if (rc == -1) {
+            std::cerr << "select() failed: " << strerror(errno) << "\n";
+            return;
+        }
+        if (FD_ISSET(this->readPipe, &fds)) {
+            std::lock_guard<std::mutex> lock(this->processMutex);
+            available = this->writer->writeable();
+            if (available == 0) {
+                std::cerr << "ExecModule writer cannot accept data. Stopping readLoop";
                 run = false;
             } else {
-                this->writer->advance((readOffset + read_bytes) / sizeof(U));
-                readOffset = (readOffset + read_bytes) % sizeof(U);
+                available = std::min(available, (size_t) 1024) * sizeof(U) - readOffset;
+                read_bytes = read(this->readPipe, ((char*) this->writer->getWritePointer()) + readOffset, available);
+                if (read_bytes <= 0) {
+                    if (errno != EAGAIN) {
+                        run = false;
+                    }
+                } else {
+                    this->writer->advance((readOffset + read_bytes) / sizeof(U));
+                    readOffset = (readOffset + read_bytes) % sizeof(U);
+                }
             }
         }
     }
