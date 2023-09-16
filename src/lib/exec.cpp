@@ -175,7 +175,6 @@ template <typename T, typename U>
 void ExecModule<T, U>::readLoop() {
     size_t available;
     ssize_t read_bytes;
-    fd_set fds;
 
     while (run) {
         pollfd pfd {
